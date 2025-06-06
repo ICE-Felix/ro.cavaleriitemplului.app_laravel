@@ -29,15 +29,15 @@ jobs:
         ssh-keyscan -H ${{ secrets.DEPLOY_SERVER }} >> ~/.ssh/known_hosts
       shell: bash
 
-    - name: Backup files on remote server
-      run: |
-        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
-          cp ${DEPLOY_PATH}/.env ${DEPLOY_PATH}/.. && \
-          cp ${DEPLOY_PATH}/.htaccess ${DEPLOY_PATH}/.. && \
-          cp -r ${DEPLOY_PATH}/storage/logs ${DEPLOY_PATH}/.."
-      shell: bash -e {0}
-      env:
-        DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+    # - name: Backup files on remote server
+    #   run: |
+    #     ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
+    #       cp ${DEPLOY_PATH}/.env ${DEPLOY_PATH}/.. && \
+    #       cp ${DEPLOY_PATH}/.htaccess ${DEPLOY_PATH}/.. && \
+    #       cp -r ${DEPLOY_PATH}/storage/logs ${DEPLOY_PATH}/.."
+    #   shell: bash -e {0}
+    #   env:
+    #     DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
 
     - name: Zip deployment files
       run: zip -r deployment.zip . -x "*.git*"
