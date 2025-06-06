@@ -62,16 +62,16 @@ jobs:
           [ -d ../storage/logs ] && mv ../storage/logs ./storage/ || echo 'storage/logs directory does not exist, skipping'"
       shell: bash
       
-    - name: Install NVM and Node.js
-      run: |
-        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash && \
-          export NVM_DIR=\\\"$HOME/.nvm\\\" && \
-          [ -s \\\"$NVM_DIR/nvm.sh\\\" ] && \\. \\\"$NVM_DIR/nvm.sh\\\" && \
-          [ -s \\\"$NVM_DIR/bash_completion\\\" ] && \\. \\\"$NVM_DIR/bash_completion\\\" && \
-          nvm install 20 && \
-          nvm use 20"
-      shell: bash
+    # - name: Install NVM and Node.js
+    #   run: |
+    #     ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
+    #       curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash && \
+    #       export NVM_DIR=\\\"$HOME/.nvm\\\" && \
+    #       [ -s \\\"$NVM_DIR/nvm.sh\\\" ] && \\. \\\"$NVM_DIR/nvm.sh\\\" && \
+    #       [ -s \\\"$NVM_DIR/bash_completion\\\" ] && \\. \\\"$NVM_DIR/bash_completion\\\" && \
+    #       nvm install 20 && \
+    #       nvm use 20"
+    #   shell: bash
         
     - name: Install dependencies and Vite
       run: |
