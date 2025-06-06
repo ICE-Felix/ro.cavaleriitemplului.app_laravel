@@ -1,0 +1,2473 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <title>Colors - Components - UI - Yeti</title>
+
+    <!-- Generics -->
+    <link rel="icon" href="assets/images/favicon/favicon-32.png" sizes="32x32">
+    <link rel="icon" href="assets/images/favicon/favicon-128.png" sizes="128x128">
+    <link rel="icon" href="assets/images/favicon/favicon-192.png" sizes="192x192">
+
+    <!-- Android -->
+    <link rel="shortcut icon" href="assets/images/favicon/favicon-196.png" sizes="196x196">
+
+    <!-- iOS -->
+    <link rel="apple-touch-icon" href="assets/images/favicon/favicon-152.png" sizes="152x152">
+    <link rel="apple-touch-icon" href="assets/images/favicon/favicon-167.png" sizes="167x167">
+    <link rel="apple-touch-icon" href="assets/images/favicon/favicon-180.png" sizes="180x180">
+
+    <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body>
+
+    <!-- Top Bar -->
+    <header class="top-bar">
+
+        <!-- Menu Toggler -->
+        <button class="menu-toggler la la-bars" data-toggle="menu"></button>
+
+        <!-- Brand -->
+        <span class="brand">Yeti</span>
+
+        <!-- Search -->
+        <form class="hidden md:block ltr:ml-10 rtl:mr-10">
+            <label class="form-control-addon-within rounded-full">
+                <input class="form-control border-none" placeholder="Search">
+                <button
+                    class="text-gray-300 dark:text-gray-700 text-xl leading-none la la-search ltr:mr-4 rtl:ml-4"></button>
+            </label>
+        </form>
+
+        <!-- Right -->
+        <div class="flex items-center ltr:ml-auto rtl:mr-auto">
+
+            <!-- Dark Mode -->
+            <label class="switch switch_outlined" data-toggle="tooltip" data-tippy-content="Toggle Dark Mode">
+                <input id="darkModeToggler" type="checkbox">
+                <span></span>
+            </label>
+
+            <!-- Fullscreen -->
+            <button id="fullScreenToggler"
+                class="hidden lg:inline-block ltr:ml-3 rtl:mr-3 px-2 text-2xl leading-none la la-expand-arrows-alt"
+                data-toggle="tooltip" data-tippy-content="Fullscreen"></button>
+
+            <!-- Apps -->
+            <div class="dropdown self-stretch">
+                <button
+                    class="flex items-center h-full ltr:ml-4 rtl:mr-4 lg:ltr:ml-1 lg:rtl:mr-1 px-2 text-2xl leading-none la la-box"
+                    data-toggle="custom-dropdown-menu" data-tippy-arrow="true" data-tippy-placement="bottom">
+                </button>
+                <div class="custom-dropdown-menu p-5 text-center">
+                    <div class="flex justify-around">
+                        <a href="#no-link" class="p-5 text-normal hover:text-primary">
+                            <span class="block la la-cog text-5xl leading-none"></span>
+                            <span>Settings</span>
+                        </a>
+                        <a href="#no-link" class="p-5 text-normal hover:text-primary">
+                            <span class="block la la-users text-5xl leading-none"></span>
+                            <span>Users</span>
+                        </a>
+                    </div>
+                    <div class="flex justify-around">
+                        <a href="#no-link" class="p-5 text-normal hover:text-primary">
+                            <span class="block la la-book text-5xl leading-none"></span>
+                            <span>Docs</span>
+                        </a>
+                        <a href="#no-link" class="p-5 text-normal hover:text-primary">
+                            <span class="block la la-dollar text-5xl leading-none"></span>
+                            <span>Shop</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications -->
+            <div class="dropdown self-stretch">
+                <button class="relative flex items-center h-full ltr:ml-1 rtl:mr-1 px-2 text-2xl leading-none la la-bell"
+                    data-toggle="custom-dropdown-menu" data-tippy-arrow="true" data-tippy-placement="bottom-end">
+                    <span
+                        class="absolute top-0 right-0 rounded-full border border-primary -mt-1 -mr-1 px-2 leading-tight text-xs font-body text-primary">3</span>
+                </button>
+                <div class="custom-dropdown-menu">
+                    <div class="flex items-center px-5 py-2">
+                        <h5 class="mb-0 uppercase">Notifications</h5>
+                        <button class="btn btn_outlined btn_warning uppercase ltr:ml-auto rtl:mr-auto">Clear All</button>
+                    </div>
+                    <hr>
+                    <div class="p-5 hover:bg-primary hover:bg-opacity-5">
+                        <a href="#no-link">
+                            <h6 class="uppercase">Heading One</h6>
+                        </a>
+                        <p>Lorem ipsum dolor, sit amet consectetur.</p>
+                        <small>Today</small>
+                    </div>
+                    <hr>
+                    <div class="p-5 hover:bg-primary hover:bg-opacity-5">
+                        <a href="#no-link">
+                            <h6 class="uppercase">Heading Two</h6>
+                        </a>
+                        <p>Mollitia sequi dolor architecto aut deserunt.</p>
+                        <small>Yesterday</small>
+                    </div>
+                    <hr>
+                    <div class="p-5 hover:bg-primary hover:bg-opacity-5">
+                        <a href="#no-link">
+                            <h6 class="uppercase">Heading Three</h6>
+                        </a>
+                        <p>Nobis reprehenderit sed quos deserunt</p>
+                        <small>Last Week</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Menu -->
+            <div class="dropdown">
+                <button class="flex items-center ltr:ml-4 rtl:mr-4" data-toggle="custom-dropdown-menu"
+                    data-tippy-arrow="true" data-tippy-placement="bottom-end">
+                    <span class="avatar">JD</span>
+                </button>
+                <div class="custom-dropdown-menu w-64">
+                    <div class="p-5">
+                        <h5 class="uppercase">John Doe</h5>
+                        <p>Editor</p>
+                    </div>
+                    <hr>
+                    <div class="p-5">
+                        <a href="#no-link" class="flex items-center text-normal hover:text-primary">
+                            <span class="la la-user-circle text-2xl leading-none ltr:mr-2 rtl:ml-2"></span>
+                            View Profile
+                        </a>
+                        <a href="#no-link" class="flex items-center text-normal hover:text-primary mt-5">
+                            <span class="la la-key text-2xl leading-none ltr:mr-2 rtl:ml-2"></span>
+                            Change Password
+                        </a>
+                    </div>
+                    <hr>
+                    <div class="p-5">
+                        <a href="#no-link" class="flex items-center text-normal hover:text-primary">
+                            <span class="la la-power-off text-2xl leading-none ltr:mr-2 rtl:ml-2"></span>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menu Bar -->
+    <aside class="menu-bar menu-sticky">
+        <div class="menu-items">
+            <div class="menu-header hidden">
+                <a href="/" class="flex items-center mx-8 mt-8">
+                    <span class="avatar w-16 h-16">JD</span>
+                    <div class="ltr:ml-4 rtl:mr-4 ltr:text-left rtl:text-right">
+                        <h5>John Doe</h5>
+                        <p class="mt-2">Editor</p>
+                    </div>
+                </a>
+                <hr class="mx-8 my-4">
+            </div>
+            <a href="index.html" class="link" data-toggle="tooltip-menu" data-tippy-content="Dashboard">
+                <span class="icon la la-laptop"></span>
+                <span class="title">Dashboard</span>
+            </a>
+            <button class="link" data-target="[data-menu=ui]" data-toggle="tooltip-menu" data-tippy-content="UI">
+                <span class="icon la la-cube"></span>
+                <span class="title">UI</span>
+            </button>
+            <button class="link" data-target="[data-menu=pages]" data-toggle="tooltip-menu" data-tippy-content="Pages">
+                <span class="icon la la-file-alt"></span>
+                <span class="title">Pages</span>
+            </button>
+            <button class="link" data-target="[data-menu=applications]" data-toggle="tooltip-menu"
+                data-tippy-content="Applications">
+                <span class="icon la la-store"></span>
+                <span class="title">Applications</span>
+            </button>
+            <button class="link" data-target="[data-menu=menu]" data-toggle="tooltip-menu" data-tippy-content="Menu">
+                <span class="icon la la-sitemap"></span>
+                <span class="title">Menu</span>
+            </button>
+            <a href="blank.html" class="link" data-toggle="tooltip-menu" data-tippy-content="Blank Page">
+                <span class="icon la la-file"></span>
+                <span class="title">Blank Page</span>
+            </a>
+            <a href="https://yeti.yetithemes.net/docs" target="_blank" class="link" data-toggle="tooltip-menu"
+                data-tippy-content="Docs">
+                <span class="icon la la-book-open"></span>
+                <span class="title">Docs</span>
+            </a>
+        </div>
+
+        <!-- Dashboard -->
+        <!--
+        <div class="menu-detail" data-menu="dashboard">
+            <div class="menu-detail-wrapper">
+                <a href="index.html">
+                    <span class="la la-cube"></span>
+                    Default
+                </a>
+                <a href="index.html">
+                    <span class="la la-file-alt"></span>
+                    Content
+                </a>
+                <a href="index.html">
+                    <span class="la la-shopping-bag"></span>
+                    Ecommerce
+                </a>
+            </div>
+        </div>
+        -->
+
+        <!-- UI -->
+        <div class="menu-detail" data-menu="ui">
+            <div class="menu-detail-wrapper">
+                <h6 class="uppercase">Form</h6>
+                <a href="form-components.html">
+                    <span class="la la-cubes"></span>
+                    Components
+                </a>
+                <a href="form-input-groups.html">
+                    <span class="la la-stop"></span>
+                    Input Groups
+                </a>
+                <a href="form-layout.html">
+                    <span class="la la-th-large"></span>
+                    Layout
+                </a>
+                <a href="form-validations.html">
+                    <span class="la la-check-circle"></span>
+                    Validations
+                </a>
+                <a href="form-wizards.html">
+                    <span class="la la-hand-pointer"></span>
+                    Wizards
+                </a>
+                <hr>
+                <h6 class="uppercase">Components</h6>
+                <a href="components-alerts.html">
+                    <span class="la la-bell"></span>
+                    Alerts
+                </a>
+                <a href="components-avatars.html">
+                    <span class="la la-user-circle"></span>
+                    Avatars
+                </a>
+                <a href="components-badges.html">
+                    <span class="la la-certificate"></span>
+                    Badges
+                </a>
+                <a href="components-buttons.html">
+                    <span class="la la-play"></span>
+                    Buttons
+                </a>
+                <a href="components-cards.html">
+                    <span class="la la-layer-group"></span>
+                    Cards
+                </a>
+                <a href="components-collapse.html">
+                    <span class="la la-arrow-circle-right"></span>
+                    Collapse
+                </a>
+                <a href="components-colors.html">
+                    <span class="la la-palette"></span>
+                    Colors
+                </a>
+                <a href="components-dropdowns.html">
+                    <span class="la la-arrow-circle-down"></span>
+                    Dropdowns
+                </a>
+                <a href="components-modal.html">
+                    <span class="la la-times-circle"></span>
+                    Modal
+                </a>
+                <a href="components-popovers-tooltips.html">
+                    <span class="la la-thumbtack"></span>
+                    Popovers & Tooltips
+                </a>
+                <a href="components-tabs.html">
+                    <span class="la la-columns"></span>
+                    Tabs
+                </a>
+                <a href="components-tables.html">
+                    <span class="la la-table"></span>
+                    Tables
+                </a>
+                <a href="components-toasts.html">
+                    <span class="la la-bell"></span>
+                    Toasts
+                </a>
+                <hr>
+                <h6 class="uppercase">Extras</h6>
+                <a href="extras-carousel.html">
+                    <span class="la la-images"></span>
+                    Carousel
+                </a>
+                <a href="extras-charts.html">
+                    <span class="la la-chart-area"></span>
+                    Charts
+                </a>
+                <a href="extras-editors.html">
+                    <span class="la la-keyboard"></span>
+                    Editors
+                </a>
+                <a href="extras-fullcalendar.html">
+                    <span class="la la-calendar"></span>
+                    FullCalendar
+                </a>
+                <a href="extras-sortable.html">
+                    <span class="la la-sort"></span>
+                    Sortable
+                </a>
+            </div>
+        </div>
+
+        <!-- Pages -->
+        <div class="menu-detail" data-menu="pages">
+            <div class="menu-detail-wrapper">
+                <h6 class="uppercase">Authentication</h6>
+                <a href="auth-login.html">
+                    <span class="la la-user"></span>
+                    Login
+                </a>
+                <a href="auth-forgot-password.html">
+                    <span class="la la-user-lock"></span>
+                    Forgot Password
+                </a>
+                <a href="auth-register.html">
+                    <span class="la la-user-plus"></span>
+                    Register
+                </a>
+                <hr>
+                <h6 class="uppercase">Blog</h6>
+                <a href="blog-list.html">
+                    <span class="la la-list"></span>
+                    List
+                </a>
+                <a href="blog-list-card-rows.html">
+                    <span class="la la-list"></span>
+                    List - Card Rows
+                </a>
+                <a href="blog-list-card-columns.html">
+                    <span class="la la-list"></span>
+                    List - Card Columns
+                </a>
+                <a href="blog-add.html">
+                    <span class="la la-layer-group"></span>
+                    Add Post
+                </a>
+                <hr>
+                <h6 class="uppercase">Errors</h6>
+                <a href="errors-403.html" target="_blank">
+                    <span class="la la-exclamation-circle"></span>
+                    403 Error
+                </a>
+                <a href="errors-404.html" target="_blank">
+                    <span class="la la-exclamation-circle"></span>
+                    404 Error
+                </a>
+                <a href="errors-500.html" target="_blank">
+                    <span class="la la-exclamation-circle"></span>
+                    500 Error
+                </a>
+                <a href="errors-under-maintenance.html" target="_blank">
+                    <span class="la la-exclamation-circle"></span>
+                    Under Maintenance
+                </a>
+                <hr>
+                <a href="pages-pricing.html">
+                    <span class="la la-dollar"></span>
+                    Pricing
+                </a>
+                <a href="pages-faqs-layout-1.html">
+                    <span class="la la-question-circle"></span>
+                    FAQs - Layout 1
+                </a>
+                <a href="pages-faqs-layout-2.html">
+                    <span class="la la-question-circle"></span>
+                    FAQs - Layout 2
+                </a>
+                <a href="pages-invoice.html">
+                    <span class="la la-file-invoice-dollar"></span>
+                    Invoice
+                </a>
+            </div>
+        </div>
+
+        <!-- Applications -->
+        <div class="menu-detail" data-menu="applications">
+            <div class="menu-detail-wrapper">
+                <a href="applications-media-library.html">
+                    <span class="la la-image"></span>
+                    Media Library
+                </a>
+                <a href="applications-point-of-sale.html">
+                    <span class="la la-shopping-bag"></span>
+                    Point Of Sale
+                </a>
+                <a href="applications-to-do.html">
+                    <span class="la la-check-circle"></span>
+                    To Do
+                </a>
+                <a href="applications-chat.html">
+                    <span class="la la-comment"></span>
+                    Chat
+                </a>
+            </div>
+        </div>
+
+        <!-- Menu -->
+        <div class="menu-detail" data-menu="menu">
+            <div class="menu-detail-wrapper">
+                <a href="#no-link">
+                    <span class="la la-cube"></span>
+                    Default
+                </a>
+                <a href="#no-link">
+                    <span class="la la-file-alt"></span>
+                    Content
+                </a>
+                <a href="#no-link">
+                    <span class="la la-shopping-bag"></span>
+                    Ecommerce
+                </a>
+                <hr>
+                <a href="#no-link">
+                    <span class="la la-layer-group"></span>
+                    Main Level
+                </a>
+                <a href="#no-link">
+                    <span class="la la-arrow-circle-right"></span>
+                    Grand Parent
+                </a>
+                <button class="collapsible-header active" data-toggle="collapse" data-target="#menuGrandParentOpen">
+                    <span class="collapsible-indicator la la-arrow-circle-down"></span>
+                    Grand Parent Open
+                </button>
+                <div id="menuGrandParentOpen" class="collapsible open">
+                    <a href="#no-link">
+                        <span class="la la-layer-group"></span>
+                        Sub Level
+                    </a>
+                    <a href="#no-link">
+                        <span class="la la-arrow-circle-right"></span>
+                        Parent
+                    </a>
+                    <button class="collapsible-header active" data-toggle="collapse" data-target="#menuParentOpen">
+                        <span class="collapsible-indicator la la-arrow-circle-down"></span>
+                        Parent Open
+                    </button>
+                    <div id="menuParentOpen" class="collapsible open">
+                        <a href="#no-link">
+                            <span class="la la-layer-group"></span>
+                            Sub Level
+                        </a>
+                    </div>
+                </div>
+                <hr>
+                <h6 class="uppercase">Menu Types</h6>
+                <a href="#no-link" data-toggle="menu-type" data-value="default">
+                    <span class="la la-hand-point-right"></span>
+                    Default
+                </a>
+                <a href="#no-link" data-toggle="menu-type" data-value="hidden">
+                    <span class="la la-hand-point-left"></span>
+                    Hidden
+                </a>
+                <a href="#no-link" data-toggle="menu-type" data-value="icon-only">
+                    <span class="la la-th-large"></span>
+                    Icons Only
+                </a>
+                <a href="#no-link" data-toggle="menu-type" data-value="wide">
+                    <span class="la la-arrows-alt-h"></span>
+                    Wide
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- IMPORTANT: Replace the following line with the contents from included file for Laravel Mix -->
+    <!-- Customizer -->
+    <aside id="customizer" class="sidebar sidebar_customizer">
+
+        <!-- Togglers -->
+        <div class="toggler-wrapper">
+            <div>
+                <button class="toggler" data-toggle="customizer">
+                    <span class="la la-gear animate-spin-slow"></span>
+                </button>
+                <button class="randomizer mt-2" data-toggle="randomizer">
+                    <span class="la la-random"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Theme Customizer -->
+        <div class="flex items-center justify-between h-20 p-4">
+            <div>
+                <h2>Theme Customizer</h2>
+                <p>Customize & Preview</p>
+            </div>
+            <button class="close text-2xl leading-none hover:text-primary la la-times" data-toggle="customizer"></button>
+        </div>
+        <hr>
+        <div class="overflow-y-auto">
+            <div class="flex items-center justify-between p-4">
+                <h5>Dark Mode</h5>
+                <label class="switch switch_outlined">
+                    <input data-toggle="dark-mode" type="checkbox">
+                    <span></span>
+                </label>
+            </div>
+            <hr>
+            <div class="flex items-center justify-between p-4">
+                <h5>RTL</h5>
+                <label class="switch switch_outlined">
+                    <input data-toggle="rtl" type="checkbox">
+                    <span></span>
+                </label>
+            </div>
+            <hr>
+            <div class="flex items-center justify-between p-4">
+                <div>
+                    <h5>Branded Menu</h5>
+                    <small>Menu will be set to primary color</small>
+                </div>
+                <label class="switch switch_outlined">
+                    <input data-toggle="branded-menu" type="checkbox">
+                    <span></span>
+                </label>
+            </div>
+            <hr>
+            <div class="p-4">
+                <h5>Menu Types</h5>
+                <div id="customizerMenuTypes" class="flex flex-col space-y-2 mt-5"></div>
+            </div>
+            <hr>
+            <div class="p-4">
+                <h5>Themes</h5>
+                <div id="customizerThemes" class="themes"></div>
+            </div>
+            <hr>
+            <div class="p-4">
+                <div>
+                    <h5>50 Shades of Gray</h5>
+                    <small>5 x 10 Shades</small>
+                </div>
+                <div id="customizerGrays" class="themes"></div>
+            </div>
+            <hr>
+            <div class="p-4">
+                <h5>Fonts</h5>
+                <div id="customizerFonts" class="themes fonts"></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Workspace -->
+    <main class="workspace">
+
+        <!-- Breadcrumb -->
+        <section class="breadcrumb">
+            <h1>Colors</h1>
+            <ul>
+                <li><a href="#no-link">UI</a></li>
+                <li class="divider la la-arrow-right"></li>
+                <li><a href="#no-link">Components</a></li>
+                <li class="divider la la-arrow-right"></li>
+                <li>Colors</li>
+            </ul>
+        </section>
+
+        <div class="flex flex-col gap-y-10">
+
+            <!-- Primary -->
+            <div>
+                <h3>Primary Colors</h3>
+                <div class="flex flex-col gap-y-5 card mt-5 p-5">
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Sky</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F0F9FF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#F0F9FF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#E0F2FE]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#E0F2FE</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#BAE6FD]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#BAE6FD</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#7DD3FC]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#7DD3FC</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#38BDF8]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#38BDF8</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#0EA5E9]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#0EA5E9</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#0284C7]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#0284C7</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#0369A1]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#0369A1</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#075985]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#075985</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#0C4A6E]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#0C4A6E</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#082F49]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#082F49</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Red</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FEF2F2]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#FEF2F2</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FEE2E2]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#FEE2E2</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FECACA]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#FECACA</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FCA5A5]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#FCA5A5</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F87171]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#F87171</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#EF4444]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#EF4444</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#DC2626]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#DC2626</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#B91C1C]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#B91C1C</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#991B1B]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#991B1B</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#7F1D1D]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#7F1D1D</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#450A0A]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#450A0A</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Orange</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FFF7ED]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#FFF7ED</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FFEDD5]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#FFEDD5</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FED7AA]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#FED7AA</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FDBA74]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#FDBA74</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FB923C]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#FB923C</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F97316]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#F97316</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#EA580C]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#EA580C</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#C2410C]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#C2410C</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#9A3412]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#9A3412</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#7C2D12]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#7C2D12</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#431407]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#431407</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Amber</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FFFBEB]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#FFFBEB</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FEF3C7]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#FEF3C7</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FDE68A]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#FDE68A</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FCD34D]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#FCD34D</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FBBF24]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#FBBF24</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F59E0B]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#F59E0B</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#D97706]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#D97706</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#B45309]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#B45309</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#92400E]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#92400E</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#78350F]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#78350F</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#451A03]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#451A03</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Yellow</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FEFCE8]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#FEFCE8</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FEF9C3]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#FEF9C3</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FEF08A]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#FEF08A</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FDE047]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#FDE047</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FACC15]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#FACC15</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#EAB308]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#EAB308</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#CA8A04]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#CA8A04</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#A16207]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#A16207</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#854D0E]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#854D0E</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#713F12]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#713F12</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#422006]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#422006</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Lime</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F7FEE7]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#F7FEE7</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#ECFCCB]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#ECFCCB</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#D9F99D]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#D9F99D</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#BEF264]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#BEF264</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#A3E635]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#A3E635</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#84CC16]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#84CC16</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#65A30D]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#65A30D</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#4D7C0F]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#4D7C0F</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#3F6212]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#3F6212</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#365314]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#365314</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#1A2E05]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#1A2E05</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Green</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F0FDF4]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#F0FDF4</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#DCFCE7]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#DCFCE7</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#BBF7D0]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#BBF7D0</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#86EFAC]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#86EFAC</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#4ADE80]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#4ADE80</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#22C55E]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#22C55E</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#16A34A]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#16A34A</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#15803D]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#15803D</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#166534]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#166534</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#14532D]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#14532D</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#052E16]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#052E16</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Emerald</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#ECFDF5]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#ECFDF5</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#D1FAE5]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#D1FAE5</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#A7F3D0]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#A7F3D0</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#6EE7B7]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#6EE7B7</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#34D399]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#34D399</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#10B981]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#10B981</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#059669]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#059669</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#047857]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#047857</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#065F46]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#065F46</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#064E3B]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#064E3B</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#022C22]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#022C22</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Teal</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F0FDFA]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#F0FDFA</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#CCFBF1]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#CCFBF1</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#99F6E4]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#99F6E4</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#5EEAD4]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#5EEAD4</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#2DD4BF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#2DD4BF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#14B8A6]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#14B8A6</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#0D9488]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#0D9488</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#0F766E]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#0F766E</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#115E59]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#115E59</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#134E4A]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#134E4A</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#042F2E]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#042F2E</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Cyan</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#ECFEFF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#ECFEFF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#CFFAFE]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#CFFAFE</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#A5F3FC]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#A5F3FC</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#67E8F9]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#67E8F9</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#22D3EE]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#22D3EE</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#06B6D4]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#06B6D4</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#0891B2]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#0891B2</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#0E7490]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#0E7490</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#155E75]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#155E75</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#164E63]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#164E63</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#083344]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#083344</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Blue</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#EFF6FF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#EFF6FF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#DBEAFE]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#DBEAFE</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#BFDBFE]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#BFDBFE</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#93C5FD]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#93C5FD</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#60A5FA]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#60A5FA</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#3B82F6]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#3B82F6</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#2563EB]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#2563EB</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#1D4ED8]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#1D4ED8</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#1E40AF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#1E40AF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#1E3A8A]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#1E3A8A</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#172554]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#172554</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Indigo</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#EEF2FF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#EEF2FF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#E0E7FF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#E0E7FF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#C7D2FE]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#C7D2FE</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#A5B4FC]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#A5B4FC</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#818CF8]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#818CF8</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#6366F1]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#6366F1</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#4F46E5]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#4F46E5</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#4338CA]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#4338CA</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#3730A3]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#3730A3</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#312E81]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#312E81</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#1E1B4B]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#1E1B4B</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Violet</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F5F3FF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#F5F3FF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#EDE9FE]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#EDE9FE</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#DDD6FE]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#DDD6FE</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#C4B5FD]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#C4B5FD</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#A78BFA]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#A78BFA</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#8B5CF6]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#8B5CF6</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#7C3AED]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#7C3AED</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#6D28D9]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#6D28D9</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#5B21B6]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#5B21B6</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#4C1D95]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#4C1D95</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#2E1065]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#2E1065</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Purple</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FAF5FF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#FAF5FF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F3E8FF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#F3E8FF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#E9D5FF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#E9D5FF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#D8B4FE]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#D8B4FE</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#C084FC]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#C084FC</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#A855F7]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#A855F7</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#9333EA]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#9333EA</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#7E22CE]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#7E22CE</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#6B21A8]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#6B21A8</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#581C87]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#581C87</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#3B0764]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#3B0764</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Fuchsia</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FDF4FF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#FDF4FF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FAE8FF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#FAE8FF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F5D0FE]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#F5D0FE</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F0ABFC]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#F0ABFC</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#E879F9]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#E879F9</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#D946EF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#D946EF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#C026D3]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#C026D3</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#A21CAF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#A21CAF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#86198F]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#86198F</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#701A75]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#701A75</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#4A044E]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#4A044E</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Pink</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FDF2F8]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#FDF2F8</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FCE7F3]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#FCE7F3</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FBCFE8]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#FBCFE8</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F9A8D4]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#F9A8D4</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F472B6]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#F472B6</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#EC4899]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#EC4899</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#DB2777]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#DB2777</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#BE185D]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#BE185D</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#9D174D]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#9D174D</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#831843]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#831843</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#500724]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#500724</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Rose</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FFF1F2]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#FFF1F2</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FFE4E6]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#FFE4E6</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FECDD3]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#FECDD3</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FDA4AF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#FDA4AF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FB7185]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#FB7185</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F43F5E]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#F43F5E</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#E11D48]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#E11D48</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#BE123C]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#BE123C</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#9F1239]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#9F1239</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#881337]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#881337</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#4C0519]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#4C0519</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gray -->
+            <div>
+                <h3>50 Shades of Gray</h3>
+                <div class="flex flex-col gap-y-5 card mt-5 p-5">
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Pure</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F9FAFB]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#F9FAFB</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F3F4F6]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#F3F4F6</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#E5E7EB]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#E5E7EB</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#D1D5DB]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#D1D5DB</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#9CA3AF]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#9CA3AF</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#6B7280]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#6B7280</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#4B5563]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#4B5563</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#374151]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#374151</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#1F2937]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#1F2937</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#111827]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#111827</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#030712]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#030712</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Slate</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F8FAFC]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#F8FAFC</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F1F5F9]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#F1F5F9</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#E2E8F0]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#E2E8F0</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#CBD5E1]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#CBD5E1</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#94A3B8]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#94A3B8</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#64748B]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#64748B</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#475569]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#475569</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#334155]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#334155</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#1E293B]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#1E293B</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#0F172A]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#0F172A</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#020617]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#020617</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Zinc</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FAFAFA]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#FAFAFA</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F4F4F5]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#F4F4F5</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#E4E4E7]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#E4E4E7</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#D4D4D8]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#D4D4D8</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#A1A1AA]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#A1A1AA</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#71717A]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#71717A</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#52525B]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#52525B</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#3F3F46]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#3F3F46</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#27272A]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#27272A</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#18181B]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#18181B</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#09090B]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#09090B</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Neutral</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FAFAFA]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#FAFAFA</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F5F5F5]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#F5F5F5</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#E5E5E5]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#E5E5E5</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#D4D4D4]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#D4D4D4</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#A3A3A3]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#A3A3A3</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#737373]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#737373</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#525252]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#525252</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#404040]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#404040</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#262626]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#262626</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#171717]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#171717</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#0A0A0A]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#0A0A0A</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="flex flex-col flex-shrink-0 justify-center w-24 h-10">
+                            <h5>Stone</h5>
+                        </div>
+                        <div class="grid grid-cols-6 xl:grid-cols-11 gap-5 flex-1">
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#FAFAF9]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>50</span>
+                                    <small>#FAFAF9</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#F5F5F4]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>100</span>
+                                    <small>#F5F5F4</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#E7E5E4]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>200</span>
+                                    <small>#E7E5E4</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#D6D3D1]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>300</span>
+                                    <small>#D6D3D1</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#A8A29E]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>400</span>
+                                    <small>#A8A29E</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#78716C]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>500</span>
+                                    <small>#78716C</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#57534E]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>600</span>
+                                    <small>#57534E</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#44403C]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>700</span>
+                                    <small>#44403C</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#292524]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>800</span>
+                                    <small>#292524</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#1C1917]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>900</span>
+                                    <small>#1C1917</small>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="w-full h-10 rounded shadow-inner bg-[#0C0A09]"></div>
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mt-2">
+                                    <span>950</span>
+                                    <small>#0C0A09</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-auto">
+            <div class="footer">
+                <span class='uppercase'>&copy; 2022 Yeti Themes</span>
+                <nav>
+                    <a href="mailto:Yeti Themes<info@yetithemes.net>?subject=Support">Support</a>
+                    <span class="divider">|</span>
+                    <a href="http://yeti.yetithemes.net/docs" target="_blank" rel="noreferrer">Docs</a>
+                </nav>
+            </div>
+        </footer>
+
+    </main>
+
+    <!-- Scripts -->
+    <script src="assets/js/vendor.js"></script>
+    <script src="assets/js/script.js"></script>
+
+</body>
+
+</html>
