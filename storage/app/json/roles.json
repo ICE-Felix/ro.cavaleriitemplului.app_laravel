@@ -1,0 +1,23 @@
+{
+    "name" : {
+    "singular" : "role",
+    "plural" : "roles"
+},
+    "schema" : {
+    "id" : {
+        "label" : "#",
+        "type" : "int",
+        "readonly" : true,
+        "visible": false
+    },
+    "name" : {
+        "type" : "text",
+        "label" : "Name",
+        "placeholder" : "Agent"
+    }
+},
+    "GET": "read",
+    "INSERT": "create",
+    "DELETE": "delete",
+    "UPDATE": "update"
+}

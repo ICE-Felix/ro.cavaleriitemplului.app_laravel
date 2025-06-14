@@ -1,0 +1,54 @@
+{
+    "name": {
+        "singular": "user",
+        "plural": "users",
+        "label_singular": "user"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "text",
+            "readonly": true,
+            "visible": false
+        },
+        "name": {
+            "type": "text",
+            "label": "Name",
+            "visible": false
+        },
+        "email": {
+            "type": "text",
+            "label": "Email"
+        },
+        "password": {
+            "type": "text",
+            "label": "Password",
+            "visible": false
+        },
+        "auto_confirm": {
+            "type": "text",
+            "label": "Password",
+            "visible": false,
+            "readonly": true
+        },
+        "role" : {
+            "type" : "select",
+            "data" : {
+                "source" : {
+                    "pos" : {
+                        "value" : "pos",
+                        "name" : "Pos"
+                    },
+                    "admin" : {
+                        "value" : "admin",
+                        "name" : "Admin"
+                    }
+                }
+            }
+        }
+    },
+    "GET": "read_edge",
+    "INSERT": "create_edge",
+    "DELETE": "delete_edge",
+    "UPDATE": "update_edge"
+}

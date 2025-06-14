@@ -1,0 +1,27 @@
+{
+  "name": {
+    "singular": "series",
+    "plural": "series"
+  },
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "text",
+      "readonly": true,
+      "visible": false
+    },
+    "series_url": {
+      "label": "Timeslot",
+      "type": "button",
+      "value": "{timeslot_details}"
+    },
+    "contract_count": {
+      "label": "Registered students",
+      "type": "text"
+    }
+  },
+  "GET": "read_rpc",
+  "INSERT": "create",
+  "DELETE": "delete",
+  "UPDATE": "update"
+}

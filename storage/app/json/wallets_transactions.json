@@ -1,0 +1,60 @@
+{
+  "name" : {
+    "singular" : "wallet_transaction",
+    "plural" : "wallets_transactions",
+    "label_singular" : "Wallet Transaction",
+    "label_plural" : "Wallets Transactions"
+  },
+  "schema" : {
+    "id" : {
+      "label" : "#",
+      "type" : "text",
+      "readonly" : true,
+      "visible": false
+    },
+    "agent_name" : {
+      "type" : "select",
+      "label" : "Agent Wallet",
+      "key" : "wallet_id",
+      "data" : {
+        "type" : "class",
+        "source" : [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read",
+          "agents_wallets"
+        ],
+        "value" : "id",
+        "name" : "id"
+      }
+    },
+    "amount" : {
+      "label" : "Amount",
+      "type" : "text"
+    },
+    "type" : {
+      "type" : "select",
+      "data" : {
+        "source" : {
+          "debit" : {
+            "value" : "debit",
+            "name" : "Debit"
+          },
+          "credit" : {
+            "value" : "credit",
+            "name" : "Credit"
+          }
+        }
+      }
+    },
+    "meta" : {
+      "type": "textarea",
+      "label": "Meta",
+      "visible": false,
+      "rows": 10
+    }
+  },
+  "GET": "read_rpc",
+  "INSERT": "create",
+  "DELETE": "delete",
+  "UPDATE": "update"
+}

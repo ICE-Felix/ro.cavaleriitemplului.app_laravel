@@ -1,0 +1,76 @@
+{
+    "name" : {
+    "singular" : "funding_request",
+    "label_singular": "Funding Request",
+    "plural" : "funding_requests",
+    "label_plural": "Funding Requests"
+
+},
+    "schema" : {
+    "id" : {
+        "label" : "#",
+        "type" : "text",
+        "readonly" : true,
+        "visible": false
+    },
+    "agent_name" : {
+        "type" : "select",
+        "label" : "Agent",
+        "key" : "agent_id",
+        "data" : {
+            "type" : "class",
+            "source" : [
+                "App\\Services\\Supabase\\SupabaseService",
+                "read",
+                "agents"
+            ],
+            "value" : "id",
+            "name" : "name"
+        }
+    },
+    "amount": {
+        "type": "numeric",
+        "label": "Amount",
+        "placeholder": "Amount"
+    },
+    "details" : {
+        "type" : "textarea",
+        "label" : "details",
+        "rows" : 5,
+        "visible" : false
+    },
+    "status" : {
+        "type" : "select",
+        "data" : {
+            "source" : {
+                "new" : {
+                    "value" : "new",
+                    "name" : "New"
+                },
+                "processing" : {
+                    "value" : "processing",
+                    "name" : "Processing"
+                },
+                "completed" : {
+                    "value" : "completed",
+                    "name" : "Completed"
+                },
+                "declined" : {
+                    "value" : "declined",
+                    "name" : "Declined"
+                }
+            }
+        }
+    },
+    "comment" : {
+        "type" : "textarea",
+        "label" : "comment",
+        "rows" : 5,
+        "visible" : false
+    }
+},
+    "GET": "read_rpc",
+    "INSERT": "create",
+    "DELETE": "delete",
+    "UPDATE": "update"
+}

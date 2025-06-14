@@ -1,0 +1,52 @@
+{
+  "name": {
+    "singular": "spending",
+    "plural": "spendings"
+  },
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "text",
+      "readonly": true,
+      "visible": false
+    },
+    "amount": {
+      "label": "Amount",
+      "type": "text"
+    },
+    "date": {
+      "label": "Date",
+      "placeholder": "yyyy-mm-dd",
+      "type": "text"
+    },
+    "description": {
+      "label": "Description",
+      "type": "text"
+    },
+    "payment_method": {
+      "label": "Payment method",
+      "type": "select",
+      "data": {
+        "source": {
+          "cash": {
+            "value": "cash",
+            "name": "Cash"
+          },
+          "card": {
+            "value": "card",
+            "name": "Card"
+          }
+        }
+      }
+    },
+    "image_url": {
+      "key": "image_id",
+      "type": "image",
+      "label": "Image"
+    }
+  },
+  "GET": "read_rpc",
+  "INSERT": "create",
+  "DELETE": "delete",
+  "UPDATE": "update"
+}

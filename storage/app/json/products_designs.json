@@ -1,0 +1,35 @@
+{
+    "name": {
+        "singular": "product_design",
+        "plural": "products_designs",
+        "label_singular": "Product Design",
+        "label_plural": "Products Designs"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "text",
+            "readonly": true,
+            "visible": false
+        },
+        "product_name": {
+            "type": "select",
+            "label": "Product name",
+            "key": "product_id",
+            "data": {
+                "type": "class",
+                "source": [
+                    "App\\Services\\Supabase\\SupabaseService",
+                    "read_rpc",
+                    "products"
+                ],
+                "value": "id",
+                "name": "name"
+            }
+        }
+    },
+    "GET": "read_rpc",
+    "INSERT": "create",
+    "DELETE": "delete",
+    "UPDATE": "update"
+}

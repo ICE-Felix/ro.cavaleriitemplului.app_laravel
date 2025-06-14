@@ -1,0 +1,70 @@
+{
+    "name": {
+        "singular": "contact",
+        "plural": "contacts"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "int",
+            "readonly": true,
+            "visible": false
+        },
+        "first_name": {
+            "type": "text",
+            "label": "First Name",
+            "placeholder": "First name"
+        },
+        "last_name": {
+            "type": "text",
+            "label": "Last Name",
+            "placeholder": "Last name"
+        },
+        "phone_no": {
+            "type": "text",
+            "label": "Phone no.",
+            "placeholder": "Phone no."
+        },
+        "email": {
+            "type": "text",
+            "label": "Email",
+            "placeholder": "Email"
+        },
+        "city": {
+            "type": "text",
+            "label": "City",
+            "placeholder": "City",
+            "visible": false
+        },
+        "country": {
+            "type": "text",
+            "label": "Country",
+            "placeholder": "Country",
+            "visible": false
+        },
+        "address": {
+            "type": "text",
+            "label": "Address",
+            "placeholder": "Address"
+        },
+        "cnp": {
+            "type": "text",
+            "label": "CNP",
+            "placeholder": "CNP"
+        },
+        "id_series": {
+            "type": "text",
+            "label": "Id Series",
+            "placeholder": "KL"
+        },
+        "id_no": {
+            "type": "text",
+            "label": "ID No",
+            "placeholder": "633222"
+        }
+    },
+    "GET": "read_rpc",
+    "INSERT": "create",
+    "DELETE": "delete",
+    "UPDATE": "update"
+}

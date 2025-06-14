@@ -1,0 +1,54 @@
+{
+    "name": {
+        "singular": "gateway",
+        "plural": "gateways"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "text",
+            "readonly": true,
+            "visible": false
+        },
+        "name": {
+            "label": "Name",
+            "type": "text"
+        },
+        "function_name": {
+            "type": "text",
+            "label": "Name",
+            "placeholder": "Function name"
+        },
+        "disabled": {
+            "type": "select",
+            "cast": "bool",
+            "data": {
+                "source": {
+                    "true": {
+                        "value": "true",
+                        "name": "True"
+                    },
+                    "false": {
+                        "value": "false",
+                        "name": "False"
+                    }
+                }
+            }
+        },
+        "disabled_reason": {
+            "type": "textarea",
+            "label": "Disabled reason",
+            "visible": false
+        },
+        "meta": {
+            "type": "json",
+            "label": "Meta",
+            "visible": false,
+            "rows": 10
+        }
+    },
+    "GET": "read",
+    "INSERT": "create",
+    "DELETE": "delete",
+    "UPDATE": "update"
+}

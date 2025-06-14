@@ -1,0 +1,139 @@
+{
+    "name": {
+        "singular": "product_field",
+        "plural": "products_fields",
+        "label_singular": "Product field",
+        "label_plural": "Product fields"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "text",
+            "readonly": true,
+            "visible": false
+        },
+        "product_design_id": {
+            "label": "Product design id",
+            "type": "text",
+            "readonly": true
+        },
+        "product_name": {
+            "type": "select",
+            "label": "Product name",
+            "key": "product_design_id",
+            "data": {
+                "type": "class",
+                "source": [
+                    "App\\Services\\Supabase\\SupabaseService",
+                    "read_rpc",
+                    "products_designs"
+                ],
+                "value": "id",
+                "name": "product_name"
+            }
+        },
+        "priority": {
+            "label": "Priority",
+            "type": "text",
+            "visible": false
+        },
+        "is_account" : {
+            "label": "Account",
+            "type" : "select",
+            "cast" : "bool",
+            "data" : {
+                "source" : {
+                    "true" : {
+                        "value" : "true",
+                        "name" : "True"
+                    },
+                    "false" : {
+                        "value" : "false",
+                        "name" : "False"
+                    }
+                }
+            }
+        },
+        "label" : {
+            "type" : "text",
+            "label" : "Label"
+        },
+        "type" : {
+            "type" : "select",
+            "data" : {
+                "source" : {
+                    "text" : {
+                        "value" : "text",
+                        "name" : "Text"
+                    },
+                    "number" : {
+                        "value" : "number",
+                        "name" : "Number"
+                    },
+                    "html" : {
+                        "value" : "html",
+                        "name" : "Html"
+                    },
+                    "options" : {
+                        "value" : "options",
+                        "name" : "Options"
+                    },
+                    "multiselect" : {
+                        "value" : "multiselect",
+                        "name" : "MultiSelect"
+                    }
+                }
+            },
+            "visible": false
+        },
+        "value" : {
+            "type" : "text",
+            "label" : "Value",
+            "visible": false
+        },
+        "regex" : {
+            "type" : "text",
+            "label" : "Regex",
+            "visible": false
+        },
+        "online" : {
+            "type" : "select",
+            "cast" : "bool",
+            "data" : {
+                "source" : {
+                    "true" : {
+                        "value" : "true",
+                        "name" : "True"
+                    },
+                    "false" : {
+                        "value" : "false",
+                        "name" : "False"
+                    }
+                }
+            },
+            "visible": false
+        },
+        "is_checkout" : {
+            "label": "Is checkout?",
+            "type" : "select",
+            "cast" : "bool",
+            "data" : {
+                "source" : {
+                    "true" : {
+                        "value" : "true",
+                        "name" : "True"
+                    },
+                    "false" : {
+                        "value" : "false",
+                        "name" : "False"
+                    }
+                }
+            },
+            "visible": false
+        }
+    },
+    "GET": "read_rpc",
+    "INSERT": "create",
+    "DELETE": "delete",
+    "UPDATE": "update"
+}

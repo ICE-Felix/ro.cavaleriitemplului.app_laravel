@@ -37,6 +37,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Added .env.sample file for environment configuration template
 - Created secondary-button.blade.php component for UI consistency
+- Added JSON configuration files to git tracking (storage/app/json/)
+  - 32 schema definition files for application data structures
+  - Database table configurations, form field definitions, and API endpoints
+  - Essential configuration files for application functionality
 
 ### Technical
 - Updated package-lock.json dependencies
