@@ -56,4 +56,4 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::post('/logout', [\App\Http\Controllers\SupabaseLoginController::class, 'logout'])->middleware('supabase.auth')->name('logout');
-Route::get('/logout', [\App\Http\Controllers\SupabaseLoginController::class, 'logout'])->middleware('supabase.auth')->name('logout');
+Route::get('/logout', [\App\Http\Controllers\SupabaseLoginController::class, 'logout'])->middleware('supabase.auth')->name('logout.get');

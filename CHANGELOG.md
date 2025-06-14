@@ -13,6 +13,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Modified logo.png
 - Updated application logo component in resources/views/components/application-logo.blade.php
 
+### Fixed
+- Fixed duplicate logout route names in routes/auth.php
+  - Renamed GET logout route to 'logout.get' to avoid naming conflicts
+  - Resolved Laravel route caching errors during deployment
+- Created missing secondary-button.blade.php component
+  - Fixed "Unable to locate a class or view for component [secondary-button]" error
+  - Added proper Tailwind CSS styling for secondary button appearance
+- Fixed Laravel deployment permissions for Bitnami AWS Lightsail
+  - Added sudo chown/chmod commands to deployment workflow
+  - Resolved "Operation not permitted" errors during deployment
+  - Fixed UnexpectedValueException in storage/logs/laravel.log access
+
 ### Removed
 - Removed Supabase integration and all related files
   - Deleted supabase configuration files (.gitignore, config.toml, deno.json, tsconfig.json)
@@ -24,8 +36,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Added .env.sample file for environment configuration template
+- Created secondary-button.blade.php component for UI consistency
 
 ### Technical
 - Updated package-lock.json dependencies
 - Updated various asset metadata files (.DS_Store files)
-- Project structure cleanup and simplification 
+- Project structure cleanup and simplification
+- Improved deployment workflow with Laravel cache optimization steps
+- Enhanced permission handling for Bitnami server deployments 
