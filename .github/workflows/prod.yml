@@ -1,7 +1,9 @@
-name: Deploy Laravel on AWS Bitnami via Jump Host
+name: Deploy on production
 
 on:
   push:
+    branches: [ "main" ]
+  pull_request:
     branches: [ "main" ]
 
 permissions:
@@ -10,55 +12,74 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production
+    environment: PROD
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Install SSH client
+    - uses: actions/checkout@v4
+    
+    - name: Install SSH client (if needed)
       run: sudo apt-get update && sudo apt-get install -y openssh-client
 
-    - name: Setup SSH keys and known hosts
+    - name: Setup SSH
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.JUMP_HOST }} >> ~/.ssh/known_hosts
-        ssh-keyscan -H ${{ secrets.TARGET_HOST }} >> ~/.ssh/known_hosts
+        # If you decide to use ssh-keyscan to avoid MITM attacks
+        ssh-keyscan -H ${{ secrets.DEPLOY_SERVER }} >> ~/.ssh/known_hosts
       shell: bash
 
-    - name: Zip Laravel project
-      run: zip -r deployment.zip . -x "*.git*" "node_modules/*" "vendor/*" ".github/*"
+    # - name: Backup files on remote server
+    #   run: |
+    #     ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
+    #       cp ${DEPLOY_PATH}/.env ${DEPLOY_PATH}/.. && \
+    #       cp ${DEPLOY_PATH}/.htaccess ${DEPLOY_PATH}/.. && \
+    #       cp -r ${DEPLOY_PATH}/storage/logs ${DEPLOY_PATH}/.."
+    #   shell: bash -e {0}
+    #   env:
+    #     DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
 
-    - name: Upload deployment.zip to Jump Host
-      run: |
-        scp -i ~/.ssh/id_rsa deployment.zip ${{ secrets.DEPLOY_USER }}@${{ secrets.JUMP_HOST }}:/tmp/deployment.zip
+    - name: Zip deployment files
+      run: zip -r deployment.zip . -x "*.git*"
 
-    - name: Deploy to EC2 Bitnami host via SSH
+    - name: Transfer files using SCP
+      run: scp -i ~/.ssh/id_rsa deployment.zip ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }}:${{ secrets.DEPLOY_PATH }}
+        
+    - name: Unzip and Clean up on the server
       run: |
-        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.JUMP_HOST }} "\
-          ssh -i ~/.ssh/id_rsa bitnami@${{ secrets.TARGET_HOST }} '\
-            cd /opt/bitnami/apache/htdocs && \
-            unzip -o /tmp/deployment.zip && rm /tmp/deployment.zip && \
-            mv ../.env . || true && \
-            mv ../.htaccess . || true && \
-            sudo mkdir -p storage/logs bootstrap/cache && \
-            sudo touch storage/logs/laravel.log && \
-            sudo chown -R bitnami:daemon storage bootstrap/cache && \
-            sudo chmod -R 775 storage bootstrap/cache && \
-            composer install --no-interaction --prefer-dist --optimize-autoloader && \
-            export NVM_DIR=\$HOME/.nvm && \
-            [ -s \$NVM_DIR/nvm.sh ] || (curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash) && \
-            . \$NVM_DIR/nvm.sh && \
-            nvm install 20 && nvm use 20 && \
-            npm install && npm run build && \
-            php artisan config:clear && \
-            php artisan cache:clear && \
-            php artisan config:cache && \
-            php artisan route:cache && \
-            php artisan view:cache'"
+        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
+          cd ${{ secrets.DEPLOY_PATH }} && \
+          unzip -o deployment.zip && \
+          rm deployment.zip"
       shell: bash
 
-    - name: ✅ Done
-      run: echo "✅ Laravel deployed to AWS Bitnami EC2 without permission errors."
+    - name: Move configuration files and logs
+      run: |
+        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
+          cd ${{ secrets.DEPLOY_PATH }} && \
+          mv ../.env . && \
+          mv ../.htaccess . && \
+          [ -d ../storage/logs ] && mv ../storage/logs ./storage/ || echo 'storage/logs directory does not exist, skipping'"
+      shell: bash
+      
+    - name: Install Node.js via NVM and build
+      run: |
+        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
+          export NVM_DIR=\$HOME/.nvm && \
+          [ -s \$NVM_DIR/nvm.sh ] || (curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash) && \
+          . \$NVM_DIR/nvm.sh && \
+          nvm install 20 && \
+          nvm use 20 && \
+          cd ${{ secrets.DEPLOY_PATH }} && \
+          npm install && \
+          npm run build"
+        
+    - name: Install dependencies and Vite
+      run: |
+        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
+          cd ${{ secrets.DEPLOY_PATH }} && \
+          composer install && \
+          npm install && \
+          npm run build && \
+          pwd"
+      shell: bash
