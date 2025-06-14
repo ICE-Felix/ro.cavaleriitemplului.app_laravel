@@ -73,6 +73,16 @@ jobs:
           cd ${{ secrets.DEPLOY_PATH }} && \
           npm install && \
           npm run build"
+
+    - name: Prepare Laravel directories and permissions
+      run: |
+        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
+          cd ${{ secrets.DEPLOY_PATH }} && \
+          mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views && \
+          mkdir -p bootstrap/cache && \
+          chmod -R 775 storage && \
+          chmod -R 775 bootstrap/cache"
+      shell: bash
         
     - name: Install dependencies and Vite
       run: |
@@ -82,4 +92,17 @@ jobs:
           npm install && \
           npm run build && \
           pwd"
+      shell: bash
+
+    - name: Clear and optimize Laravel caches
+      run: |
+        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
+          cd ${{ secrets.DEPLOY_PATH }} && \
+          php artisan config:clear && \
+          php artisan cache:clear && \
+          php artisan view:clear && \
+          php artisan route:clear && \
+          php artisan config:cache && \
+          php artisan route:cache && \
+          php artisan view:cache"
       shell: bash
