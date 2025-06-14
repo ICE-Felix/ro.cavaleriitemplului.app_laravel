@@ -30,11 +30,11 @@ jobs:
     - name: Archive deployment files
       run: zip -r deployment.zip . -x "*.git*" "node_modules/*" "vendor/*" ".github/*"
 
-    - name: Transfer files to server
+    - name: Upload zip to remote server
       run: |
         scp -i ~/.ssh/id_rsa deployment.zip ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }}:${{ secrets.DEPLOY_PATH }}
 
-    - name: Unzip and move config files
+    - name: Unzip and move config
       run: |
         ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
           cd ${{ secrets.DEPLOY_PATH }} && \
@@ -43,7 +43,7 @@ jobs:
           mv ../.htaccess . || true"
       shell: bash
 
-    - name: Fix Laravel permissions BEFORE composer install
+    - name: Fix Laravel permissions before Composer
       run: |
         ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
           cd ${{ secrets.DEPLOY_PATH }} && \
@@ -53,7 +53,7 @@ jobs:
           sudo chmod -R 775 storage bootstrap/cache"
       shell: bash
 
-    - name: Install PHP dependencies (composer)
+    - name: Install PHP dependencies
       run: |
         ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
           cd ${{ secrets.DEPLOY_PATH }} && \
@@ -71,7 +71,7 @@ jobs:
           npm install && npm run build"
       shell: bash
 
-    - name: Run Laravel post-deploy commands
+    - name: Laravel optimize commands
       run: |
         ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
           cd ${{ secrets.DEPLOY_PATH }} && \
@@ -82,5 +82,5 @@ jobs:
           php artisan view:cache"
       shell: bash
 
-    - name: ✅ Deployment completed
-      run: echo "✅ Laravel deployment done without permission errors."
+    - name: ✅ Done
+      run: echo "✅ Laravel deployed. No permission errors. Clean build. All good."
