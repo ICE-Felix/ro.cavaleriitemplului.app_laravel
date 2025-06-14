@@ -80,8 +80,9 @@ jobs:
           cd ${{ secrets.DEPLOY_PATH }} && \
           mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views && \
           mkdir -p bootstrap/cache && \
-          chmod -R 775 storage && \
-          chmod -R 775 bootstrap/cache"
+          sudo chown -R bitnami:daemon storage bootstrap/cache && \
+          sudo chmod -R 775 storage && \
+          sudo chmod -R 775 bootstrap/cache"
       shell: bash
         
     - name: Install dependencies and Vite
