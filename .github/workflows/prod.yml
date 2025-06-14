@@ -1,4 +1,4 @@
-name: Deploy on production
+name: Deploy Laravel on AWS Bitnami via Jump Host
 
 on:
   push:
@@ -10,77 +10,55 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: PROD
+    environment: production
 
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v4
 
     - name: Install SSH client
       run: sudo apt-get update && sudo apt-get install -y openssh-client
 
-    - name: Setup SSH
+    - name: Setup SSH keys and known hosts
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.DEPLOY_SERVER }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ secrets.JUMP_HOST }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ secrets.TARGET_HOST }} >> ~/.ssh/known_hosts
       shell: bash
 
-    - name: Archive deployment files
+    - name: Zip Laravel project
       run: zip -r deployment.zip . -x "*.git*" "node_modules/*" "vendor/*" ".github/*"
 
-    - name: Upload zip to remote server
+    - name: Upload deployment.zip to Jump Host
       run: |
-        scp -i ~/.ssh/id_rsa deployment.zip ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }}:${{ secrets.DEPLOY_PATH }}
+        scp -i ~/.ssh/id_rsa deployment.zip ${{ secrets.DEPLOY_USER }}@${{ secrets.JUMP_HOST }}:/tmp/deployment.zip
 
-    - name: Unzip and move config
+    - name: Deploy to EC2 Bitnami host via SSH
       run: |
-        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
-          cd ${{ secrets.DEPLOY_PATH }} && \
-          unzip -o deployment.zip && rm deployment.zip && \
-          mv ../.env . || true && \
-          mv ../.htaccess . || true"
+        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.JUMP_HOST }} "\
+          ssh -i ~/.ssh/id_rsa bitnami@${{ secrets.TARGET_HOST }} '\
+            cd /opt/bitnami/apache/htdocs && \
+            unzip -o /tmp/deployment.zip && rm /tmp/deployment.zip && \
+            mv ../.env . || true && \
+            mv ../.htaccess . || true && \
+            sudo mkdir -p storage/logs bootstrap/cache && \
+            sudo touch storage/logs/laravel.log && \
+            sudo chown -R bitnami:daemon storage bootstrap/cache && \
+            sudo chmod -R 775 storage bootstrap/cache && \
+            composer install --no-interaction --prefer-dist --optimize-autoloader && \
+            export NVM_DIR=\$HOME/.nvm && \
+            [ -s \$NVM_DIR/nvm.sh ] || (curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash) && \
+            . \$NVM_DIR/nvm.sh && \
+            nvm install 20 && nvm use 20 && \
+            npm install && npm run build && \
+            php artisan config:clear && \
+            php artisan cache:clear && \
+            php artisan config:cache && \
+            php artisan route:cache && \
+            php artisan view:cache'"
       shell: bash
 
-    - name: Fix Laravel permissions BEFORE composer install
-      run: |
-        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
-          cd ${{ secrets.DEPLOY_PATH }} && \
-          sudo mkdir -p storage/logs bootstrap/cache && \
-          sudo touch storage/logs/laravel.log && \
-          sudo chown -R www-data:www-data storage bootstrap/cache && \
-          sudo chmod -R 775 storage bootstrap/cache"
-      shell: bash
-
-    - name: Install PHP dependencies via Composer
-      run: |
-        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
-          cd ${{ secrets.DEPLOY_PATH }} && \
-          composer install --no-interaction --prefer-dist --optimize-autoloader"
-      shell: bash
-
-    - name: Install Node.js and build frontend
-      run: |
-        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
-          export NVM_DIR=\$HOME/.nvm && \
-          [ -s \$NVM_DIR/nvm.sh ] || (curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash) && \
-          . \$NVM_DIR/nvm.sh && \
-          nvm install 20 && nvm use 20 && \
-          cd ${{ secrets.DEPLOY_PATH }} && \
-          npm install && npm run build"
-      shell: bash
-
-    - name: Run Laravel optimize commands
-      run: |
-        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
-          cd ${{ secrets.DEPLOY_PATH }} && \
-          php artisan config:clear && \
-          php artisan cache:clear && \
-          php artisan config:cache && \
-          php artisan route:cache && \
-          php artisan view:cache"
-      shell: bash
-
-    - name: ✅ Deployment completed
-      run: echo "✅ Laravel deployment finished successfully!"
+    - name: ✅ Done
+      run: echo "✅ Laravel deployed to AWS Bitnami EC2 without permission errors."
