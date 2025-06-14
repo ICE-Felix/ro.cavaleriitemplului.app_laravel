@@ -73,7 +73,15 @@ jobs:
           cd ${{ secrets.DEPLOY_PATH }} && \
           npm install && \
           npm run build"
-        
+    - name: Set permissions for Laravel storage and cache
+      run: |
+        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
+          cd ${{ secrets.DEPLOY_PATH }} && \
+          mkdir -p storage/logs bootstrap/cache && \
+          chmod -R ug+rw storage bootstrap/cache && \
+          chown -R www-data:www-data storage bootstrap/cache || true"
+      shell: bash
+
     - name: Install dependencies and Vite
       run: |
         ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
