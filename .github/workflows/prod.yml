@@ -30,29 +30,37 @@ jobs:
     - name: Archive deployment files
       run: zip -r deployment.zip . -x "*.git*" "node_modules/*" "vendor/*" ".github/*"
 
-    - name: Upload deployment.zip to server
+    - name: Transfer files to server
       run: |
         scp -i ~/.ssh/id_rsa deployment.zip ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }}:${{ secrets.DEPLOY_PATH }}
 
-    - name: Unzip and move config
+    - name: Unzip and move config files
       run: |
         ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
           cd ${{ secrets.DEPLOY_PATH }} && \
           unzip -o deployment.zip && rm deployment.zip && \
-          mv ../.env . || echo '.env not found' && \
-          mv ../.htaccess . || echo '.htaccess not found'"
+          mv ../.env . || true && \
+          mv ../.htaccess . || true"
       shell: bash
 
-    - name: Fix Laravel permissions (FINAL FIX)
+    - name: Fix Laravel permissions BEFORE composer install
       run: |
         ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
-          sudo mkdir -p ${{ secrets.DEPLOY_PATH }}/storage/logs ${{ secrets.DEPLOY_PATH }}/bootstrap/cache && \
-          sudo touch ${{ secrets.DEPLOY_PATH }}/storage/logs/laravel.log && \
-          sudo chown -R www-data:www-data ${{ secrets.DEPLOY_PATH }}/storage ${{ secrets.DEPLOY_PATH }}/bootstrap/cache && \
-          sudo chmod -R 775 ${{ secrets.DEPLOY_PATH }}/storage ${{ secrets.DEPLOY_PATH }}/bootstrap/cache"
+          cd ${{ secrets.DEPLOY_PATH }} && \
+          sudo mkdir -p storage/logs bootstrap/cache && \
+          sudo touch storage/logs/laravel.log && \
+          sudo chown -R www-data:www-data storage bootstrap/cache && \
+          sudo chmod -R 775 storage bootstrap/cache"
       shell: bash
 
-    - name: Install Node.js and build assets
+    - name: Install PHP dependencies (composer)
+      run: |
+        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
+          cd ${{ secrets.DEPLOY_PATH }} && \
+          composer install --no-interaction --prefer-dist --optimize-autoloader"
+      shell: bash
+
+    - name: Install Node.js and build frontend
       run: |
         ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
           export NVM_DIR=\$HOME/.nvm && \
@@ -61,13 +69,6 @@ jobs:
           nvm install 20 && nvm use 20 && \
           cd ${{ secrets.DEPLOY_PATH }} && \
           npm install && npm run build"
-      shell: bash
-
-    - name: Install PHP dependencies via Composer
-      run: |
-        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
-          cd ${{ secrets.DEPLOY_PATH }} && \
-          composer install --no-interaction --prefer-dist --optimize-autoloader"
       shell: bash
 
     - name: Run Laravel post-deploy commands
@@ -81,5 +82,5 @@ jobs:
           php artisan view:cache"
       shell: bash
 
-    - name: ✅ Deployment Complete
-      run: echo "✅ Laravel app deployed successfully!"
+    - name: ✅ Deployment completed
+      run: echo "✅ Laravel deployment done without permission errors."
