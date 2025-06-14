@@ -3,8 +3,6 @@ name: Deploy on production
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 permissions:
   contents: read
@@ -29,49 +27,40 @@ jobs:
         ssh-keyscan -H ${{ secrets.DEPLOY_SERVER }} >> ~/.ssh/known_hosts
       shell: bash
 
-    - name: Zip deployment files
+    - name: Archive deployment files
       run: zip -r deployment.zip . -x "*.git*" "node_modules/*" "vendor/*" ".github/*"
 
-    - name: Transfer files using SCP
+    - name: Upload deployment.zip to server
       run: |
         scp -i ~/.ssh/id_rsa deployment.zip ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }}:${{ secrets.DEPLOY_PATH }}
 
-    - name: Unzip and Clean up on the server
+    - name: Unzip and move config
       run: |
         ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
           cd ${{ secrets.DEPLOY_PATH }} && \
-          unzip -o deployment.zip && \
-          rm deployment.zip"
-      shell: bash
-
-    - name: Move configuration files and logs
-      run: |
-        ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
-          cd ${{ secrets.DEPLOY_PATH }} && \
+          unzip -o deployment.zip && rm deployment.zip && \
           mv ../.env . || echo '.env not found' && \
-          mv ../.htaccess . || echo '.htaccess not found' && \
-          [ -d ../storage/logs ] && mv ../storage/logs ./storage/ || echo 'No storage/logs to move'"
+          mv ../.htaccess . || echo '.htaccess not found'"
       shell: bash
 
-    - name: Fix Laravel permissions
+    - name: Fix Laravel permissions (FINAL FIX)
       run: |
         ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
           sudo mkdir -p ${{ secrets.DEPLOY_PATH }}/storage/logs ${{ secrets.DEPLOY_PATH }}/bootstrap/cache && \
+          sudo touch ${{ secrets.DEPLOY_PATH }}/storage/logs/laravel.log && \
           sudo chown -R www-data:www-data ${{ secrets.DEPLOY_PATH }}/storage ${{ secrets.DEPLOY_PATH }}/bootstrap/cache && \
           sudo chmod -R 775 ${{ secrets.DEPLOY_PATH }}/storage ${{ secrets.DEPLOY_PATH }}/bootstrap/cache"
       shell: bash
 
-    - name: Install Node.js via NVM and run frontend build
+    - name: Install Node.js and build assets
       run: |
         ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
           export NVM_DIR=\$HOME/.nvm && \
           [ -s \$NVM_DIR/nvm.sh ] || (curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash) && \
           . \$NVM_DIR/nvm.sh && \
-          nvm install 20 && \
-          nvm use 20 && \
+          nvm install 20 && nvm use 20 && \
           cd ${{ secrets.DEPLOY_PATH }} && \
-          npm install && \
-          npm run build"
+          npm install && npm run build"
       shell: bash
 
     - name: Install PHP dependencies via Composer
@@ -81,11 +70,10 @@ jobs:
           composer install --no-interaction --prefer-dist --optimize-autoloader"
       shell: bash
 
-    - name: Laravel post-deployment commands
+    - name: Run Laravel post-deploy commands
       run: |
         ssh -i ~/.ssh/id_rsa ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_SERVER }} "\
           cd ${{ secrets.DEPLOY_PATH }} && \
-          php artisan migrate --force && \
           php artisan config:clear && \
           php artisan cache:clear && \
           php artisan config:cache && \
@@ -93,5 +81,5 @@ jobs:
           php artisan view:cache"
       shell: bash
 
-    - name: ✅ Deployment complete
-      run: echo "✅ Laravel deployment to production completed successfully!"
+    - name: ✅ Deployment Complete
+      run: echo "✅ Laravel app deployed successfully!"
