@@ -22,6 +22,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Changed from mixed API endpoints to consistent 'edge' pattern
 - Improved data table display formatting
   - Removed automatic ucfirst() formatting for better data presentation
+- Enhanced form handling for select fields
+  - Improved edge function support in data source resolution
+  - Fixed boolean field casting in edit forms (true/false to 1/0)
+  - Better error handling for dropdown data population
 
 ### Fixed
 - Fixed duplicate logout route names in routes/auth.php
@@ -55,6 +59,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - 32 schema definition files for application data structures
   - Database table configurations, form field definitions, and API endpoints
   - Essential configuration files for application functionality
+- Added Partner Management System
+  - New partners.json schema configuration for business partner management
+  - Comprehensive partner fields: company details, tax information, banking, contacts
+  - Boolean field support with proper casting for active/inactive status
+  - Integration with contacts system for administrator assignment
 
 ### Technical
 - Updated package-lock.json dependencies

@@ -78,9 +78,10 @@
                                             $value = '';
                                             $values = [];
                                             foreach ($data[$key] as $elem) {
+//                                                @dd($result[$field['id'] ?? $key]);
                                                 $values[$elem['value']] = ucfirst($elem['name']);
                                                 if(isset($field['cast']) && $field['cast'] === "bool") {
-                                                    $value = $result[$field['id'] ?? $key] === true ? "true": "false";
+                                                    $value = $result[$field['id'] ?? $key] === true ? "1": "0";
                                                 } else {
                                                     $value = $result[$field['id'] ?? $key] ?? '';
                                                 }

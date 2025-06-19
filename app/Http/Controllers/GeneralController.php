@@ -308,6 +308,10 @@ class GeneralController extends Controller
                 $methodName = 'getInstance';
                 $serviceInstance = call_user_func([$className, $methodName]);
 
+                if($source[1] === "edge") {
+                    $source[1] = "read_edge";
+                }
+
                 if (method_exists($serviceInstance, $source[1])) {
                     $data = $serviceInstance->{$source[1]}($source[2]);
                     return array_map(function ($item) use ($valueKey, $nameKey, $template) {

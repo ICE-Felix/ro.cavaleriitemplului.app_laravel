@@ -24,6 +24,7 @@ This application is built with Laravel 10 and provides a complete business manag
 The application supports multiple business entities through JSON configuration:
 - **User Management** - Users, roles, permissions
 - **Contact Management** - Contacts, agents, students
+- **Partner Management** - Business partners with comprehensive company details, tax information, and banking
 - **Business Operations** - Contracts, subscriptions, enrollments
 - **Financial Management** - Payments, invoices, transactions, wallets
 - **Product Management** - Products, categories, gateways
@@ -126,9 +127,10 @@ Located in `/storage/app/json/`, these files define:
 ### Key Configuration Files
 - `users.json` - User management schema
 - `contacts.json` - Contact management configuration
+- `partners.json` - Business partner management with company and financial details
 - `products.json` - Product catalog structure
 - `payments.json` - Payment processing schema
-- And 28+ other entity configurations
+- And 29+ other entity configurations
 
 ## Development Workflow
 
