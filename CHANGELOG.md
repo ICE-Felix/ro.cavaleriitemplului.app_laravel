@@ -12,6 +12,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Updated favicon.ico
 - Modified logo.png
 - Updated application logo component in resources/views/components/application-logo.blade.php
+- Refactored Supabase API endpoints and methods
+  - Simplified edge function method mapping in GeneralController
+  - Updated CRUD operations to use consistent URL patterns
+  - Improved error handling and response parsing
+  - Enhanced data validation and processing
+- Updated contacts.json schema configuration
+  - Simplified contact fields for better usability
+  - Changed from mixed API endpoints to consistent 'edge' pattern
+- Improved data table display formatting
+  - Removed automatic ucfirst() formatting for better data presentation
 
 ### Fixed
 - Fixed duplicate logout route names in routes/auth.php
@@ -24,6 +34,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Added sudo chown/chmod commands to deployment workflow
   - Resolved "Operation not permitted" errors during deployment
   - Fixed UnexpectedValueException in storage/logs/laravel.log access
+- Improved Supabase service error handling
+  - Added proper exception handling for edge functions
+  - Enhanced API response validation and error reporting
+  - Fixed method parameter consistency across CRUD operations
 
 ### Removed
 - Removed Supabase integration and all related files

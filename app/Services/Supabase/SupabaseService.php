@@ -142,6 +142,8 @@ class SupabaseService
                     return $this->client->post($url, $params);
                 case 'PATCH':
                     return $this->client->patch($url, $params);
+                case 'PUT':
+                    return $this->client->put($url, $params);
                 case 'DELETE':
                     return $this->client->delete($url, $params);
                 default:
@@ -200,77 +202,118 @@ class SupabaseService
         return json_decode((string)$response->getBody(), true);
     }
 
+    /**
+     * @throws GuzzleException
+     */
     public function read_edge($plural)
     {
-        $url = 'functions/v1/get_' . str_replace('-', '_', $plural);
+        $url = 'functions/v1/' . str_replace('-', '_', $plural);
 
         $response = $this->processRequest($url, [
             'headers' => [
-                'Authorization' => 'Bearer ' . Session::get('jwt_token'), // Add token to headers here
+                'Authorization' => 'Bearer ' . Session::get('jwt_token'),
             ],
         ]);
-        return json_decode((string)$response->getBody(), true);
+
+        $body = json_decode((string) $response->getBody(), true);
+
+        if (isset($body['success']) && $body['success'] === true) {
+            return $body['data'];
+        }
+
+        // Optionally log the error or throw an exception
+        $error = $body['error']['message'] ?? 'Unknown error';
+        $code = $body['error']['code'] ?? 'unknown_code';
+        throw new \Exception("Request failed: $error (Code: $code)");
     }
 
     /**
      * @throws GuzzleException
      * @throws \Exception
      */
-    public function create_edge($data, $singular)
+    public function create_edge($data, $plural): array
     {
-        $url = 'functions/v1/create_' . $singular;
+        $url = 'functions/v1/' . $plural;
 
         // Prepare the payload
         $payload = json_encode($data);
 
-        // Make the POST request
-        $response = $this->processRequest($url, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . Session::get('jwt_token'),
-            ],
-            'body' => $payload,
-        ], 'POST');
-
-        if ($response === null) {
-            throw new \Exception("There is no valid response");
-        }
         try {
-            return [
-                'status' => $response->getStatusCode(),
-            ];
-        } catch (GuzzleException $e) {
-            throw new \Exception("There was a problem creating $singular");
+            $response = $this->processRequest($url, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . Session::get('jwt_token'),
+                    'Content-Type'  => 'application/json',
+                ],
+                'body' => $payload,
+            ], 'POST');
+
+            if ($response === null) {
+                throw new \Exception("No response received from the server.");
+            }
+
+            $body = json_decode((string) $response->getBody(), true);
+            if (isset($body['success']) && $body['success'] === true) {
+                return [
+                    'status' => $response->getStatusCode(),
+                    'data'   => $body['data'] ?? null,
+                ];
+            }
+
+            // Handle error case
+            $errorMessage = $body['error']['message'] ?? 'Unknown error';
+            $errorCode    = $body['error']['code'] ?? 'unknown_code';
+            throw new \Exception("Error creating $plural: $errorMessage (Code: $errorCode)");
+
+        } catch (\GuzzleHttp\Exception\GuzzleException $e) {
+            throw new \Exception("HTTP request failed while creating $plural: " . $e->getMessage());
+        } catch (\Exception $e) {
+            throw new \Exception("Failed to create $plural: " . $e->getMessage());
         }
+
     }
 
-    public function update_edge($id, array $data, $singular)
+    /**
+     * @throws GuzzleException|\Exception
+     */
+    public function update_edge($id, array $data, $plural): array
     {
-        $url = 'functions/v1/update_' . $singular;
-
-        // Prepare the payload
-        $data['id'] = $id;
+        $url = 'functions/v1/' . $plural . '/' . $id;
         $payload = json_encode($data);
 
-
-        // Make the POST request
-        $response = $this->processRequest($url, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . Session::get('jwt_token'),
-            ],
-            'body' => $payload,
-        ], 'POST');
-
-        if ($response === null) {
-            throw new \Exception("There is no valid response");
-        }
         try {
-            return [
-                'status' => $response->getStatusCode(),
-            ];
-        } catch (GuzzleException $e) {
-            throw new \Exception("There was a problem updating $singular");
+            $response = $this->processRequest($url, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . Session::get('jwt_token'),
+                    'Content-Type'  => 'application/json',
+                ],
+                'body' => $payload,
+            ], 'PUT');
+
+            if ($response === null) {
+                throw new \Exception("No response received while updating $plural with ID $id.");
+            }
+
+            $body = json_decode((string) $response->getBody(), true);
+
+            if (isset($body['success']) && $body['success'] === true) {
+                return [
+                    'status' => $response->getStatusCode(),
+                    'data'   => $body['data'] ?? null,
+                ];
+            }
+
+            // Handle error response
+            $errorMessage = $body['error']['message'] ?? 'Unknown error';
+            $errorCode    = $body['error']['code'] ?? 'unknown_code';
+            throw new \Exception("Error updating $plural: $errorMessage (Code: $errorCode)");
+
+        } catch (\GuzzleHttp\Exception\GuzzleException $e) {
+            throw new \Exception("HTTP error while updating $plural: " . $e->getMessage());
+        } catch (\Exception $e) {
+            throw new \Exception("Failed to update $plural with ID $id: " . $e->getMessage());
         }
     }
+
 
     public function read($plural)
     {
@@ -287,7 +330,7 @@ class SupabaseService
     /**
      * @throws GuzzleException
      */
-    public function delete($id, $plural)
+    public function delete($id, $plural): bool
     {
         $url = 'rest/v1/' . $plural . '?id=eq.' . $id;
 
@@ -301,35 +344,46 @@ class SupabaseService
         return true;
     }
 
-    public function delete_edge($id, $singular)
+    /**
+     * @throws \Exception
+     */
+    public function delete_edge($id, $plural): array
     {
-        $url = 'functions/v1/delete_' . $singular;
+        $url = 'functions/v1/' . $plural . '/' . $id;
 
-        // Prepare the payload
-        $payload = json_encode(
-            [
-                "id" => $id
-            ]
-        );
-        // Make the POST request
-        $response = $this->processRequest($url, [
-            'headers' => [
-                'Authorization' => 'Bearer ' . Session::get('jwt_token'),
-            ],
-            'body' => $payload,
-        ], 'POST');
-
-        if ($response === null) {
-            throw new \Exception("There is no valid response");
-        }
         try {
-            return [
-                'status' => $response->getStatusCode(),
-            ];
-        } catch (GuzzleException $e) {
-            throw new \Exception("There was a problem deleting $plural");
+            $response = $this->processRequest($url, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . Session::get('jwt_token'),
+                    'Content-Type'  => 'application/json',
+                ],
+            ], 'DELETE');
+
+            if ($response === null) {
+                throw new \Exception("No response received while deleting $plural with ID $id.");
+            }
+
+            $body = json_decode((string) $response->getBody(), true);
+
+            if (isset($body['success']) && $body['success'] === true) {
+                return [
+                    'status' => $response->getStatusCode(),
+                    'data'   => $body['data'] ?? null,
+                ];
+            }
+
+            // Error response
+            $errorMessage = $body['error']['message'] ?? 'Unknown error';
+            $errorCode    = $body['error']['code'] ?? 'unknown_code';
+            throw new \Exception("Error deleting $plural: $errorMessage (Code: $errorCode)");
+
+        } catch (\GuzzleHttp\Exception\GuzzleException $e) {
+            throw new \Exception("HTTP error during deletion of $plural: " . $e->getMessage());
+        } catch (\Exception $e) {
+            throw new \Exception("Failed to delete $plural with ID $id: " . $e->getMessage());
         }
     }
+
 
     public function check_user_permission($table_name, $action_required = 'r')
     {

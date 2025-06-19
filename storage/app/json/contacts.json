@@ -6,7 +6,7 @@
     "schema": {
         "id": {
             "label": "#",
-            "type": "int",
+            "type": "text",
             "readonly": true,
             "visible": false
         },
@@ -28,43 +28,11 @@
         "email": {
             "type": "text",
             "label": "Email",
-            "placeholder": "Email"
-        },
-        "city": {
-            "type": "text",
-            "label": "City",
-            "placeholder": "City",
-            "visible": false
-        },
-        "country": {
-            "type": "text",
-            "label": "Country",
-            "placeholder": "Country",
-            "visible": false
-        },
-        "address": {
-            "type": "text",
-            "label": "Address",
-            "placeholder": "Address"
-        },
-        "cnp": {
-            "type": "text",
-            "label": "CNP",
-            "placeholder": "CNP"
-        },
-        "id_series": {
-            "type": "text",
-            "label": "Id Series",
-            "placeholder": "KL"
-        },
-        "id_no": {
-            "type": "text",
-            "label": "ID No",
-            "placeholder": "633222"
+            "placeholder": ""
         }
     },
-    "GET": "read_rpc",
-    "INSERT": "create",
-    "DELETE": "delete",
-    "UPDATE": "update"
+    "GET": "edge",
+    "INSERT": "edge",
+    "DELETE": "edge",
+    "UPDATE": "edge"
 }

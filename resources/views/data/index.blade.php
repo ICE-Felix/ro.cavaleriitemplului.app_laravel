@@ -156,7 +156,7 @@
                                                             {{ parseTemplate($field['format'] ?? $key, $elem) }}
                                                         @break
                                                         @default
-                                                            {{ucfirst($elem[$key] ?? '')}}
+                                                            {{$elem[$key] ?? ''}}
                                                             @break
                                                     @endswitch
                                                 </td>

@@ -36,6 +36,12 @@ class GeneralController extends Controller
         $data = [];
         $methodName = $this->props['GET'];
 
+        switch ($methodName) {
+            case 'edge':
+                $methodName = "read_edge";
+                break;
+        }
+
         // Check if the method exists
         if (method_exists($this->supabase, $methodName)) {
             // Fetch data using the specified method
@@ -122,10 +128,16 @@ class GeneralController extends Controller
             }
             $methodName = $this->props['INSERT'];
 
+            switch ($methodName) {
+                case 'edge':
+                    $methodName = "create_edge";
+                    break;
+            }
+
             if (method_exists($this->supabase, $methodName) && $data !== null) {
                 try {
 
-                    $this->supabase->$methodName($data, $methodName === 'create_edge' ? $this->props['name']['singular'] : $this->props['name']['plural']);
+                    $this->supabase->$methodName($data, $this->props['name']['plural']);
                 } catch (Exception $e) {
                     Log::error('There was an error creating the ' . ($this->props['name']['label_singular'] ?? $this->props['name']['singular']) . ': ' . $e->getMessage());
                     return back()->withErrors(['msg' => "There was an error creating the " . isset($this->props['name']['label_singular']) ?  strtolower($this->props['name']['label_singular']) : strtolower($this->props['name']['singular']) . "!"]);
@@ -160,6 +172,12 @@ class GeneralController extends Controller
             $data = [];
 
             $methodName = $this->props['GET'];
+
+            switch ($methodName) {
+                case 'edge':
+                    $methodName = "read_edge";
+                    break;
+            }
             if (method_exists($this->supabase, $methodName)) {
                 $data = $this->supabase->$methodName($this->props['name']['plural']);
             } else {
@@ -190,7 +208,7 @@ class GeneralController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): \Illuminate\Http\RedirectResponse
     {
         $data = null;
         try {
@@ -229,9 +247,16 @@ class GeneralController extends Controller
             }
 
             $methodName = $this->props['UPDATE'];
+
+            switch ($methodName) {
+                case 'edge':
+                    $methodName = "update_edge";
+                    break;
+            }
+
             if (method_exists($this->supabase, $methodName) && $data !== null) {
                 try {
-                    $this->supabase->$methodName($id, $data, $methodName === 'update_edge' ? $this->props['name']['singular'] : $this->props['name']['plural']);
+                    $this->supabase->$methodName($id, $data, $this->props['name']['plural']);
                 } catch (Exception $e) {
                     Log::error('There was an error creating the ' . $this->props['name']['singular'] . ': ' . $e->getMessage());
                     return back()->withErrors(['msg' => "There was an error creating the ' . $this->props['name']['singular'] . '!"]);
@@ -258,8 +283,14 @@ class GeneralController extends Controller
     {
         $methodName = $this->props['DELETE'];
 
+        switch ($methodName) {
+            case 'edge':
+                $methodName = "delete_edge";
+                break;
+        }
+
         if (method_exists($this->supabase, $methodName)) {
-            $this->supabase->$methodName($id, $methodName === 'delete_edge' ? $this->props['name']['singular'] : $this->props['name']['plural']);
+            $this->supabase->$methodName($id, $this->props['name']['plural']);
         } else {
             dd("Method $methodName does not exist on the object.");
         }
