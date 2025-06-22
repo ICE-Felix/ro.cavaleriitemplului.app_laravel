@@ -33,7 +33,7 @@ class SupabaseLoginController extends Controller
                 Session::put('refresh_token', $response['refresh_token']);
                 Session::put('user', [
                     'email' => $response['user']['email'],
-                    'name' => $response['user']['app_metadata']['username'] ?? $response['user']['email'],
+                    'name' => $this->getUserDisplayName($response['user']),
                     'claims_admin' => $response['user']['app_metadata']['claims_admin'] ?? null,
                     'userrole' => $response['user']['app_metadata']['userrole'] ?? null
                 ]);
@@ -78,5 +78,21 @@ class SupabaseLoginController extends Controller
         }
 
         return redirect()->route('login');
+    }
+
+    private function getUserDisplayName($user)
+    {
+        $firstName = $user['user_metadata']['first_name'] ?? $user['app_metadata']['first_name'] ?? null;
+        $lastName = $user['user_metadata']['last_name'] ?? $user['app_metadata']['last_name'] ?? null;
+        
+        if ($firstName && $lastName) {
+            return trim($firstName . ' ' . $lastName);
+        } elseif ($firstName) {
+            return $firstName;
+        } elseif ($lastName) {
+            return $lastName;
+        }
+        
+        return $user['email'];
     }
 }

@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Changed
+- Enhanced user avatar display with dynamic initials generation
+  - Avatar now displays initials based on session user's name
+  - Supports both full name format (First Last → FL) and email format (user@domain.com → US)
+  - Falls back to single name first two characters or 'U' if no name available
+  - Automatically converts initials to uppercase for consistency
 - Updated favicon images (android-chrome-192x192.png, android-chrome-512x512.png, apple-touch-icon.png, favicon-16x16.png, favicon-32x32.png)
 - Added new favicon.png
 - Updated favicon.ico

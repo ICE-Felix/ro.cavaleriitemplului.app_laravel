@@ -111,12 +111,37 @@
         <div class="dropdown">
             <button class="flex items-center ltr:ml-4 rtl:mr-4" data-toggle="custom-dropdown-menu"
                     data-tippy-arrow="true" data-tippy-placement="bottom-end">
-                <span class="avatar">JD</span>
+                    <span class="avatar">
+                    @php
+                        $userName = Session::get('user')['name'] ?? '';
+                        $initials = '';
+                        
+                        if (str_contains($userName, '@')) {
+                            // If it's an email, take the part before @ and get first 2 characters
+                            $emailPrefix = explode('@', $userName)[0];
+                            $initials = strtoupper(substr($emailPrefix, 0, 2));
+                        } else {
+                            // If it's a name with spaces, take first letter of each word (max 2)
+                            $words = explode(' ', trim($userName));
+                            foreach (array_slice($words, 0, 2) as $word) {
+                                if (!empty($word)) {
+                                    $initials .= strtoupper($word[0]);
+                                }
+                            }
+                            // If no spaces and not email, take first 2 characters
+                            if (empty($initials) && !empty($userName)) {
+                                $initials = strtoupper(substr($userName, 0, 2));
+                            }
+                        }
+                        
+                        echo $initials ?: 'U'; // Default to 'U' if no initials can be generated
+                    @endphp
+                </span>
             </button>
             <div class="custom-dropdown-menu w-64">
                 <div class="p-5">
-                    <h5 class="uppercase">John Doe</h5>
-                    <p>Editor</p>
+                    <h5 class="uppercase"><?php echo Session::get('user')['name'] ?></h5>
+                    <p><?php echo Session::get('user')['userrole'] ?></p>
                 </div>
                 <hr>
                 <div class="p-5">

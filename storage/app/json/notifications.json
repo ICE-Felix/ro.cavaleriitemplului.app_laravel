@@ -1,0 +1,34 @@
+{
+    "name": {
+        "singular": "notification",
+        "plural": "notifications"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "text",
+            "readonly": true,
+            "visible": false
+        },
+        "title": {
+            "type": "text",
+            "label": "Title",
+            "placeholder": "Title"
+        },
+        "body": {
+            "type": "text",
+            "label": "Body",
+            "placeholder": "Body"
+        },
+        "created_by_name": {
+            "type": "text",
+            "label": "Created by",
+            "placeholder": "",
+            "readonly": true
+        }
+    },
+    "GET": "edge",
+    "INSERT": "edge",
+    "DELETE": "edge",
+    "UPDATE": "edge"
+}
