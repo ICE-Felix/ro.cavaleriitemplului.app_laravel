@@ -31,6 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Improved edge function support in data source resolution
   - Fixed boolean field casting in edit forms (true/false to 1/0)
   - Better error handling for dropdown data population
+- Updated `storage/app/json/news.json` schema/config. See file for details.
 
 ### Fixed
 - Fixed duplicate logout route names in routes/auth.php

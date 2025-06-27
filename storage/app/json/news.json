@@ -1,0 +1,88 @@
+{
+    "name": {
+        "singular": "new",
+        "plural": "news"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "text",
+            "readonly": true,
+            "visible": false
+        },
+        "category_name": {
+            "type": "select",
+            "label": "Category",
+            "key": "news_categories_id",
+            "data": {
+                "type": "class",
+                "source": [
+                    "App\\Services\\Supabase\\SupabaseService",
+                    "read_edge",
+                    "news_categories"
+                ],
+                "value": "id",
+                "name": "title"
+            }
+        },
+        "title": {
+            "type": "text",
+            "label": "Title",
+            "placeholder": "Titlu"
+        },
+        "keywords": {
+            "type": "text",
+            "label": "Keywords",
+            "placeholder": "Cuvinte cheie"
+        },
+        "body": {
+            "type": "text",
+            "label": "Body",
+            "placeholder": "Continut"
+        },
+        "contact_name": {
+            "type": "select",
+            "label": "Contact name",
+            "key": "contact_id",
+            "data": {
+                "type": "class",
+                "source": [
+                    "App\\Services\\Supabase\\SupabaseService",
+                    "read_edge",
+                    "contacts"
+                ],
+                "value": "id",
+                "name": "{first_name} {last_name}"
+            }
+        },
+        "locale_name": {
+            "type": "select",
+            "label": "Language",
+            "key": "locale_id",
+            "data": {
+                "type": "class",
+                "source": [
+                    "App\\Services\\Supabase\\SupabaseService",
+                    "read_edge",
+                    "locale"
+                ],
+                "value": "id",
+                "name": "Code"
+            }
+        },
+        "likes": {
+            "type": "text",
+            "label": "Likes",
+            "placeholder": "Likes"
+        },
+        "read_count": {
+            "type": "text",
+            "label": "Read count",
+            "placeholder": ""
+        }
+    },
+    "GET": "edge",
+    "INSERT": "edge",
+    "DELETE": "edge",
+    "UPDATE": "edge"
+}

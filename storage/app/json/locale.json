@@ -1,0 +1,28 @@
+{
+  "name": {
+    "singular": "local",
+    "plural": "locale"
+  },
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+    "code": {
+      "type": "text",
+      "label": "Code",
+      "placeholder": "Locale code"
+    },
+    "description": {
+      "type": "text",
+      "label": "Description",
+      "placeholder": "Limba"
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}
