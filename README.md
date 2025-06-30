@@ -158,3 +158,7 @@ Located in `/storage/app/json/`, these files define:
 ## License
 
 This project is proprietary software. All rights reserved.
+
+## Notes
+
+- Updated `storage/app/json/news.json` schema/config. See CHANGELOG.md for details.
