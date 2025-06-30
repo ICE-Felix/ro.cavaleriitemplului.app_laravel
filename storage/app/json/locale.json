@@ -15,9 +15,9 @@
       "label": "Code",
       "placeholder": "Locale code"
     },
-    "description": {
+    "label": {
       "type": "text",
-      "label": "Description",
+      "label": "Label",
       "placeholder": "Limba"
     }
   },
