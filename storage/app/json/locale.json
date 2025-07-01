@@ -1,6 +1,6 @@
 {
   "name": {
-    "singular": "local",
+    "singular": "locale",
     "plural": "locale"
   },
   "schema": {
@@ -13,12 +13,12 @@
     "code": {
       "type": "text",
       "label": "Code",
-      "placeholder": "Locale code"
+      "placeholder": "en"
     },
     "label": {
       "type": "text",
       "label": "Label",
-      "placeholder": "Limba"
+      "placeholder": "English"
     }
   },
   "GET": "edge",

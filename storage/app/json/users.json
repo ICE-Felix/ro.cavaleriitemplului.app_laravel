@@ -11,28 +11,25 @@
             "readonly": true,
             "visible": false
         },
-        "name": {
+        "first_name": {
             "type": "text",
-            "label": "Name",
-            "visible": false
+            "label": "First name"
+        },
+        "last_name": {
+            "type": "text",
+            "label": "Last name"
         },
         "email": {
             "type": "text",
             "label": "Email"
         },
-        "password": {
+        "phone": {
             "type": "text",
-            "label": "Password",
-            "visible": false
+            "label": "Phone"
         },
-        "auto_confirm": {
-            "type": "text",
-            "label": "Password",
-            "visible": false,
-            "readonly": true
-        },
-        "role" : {
+        "userrole" : {
             "type" : "select",
+            "label": "Role",
             "data" : {
                 "source" : {
                     "pos" : {
@@ -47,8 +44,8 @@
             }
         }
     },
-    "GET": "read_edge",
-    "INSERT": "create_edge",
-    "DELETE": "delete_edge",
-    "UPDATE": "update_edge"
+    "GET": "edge",
+    "INSERT": "edge",
+    "DELETE": "edge",
+    "UPDATE": "edge"
 }

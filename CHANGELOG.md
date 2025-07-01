@@ -7,6 +7,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Changed
+- Updated `storage/app/json/locale.json` schema configuration
+  - Fixed singular name from "local" to "locale" for consistency
+  - Updated placeholder text to be more descriptive ("en" for code, "English" for label)
+- Updated `storage/app/json/users.json` schema configuration
+  - Restructured user fields: split name into first_name and last_name
+  - Added phone field for better contact information management
+  - Changed role field to userrole for better naming convention
+  - Simplified edge permissions to use consistent 'edge' pattern
+- Improved data table display with enhanced null checking
+  - Added proper null checking in data index view to prevent display errors
+  - Enhanced conditional rendering for select field data sources
 - Enhanced user avatar display with dynamic initials generation
   - Avatar now displays initials based on session user's name
   - Supports both full name format (First Last → FL) and email format (user@domain.com → US)
