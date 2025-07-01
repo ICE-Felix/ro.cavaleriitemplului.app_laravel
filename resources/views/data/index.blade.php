@@ -140,10 +140,12 @@
                                                                 @if(isset($props['schema'][$key]['data']['type']) && $props['schema'][$key]['data']['type'] === 'class')
                                                                     {{ucfirst($elem[$key] ?? '')}}
                                                                 @else
-                                                                    @if(isset($props['schema'][$key]['data']['source'][$elem[$key]]['color']))
-                                                                        <div class="badge {{$props['schema'][$key]['data']['source'][$elem[$key]]['color']}} uppercase">{{$props['schema'][$key]['data']['source'][$elem[$key]]['name'] ?? null}}</div>
-                                                                    @else
-                                                                        {{$props['schema'][$key]['data']['source'][$elem[$key]]['name'] ?? null}}
+                                                                    @if(isset($elem[$key]))
+                                                                        @if(isset($props['schema'][$key]['data']['source'][$elem[$key]]['color']))
+                                                                            <div class="badge {{$props['schema'][$key]['data']['source'][$elem[$key]]['color']}} uppercase">{{$props['schema'][$key]['data']['source'][$elem[$key]]['name'] ?? null}}</div>
+                                                                        @else
+                                                                            {{$props['schema'][$key]['data']['source'][$elem[$key]]['name'] ?? null}}
+                                                                        @endif
                                                                     @endif
                                                                 @endif
 

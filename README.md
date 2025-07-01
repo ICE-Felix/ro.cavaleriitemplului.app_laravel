@@ -162,3 +162,5 @@ This project is proprietary software. All rights reserved.
 ## Notes
 
 - Updated `storage/app/json/news.json` schema/config. See CHANGELOG.md for details.
+- Updated `storage/app/json/locale.json` and `storage/app/json/users.json` schema configurations with improved field definitions and structure
+- Enhanced data display handling with better null checking and error prevention
