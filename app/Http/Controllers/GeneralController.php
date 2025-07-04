@@ -102,28 +102,21 @@ class GeneralController extends Controller
                     }
                 }
                 if (isset($prop['type']) && $prop['type'] === 'image') {
-                    $objectId = false;
                     // Check if an image file was uploaded
                     if ($request->hasFile($prop['key'] ?? $key) && $request->file($prop['key'] ?? $key)->isValid()) {
-                        // Define bucket, filename, and filePath
-                        $bucket = $prop['bucket'] ?? 'images'; // Replace with your actual bucket name
                         $file = $request->file($prop['key'] ?? $key);
-                        $filename = $file->getClientOriginalName(); // Or generate a unique name
-                        $filePath = $file->getPathname();
-
-                        // Upload the image to Supabase Storage
-                        $uploadedImageName = $this->supabase->uploadImage($filename, $filePath, $bucket);
-                        $imageData = $this->supabase->listObjects($uploadedImageName);
-                        // Assuming the upload response contains a UUID or some form of identifier
-                        $objectId = $imageData[0]['id'] ?? null;
-                        $data[$prop['key'] ?? $key] = $objectId;
-
-                        // Check if the image was successfully uploaded
-                        if (!$objectId) {
-                            // Handle error (image not uploaded)
-                            return back()->withErrors(['msg' => 'Failed to upload ' . $prop['type'] . '.']);
-                        }
+                        
+                        // Read file contents and convert to base64
+                        $fileContents = file_get_contents($file->getPathname());
+                        $base64 = base64_encode($fileContents);
+                        // Store the base64 string instead of object ID
+                        $data[$prop['upload_key'] ?? ($prop['key'] ?? $key)] = $base64;
                     }
+                }
+
+                //if type numeric, cast to int or double
+                if (isset($prop['type']) && $prop['type'] === 'numeric') {
+                    $data[$prop['key'] ?? $key] = (float)$data[$prop['key'] ?? $key];
                 }
             }
             $methodName = $this->props['INSERT'];
@@ -221,28 +214,21 @@ class GeneralController extends Controller
                 }
 
                 if (isset($prop['type']) && $prop['type'] === 'image') {
-                    $objectId = false;
                     // Check if an image file was uploaded
                     if ($request->hasFile($prop['key'] ?? $key) && $request->file($prop['key'] ?? $key)->isValid()) {
-                        // Define bucket, filename, and filePath
-                        $bucket = $prop['bucket'] ?? 'images'; // Replace with your actual bucket name
                         $file = $request->file($prop['key'] ?? $key);
-                        $filename = $file->getClientOriginalName(); // Or generate a unique name
-                        $filePath = $file->getPathname();
-
-                        // Upload the image to Supabase Storage
-                        $uploadedImageName = $this->supabase->uploadImage($filename, $filePath, $bucket);
-                        $imageData = $this->supabase->listObjects($uploadedImageName);
-                        // Assuming the upload response contains a UUID or some form of identifier
-                        $objectId = $imageData[0]['id'] ?? null;
-                        $data[$prop['key'] ?? $key] = $objectId;
-
-                        // Check if the image was successfully uploaded
-                        if (!$objectId) {
-                            // Handle error (image not uploaded)
-                            return back()->withErrors(['msg' => 'Failed to upload ' . $prop['type'] . '.']);
-                        }
+                        
+                        // Read file contents and convert to base64
+                        $fileContents = file_get_contents($file->getPathname());
+                        $base64 = base64_encode($fileContents);
+                        // Store the base64 string instead of object ID
+                        $data[$prop['upload_key'] ?? ($prop['key'] ?? $key)] = $base64;
                     }
+                }
+
+                //if type numeric, cast to int or double
+                if (isset($prop['type']) && $prop['type'] === 'numeric') {
+                    $data[$prop['key'] ?? $key] = ((float)$data[$prop['key'] ?? $key]) ?? 0;
                 }
             }
 

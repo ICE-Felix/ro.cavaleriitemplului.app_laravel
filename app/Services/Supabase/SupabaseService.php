@@ -134,6 +134,7 @@ class SupabaseService
      */
     public function processRequest($url, $params, $method = "GET")
     {
+       
         try {
             switch ($method) {
                 case 'GET':

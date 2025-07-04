@@ -51,7 +51,7 @@
                                             placeholder="{{$field['placeholder'] ?? null}}"
                                             label="{{$field['label'] ?? $key}}"
                                             :error="$errors->first($field['id'] ?? $key)"
-                                            value="{{$field['value'] ?? null}}"
+                                            value="{{$field['value'] ?? null ?? 0}}"
                                         />
                                         @break
                                     @case('textarea')
