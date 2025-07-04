@@ -61,7 +61,7 @@
                                             placeholder="{{$field['placeholder'] ?? null}}"
                                             label="{{$field['label'] ?? $key}}"
                                             :error="$errors->first($field['id'] ?? $key)"
-                                            value="{{$result[$field['id'] ?? $key]}}"
+                                            value="{{$result[$field['id'] ?? $key] ?? 0}}"
                                         />
                                         @break
                                     @case('textarea')
@@ -97,15 +97,25 @@
                                         />
                                         @break
                                         @case('image')
-                                        <x-file-browser
-                                            name="{{$field['key'] ?? $key}}"
-                                            label="{{$field['label']}}"
-                                            :isImage="true"
-                                            :error="$errors->first($field['key'] ?? $key)"
-                                            :success="session($field['key'] ?? $key)"
-                                            preview="{{$result[$field['id'] ?? $key] ? env('SUPABASE_URL') . '/storage/v1/object/public/images/' . $result[$field['id'] ?? $key] : null}}"
-                                            value="{{$result[$field['id'] ?? $key]}}"
-                                        />
+                                            @isset($result[$field['id'] ?? $key])
+                                                <x-file-browser
+                                                    name="{{$field['key'] ?? $key}}"
+                                                    label="{{$field['label']}}"
+                                                    :isImage="true"
+                                                    :error="$errors->first($field['key'] ?? $key)"
+                                                    :success="session($field['key'] ?? $key)"
+                                                    preview="{{$result[$field['id'] ?? $key]}}"
+                                                    value="{{$result[$field['id'] ?? $key]}}"
+                                                />
+                                                @else
+                                            <x-file-browser
+                                                    name="{{$field['key'] ?? $key}}"
+                                                    label="{{$field['label']}}"
+                                                    :isImage="true"
+                                                    :error="$errors->first($field['key'] ?? $key)"
+                                                    :success="session($field['key'] ?? $key)"
+                                            />
+                                            @endisset
                                         @break
                                         @case('date')
                                         <x-date-input

@@ -1,6 +1,6 @@
 {
     "name": {
-        "singular": "new",
+        "singular": "news",
         "plural": "news"
     },
     "schema": {
@@ -10,7 +10,18 @@
             "readonly": true,
             "visible": false
         },
-        "category_name": {
+        "image_url": {
+            "key": "image_id",
+            "type": "image",
+            "label": "Featured image",
+            "upload_key": "image_base64"
+          },
+        "title": {
+            "type": "text",
+            "label": "Title",
+            "placeholder": "Title"
+        },
+        "news_category_title": {
             "type": "select",
             "label": "Category",
             "key": "news_categories_id",
@@ -22,40 +33,48 @@
                     "news_categories"
                 ],
                 "value": "id",
-                "name": "title"
+                "name": "name"
             }
-        },
-        "title": {
-            "type": "text",
-            "label": "Title",
-            "placeholder": "Titlu"
         },
         "keywords": {
             "type": "text",
             "label": "Keywords",
-            "placeholder": "Cuvinte cheie"
+            "placeholder": "Keywords"
         },
         "body": {
             "type": "text",
             "label": "Body",
-            "placeholder": "Continut"
+            "placeholder": "Body"
         },
-        "contact_name": {
+        "likes": {
+            "type": "numeric",
+            "label": "Likes",
+            "placeholder": "Likes"
+        },
+        "read_count": {
+            "type": "numeric",
+            "label": "Reads",
+            "placeholder": "Reads"
+        },
+
+
+        "partner_company_name": {
             "type": "select",
-            "label": "Contact name",
-            "key": "contact_id",
+            "label": "Partner",
+            "key": "partner_id",
             "data": {
                 "type": "class",
                 "source": [
                     "App\\Services\\Supabase\\SupabaseService",
                     "read_edge",
-                    "contacts"
+                    "partners"
                 ],
                 "value": "id",
-                "name": "{first_name} {last_name}"
+                "name": "company_name"
             }
         },
-        "locale_name": {
+
+        "locale_label": {
             "type": "select",
             "label": "Language",
             "key": "locale_id",
@@ -67,18 +86,8 @@
                     "locale"
                 ],
                 "value": "id",
-                "name": "Code"
+                "name": "label"
             }
-        },
-        "likes": {
-            "type": "text",
-            "label": "Likes",
-            "placeholder": "Likes"
-        },
-        "read_count": {
-            "type": "text",
-            "label": "Read count",
-            "placeholder": ""
         }
     },
     "GET": "edge",

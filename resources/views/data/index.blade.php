@@ -116,9 +116,13 @@
                                                             @endif
                                                             @break
                                                         @case('image')
-                                                            <img style="height: 50px"
-                                                                 src="{{env('SUPABASE_URL') . '/storage/v1/object/public/images/' . $elem[$key]}}"
-                                                                 alt="{{$elem[$key] ?? ''}}">
+                                                            @isset($elem[$key])
+                                                                <img style="height: 50px"
+                                                                         src="{{$elem[$key]}}"
+                                                                     alt="{{$elem[$key] ?? ''}}">
+                                                                @else
+                                                                    <span>N/A</span>
+                                                            @endisset
                                                             @break
                                                         @case('boolean')
                                                             {{$elem[$key] ? "TRUE" : "FALSE"}}
