@@ -42,7 +42,6 @@
     <link rel="apple-touch-icon" href="/assets/images/favicon/apple-touch-icon.png">
 
     <link rel="stylesheet" href="/assets/css/style.css"/>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @yield('header')
 </head>
 
