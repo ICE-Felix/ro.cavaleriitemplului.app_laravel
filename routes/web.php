@@ -46,3 +46,5 @@ require __DIR__.'/auth.php';
 Route::get('/forbidden', function () {
     return response()->view('errors.403', [], 403);
 })->name('error.403');
+
+Route::post('/ai/generate-image', [GeneralController::class, 'generateAiImage'])->name('ai.generate-image');

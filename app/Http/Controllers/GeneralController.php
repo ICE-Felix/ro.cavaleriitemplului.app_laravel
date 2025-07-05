@@ -8,6 +8,7 @@ use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Services\OpenAIService;
 
 class GeneralController extends Controller
 {
@@ -340,6 +341,56 @@ class GeneralController extends Controller
             }
         }
         return $data;
+    }
+
+    public function generateAiImage(Request $request)
+    {
+        $request->validate([
+            'prompt' => 'required|string|max:1000',
+            'size' => 'required|in:512x512,1024x1024,1792x1024,1024x1792',
+            'component_name' => 'required|string'
+        ]);
+
+        $openAIService = new OpenAIService();
+        
+        // Generate image
+        $result = $openAIService->generateImage($request->prompt, $request->size);
+        
+        if (!$result['success']) {
+            return response()->json([
+                'success' => false,
+                'error' => $result['error']
+            ]);
+        }
+        
+        // Download and save the first image
+        $imageUrl = $result['images'][0]['url'];
+        $filename = 'ai_' . time() . '_' . uniqid() . '.png';
+        
+        $downloadResult = $openAIService->downloadAndSaveImage($imageUrl, $filename);
+        
+        if (!$downloadResult['success']) {
+            return response()->json([
+                'success' => false,
+                'error' => $downloadResult['error']
+            ]);
+        }
+        
+        // Convert image to base64 for file field (if needed)
+        $imagePath = storage_path('app/public/' . $downloadResult['path']);
+        $imageData = base64_encode(file_get_contents($imagePath));
+        $mimeType = mime_content_type($imagePath);
+        $base64Image = 'data:' . $mimeType . ';base64,' . $imageData;
+        
+        return response()->json([
+            'success' => true,
+            'path' => $downloadResult['path'],
+            'preview_url' => url('storage/' . $downloadResult['path']),
+            'filename' => $filename,
+            'file_data' => $base64Image, // For file field
+            'file_size' => filesize($imagePath),
+            'mime_type' => $mimeType
+        ]);
     }
 
 }
