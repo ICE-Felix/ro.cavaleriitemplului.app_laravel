@@ -30,20 +30,31 @@ class OpenAIService
      * Generate an image using OpenAI DALL-E
      *
      * @param string $prompt The image generation prompt
-     * @param string $size Image size (256x256, 512x512, 1024x1024)
+     * @param string $size Image size (512x512, 1024x1024, 1792x1024, 1024x1792)
      * @param int $n Number of images to generate
      * @return array
      * @throws GuzzleException
      */
-    public function generateImage(string $prompt, string $size = '512x512', int $n = 1): array
+    public function generateImage(string $prompt, string $size = '1024x1024', int $n = 1): array
     {
         try {
+            // Map legacy sizes to DALL-E 3 supported sizes
+            $sizeMapping = [
+                '256x256' => '1024x1024',
+                '512x512' => '1024x1024',
+                '1024x1024' => '1024x1024',
+                '1792x1024' => '1792x1024',
+                '1024x1792' => '1024x1792'
+            ];
+            
+            $mappedSize = $sizeMapping[$size] ?? '1024x1024';
+            
             $response = $this->client->post('images/generations', [
                 'json' => [
                     'model' => 'dall-e-3',
                     'prompt' => $prompt,
-                    'n' => $n,
-                    'size' => $size,
+                    'n' => 1, // DALL-E 3 only supports n=1
+                    'size' => $mappedSize,
                     'response_format' => 'url'
                 ]
             ]);
@@ -92,7 +103,7 @@ class OpenAIService
             return [
                 'success' => true,
                 'path' => $path,
-                'url' => Storage::disk('public')->url($path)
+                'url' => url('storage/' . $path)
             ];
             
         } catch (GuzzleException $e) {

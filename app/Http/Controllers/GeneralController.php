@@ -385,7 +385,7 @@ class GeneralController extends Controller
         return response()->json([
             'success' => true,
             'path' => $downloadResult['path'],
-            'preview_url' => $downloadResult['url'],
+            'preview_url' => url('storage/' . $downloadResult['path']),
             'filename' => $filename,
             'file_data' => $base64Image, // For file field
             'file_size' => filesize($imagePath),

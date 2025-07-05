@@ -43,15 +43,14 @@
                     class="form-control w-full" 
                     rows="4" 
                     placeholder="Describe the image you want to generate..."
-                    required
                 ></textarea>
             </div>
 
             <div class="mb-4">
                 <label class="label block mb-2" for="aiSize-{{ $name }}">Image Size</label>
                 <select id="aiSize-{{ $name }}" name="size" class="form-control w-full">
-                    <option value="512x512">512x512</option>
-                    <option value="1024x1024">1024x1024</option>
+                    <option value="512x512">512x512 (Square - mapped to 1024x1024)</option>
+                    <option value="1024x1024" selected>1024x1024 (Square)</option>
                     <option value="1792x1024">1792x1024 (Landscape)</option>
                     <option value="1024x1792">1024x1792 (Portrait)</option>
                 </select>
@@ -171,10 +170,16 @@ async function generateAIImage(componentName) {
         console.log('Response data:', result);
         
         if (result.success) {
-            // Convert the image URL to a File object and populate the file input
-            const imageResponse = await fetch(result.preview_url);
-            const imageBlob = await imageResponse.blob();
-            const imageFile = new File([imageBlob], result.filename, { type: imageBlob.type });
+            // Convert base64 data to blob and create File object
+            const base64Data = result.file_data.split(',')[1]; // Remove data:image/png;base64, prefix
+            const byteCharacters = atob(base64Data);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            const imageBlob = new Blob([byteArray], { type: result.mime_type });
+            const imageFile = new File([imageBlob], result.filename, { type: result.mime_type });
             
             // Create a new FileList with the generated image
             const fileInput = document.getElementById('fileInput-' + componentName);
@@ -182,10 +187,10 @@ async function generateAIImage(componentName) {
             dt.items.add(imageFile);
             fileInput.files = dt.files;
             
-            // Update the preview
+            // Update the preview using base64 data
             const previewContainer = document.getElementById('imagePreviewContainer-' + componentName);
             previewContainer.innerHTML = `
-                <img id="filePreview-${componentName}" src="${result.preview_url}" alt="AI Generated Image" class="img-thumbnail" style="max-height: 200px; max-width: 200px;">
+                <img id="filePreview-${componentName}" src="${result.file_data}" alt="AI Generated Image" class="img-thumbnail" style="max-height: 200px; max-width: 200px;">
             `;
             
             // Update file name
@@ -197,7 +202,7 @@ async function generateAIImage(componentName) {
             
             // Clear form inputs
             promptInput.value = '';
-            sizeSelect.value = '512x512';
+            sizeSelect.value = '1024x1024';
             
         } else {
             alert('Error: ' + result.error);
