@@ -28,54 +28,59 @@
 
 @if($isImage)
 <!-- AI Image Generation Modal -->
-<x-modal name="ai-image-modal-{{ $name }}" :show="false" max-width="lg">
-    <div class="p-6">
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-6">
-            Generate AI Image
-        </h2>
-
-        <div id="aiImageForm-{{ $name }}">
-            <div class="mb-4">
-                <label class="label block mb-2" for="aiPrompt-{{ $name }}">Image Prompt</label>
-                <textarea 
-                    id="aiPrompt-{{ $name }}" 
-                    name="prompt" 
-                    class="form-control w-full" 
-                    rows="4" 
-                    placeholder="Describe the image you want to generate..."
-                ></textarea>
+<div id="ai-image-modal-{{ $name }}" class="modal" data-animations="fadeInDown, fadeOutUp">
+    <div class="modal-dialog max-w-2xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Generate AI Image</h2>
+                <button class="close la la-times" data-dismiss="modal"></button>
             </div>
+            <div class="modal-body">
+                <div id="aiImageForm-{{ $name }}">
+                    <div class="mb-4">
+                        <label class="label block mb-2" for="aiPrompt-{{ $name }}">Image Prompt</label>
+                        <textarea 
+                            id="aiPrompt-{{ $name }}" 
+                            name="prompt" 
+                            class="form-control w-full" 
+                            rows="4" 
+                            placeholder="Describe the image you want to generate..."
+                        ></textarea>
+                    </div>
 
-            <div class="mb-4">
-                <label class="label block mb-2" for="aiSize-{{ $name }}">Image Size</label>
-                <select id="aiSize-{{ $name }}" name="size" class="form-control w-full">
-                    <option value="512x512">512x512 (Square - mapped to 1024x1024)</option>
-                    <option value="1024x1024" selected>1024x1024 (Square)</option>
-                    <option value="1792x1024">1792x1024 (Landscape)</option>
-                    <option value="1024x1792">1024x1792 (Portrait)</option>
-                </select>
-            </div>
+                    <div class="mb-4">
+                        <label class="label block mb-2" for="aiSize-{{ $name }}">Image Size</label>
+                        <select id="aiSize-{{ $name }}" name="size" class="form-control w-full">
+                            <option value="512x512">512x512 (Square - mapped to 1024x1024)</option>
+                            <option value="1024x1024" selected>1024x1024 (Square)</option>
+                            <option value="1792x1024">1792x1024 (Landscape)</option>
+                            <option value="1024x1792">1024x1792 (Portrait)</option>
+                        </select>
+                    </div>
 
-            <div class="mb-6">
-                <div id="aiImageGenerationStatus-{{ $name }}" class="hidden">
-                    <div class="flex items-center">
-                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                        <span>Generating image...</span>
+                    <div class="mb-6">
+                        <div id="aiImageGenerationStatus-{{ $name }}" class="hidden">
+                            <div class="flex items-center">
+                                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                                <span>Generating image...</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div class="flex justify-end space-x-3">
-                <button type="button" class="btn btn_secondary" onclick="closeAiImageModal('{{ $name }}')">
-                    Cancel
-                </button>
-                <button type="button" class="btn btn_primary" onclick="generateAIImage('{{ $name }}')">
-                    Generate Image
-                </button>
+            <div class="modal-footer">
+                <div class="flex ltr:ml-auto rtl:mr-auto">
+                    <button type="button" class="btn btn_secondary uppercase" data-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="button" class="btn btn_primary ltr:ml-2 rtl:mr-2 uppercase" onclick="generateAIImage('{{ $name }}')">
+                        Generate Image
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</x-modal>
+</div>
 @endif
 
 <script>
@@ -116,15 +121,23 @@ function openAiImageModal(componentName, event) {
         event.preventDefault();
         event.stopPropagation();
     }
-    window.dispatchEvent(new CustomEvent('open-modal', {
-        detail: 'ai-image-modal-' + componentName
-    }));
+    
+    // Use the modal structure from components-modal.html
+    const modal = document.getElementById('ai-image-modal-' + componentName);
+    if (modal) {
+        modal.style.display = 'block';
+        modal.classList.add('show');
+        document.body.classList.add('modal-open');
+    }
 }
 
 function closeAiImageModal(componentName) {
-    window.dispatchEvent(new CustomEvent('close-modal', {
-        detail: 'ai-image-modal-' + componentName
-    }));
+    const modal = document.getElementById('ai-image-modal-' + componentName);
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('show');
+        document.body.classList.remove('modal-open');
+    }
 }
 
 async function generateAIImage(componentName) {
