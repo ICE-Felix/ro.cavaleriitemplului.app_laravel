@@ -1,0 +1,49 @@
+{
+  "name": {
+    "singular": "venue_business_hour",
+    "plural": "venue_business_hours"
+  },
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+    "venue_name": {
+      "type": "select",
+      "label": "Venue",
+      "key": "venue_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "venues"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    },
+    "starting_hour": {
+      "type": "text",
+      "label": "Starting hour",
+      "placeholder": "09:00"
+    },
+    "ending_hour": {
+      "type": "text",
+      "label": "Ending hour",
+      "placeholder": "17:00"
+    },
+    "weekday_index": {
+      "type": "numeric",
+      "label": "Weekday index",
+      "placeholder": "1",
+      "visible": false
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}

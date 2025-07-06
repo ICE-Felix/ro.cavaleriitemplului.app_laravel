@@ -1,0 +1,48 @@
+{
+  "name": {
+    "singular": "venue_attribute",
+    "plural": "venue_attributes"
+  },
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+    "venue_name": {
+      "type": "select",
+      "label": "Venue",
+      "key": "venue_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "venues"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    },
+    "attribute": {
+      "type": "select",
+      "label": "Attribute",
+      "key": "venue_general_attribute_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "venue_general_attributes"
+        ],
+        "value": "id",
+        "name": "{type} - {value}"
+      }
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}

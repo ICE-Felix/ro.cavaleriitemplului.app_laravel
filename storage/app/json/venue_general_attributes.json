@@ -1,0 +1,28 @@
+{
+  "name": {
+    "singular": "venue_general_attribute",
+    "plural": "venue_general_attributes"
+  },
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+    "type": {
+      "type": "text",
+      "label": "Type",
+      "placeholder": "Age"
+    },
+    "value": {
+      "type": "text",
+      "label": "Value",
+      "placeholder": "0-3"
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}

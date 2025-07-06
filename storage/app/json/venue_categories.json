@@ -1,0 +1,38 @@
+{
+  "name": {
+    "singular": "venue_category",
+    "plural": "venue_categories"
+  },
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+    "name": {
+      "type": "text",
+      "label": "Name",
+      "placeholder": "Vacanta"
+    },
+    "parent_name": {
+      "type": "select",
+      "label": "Parent category",
+      "key": "parent_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "categories"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}

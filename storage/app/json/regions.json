@@ -1,0 +1,38 @@
+{
+  "name": {
+    "singular": "region",
+    "plural": "regions"
+  },
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+    "name": {
+      "type": "text",
+      "label": "Name",
+      "placeholder": "Ilfov"
+    },
+    "country_name": {
+      "type": "select",
+      "label": "Country",
+      "key": "country_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "countries"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}
