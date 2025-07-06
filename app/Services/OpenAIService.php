@@ -16,6 +16,12 @@ class OpenAIService
     public function __construct()
     {
         $this->apiKey = config('services.openai.key');
+        
+        // Add validation for API key
+        if (empty($this->apiKey)) {
+            throw new \Exception('OpenAI API key is not configured. Please set the OPENAI_KEY environment variable.');
+        }
+        
         $this->baseUrl = 'https://api.openai.com/v1/';
         $this->client = new Client([
             'base_uri' => $this->baseUrl,
