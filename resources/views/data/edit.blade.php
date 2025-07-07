@@ -42,7 +42,7 @@
                                             name="{{$field['id'] ?? $key}}"
                                             placeholder="{{$field['placeholder'] ?? null}}"
                                             :error="$errors->first($field['id'] ?? $key)"
-                                            value="{{$result[$field['id'] ?? $key] ?? ''}}"
+                                            value="{!! html_entity_decode($result[$field['id'] ?? $key] ?? '') !!}"
                                         />
                                         @break
                                     @case('json')
@@ -70,7 +70,7 @@
                                             label="{{$field['label'] ?? $key}}"
                                             rows="{{$field['rows'] ?? null}}"
                                             :error="$errors->first($field['id'] ?? $key)"
-                                            value="{{$result[$field['id'] ?? $key]}}"
+                                            value="{!! html_entity_decode($result[$field['id'] ?? $key]) !!}"
                                         />
                                         @break
                                     @case('select')

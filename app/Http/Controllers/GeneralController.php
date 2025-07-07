@@ -96,10 +96,11 @@ class GeneralController extends Controller
         $data = null;
         try {
             foreach ($this->props['schema'] as $key => $prop) {
-
                 if (!isset($prop['readonly']) || !$prop['readonly']) {
                     if ($request->get($prop['key'] ?? $key) !== null) {
-                        $data[$prop['key'] ?? $key] = $request->get($prop['key'] ?? $key);
+                        // Decode HTML entities before saving
+                        $value = $request->get($prop['key'] ?? $key);
+                        $data[$prop['key'] ?? $key] = html_entity_decode($value, ENT_QUOTES | ENT_HTML5 | ENT_XML1, 'UTF-8');
                     }
                 }
                 if (isset($prop['type']) && $prop['type'] === 'image') {
@@ -207,10 +208,11 @@ class GeneralController extends Controller
         $data = null;
         try {
             foreach ($this->props['schema'] as $key => $prop) {
-
                 if (!isset($prop['readonly']) || !$prop['readonly']) {
                     if($prop['type'] !== 'image') {
-                        $data[$prop['key'] ?? $key] = $request->get($prop['key'] ?? $key);
+                        // Decode HTML entities before saving
+                        $value = $request->get($prop['key'] ?? $key);
+                        $data[$prop['key'] ?? $key] = html_entity_decode($value, ENT_QUOTES | ENT_HTML5 | ENT_XML1, 'UTF-8');
                     }
                 }
 

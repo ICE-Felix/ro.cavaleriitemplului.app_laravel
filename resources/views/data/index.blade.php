@@ -162,7 +162,7 @@
                                                             {{ parseTemplate($field['format'] ?? $key, $elem) }}
                                                         @break
                                                         @default
-                                                            {{$elem[$key] ?? ''}}
+                                                            {!! html_entity_decode($elem[$key] ?? '') !!}
                                                             @break
                                                     @endswitch
                                                 </td>

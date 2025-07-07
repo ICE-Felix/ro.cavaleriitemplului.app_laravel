@@ -42,7 +42,7 @@
                                             label="{{$field['label' ?? ucfirst($key)]}}"
                                             placeholder="{{$field['placeholder'] ?? null}}"
                                             :error="$errors->first($field['id'] ?? $key)"
-                                            value="{{$field['value'] ?? null}}"
+                                            value="{!! html_entity_decode($field['value'] ?? '') !!}"
                                         />
                                         @break
                                     @case('numeric')
@@ -60,7 +60,7 @@
                                             label="{{$field['label'] ?? $key}}"
                                             rows="{{$field['rows'] ?? null}}"
                                             :error="$errors->first($field['id'] ?? $key)"
-                                            value="{{$field['value'] ?? null}}"
+                                            value="{!! html_entity_decode($field['value'] ?? '') !!}"
                                         />
                                         @break
                                         @case('json')
