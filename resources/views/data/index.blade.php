@@ -161,6 +161,9 @@
                                                         @case('date')
                                                             {{ parseTemplate($field['format'] ?? $key, $elem) }}
                                                         @break
+                                                        @case('trix')
+                                                            {!! \Illuminate\Support\Str::limit(strip_tags(html_entity_decode($elem[$key] ?? '')), 100) !!}
+                                                        @break
                                                         @default
                                                             {!! html_entity_decode($elem[$key] ?? '') !!}
                                                             @break
