@@ -29,6 +29,10 @@
             });
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/trix@2.1.15/dist/trix.umd.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/trix@2.1.15/dist/trix.min.css" rel="stylesheet">
+    <link href="/assets/css/trix.css" rel="stylesheet">
+
     <title>{{env('APP_NAME')}}</title>
     @yield('pre-header')
 

@@ -64,6 +64,15 @@
                                             value="{{$result[$field['id'] ?? $key] ?? 0}}"
                                         />
                                         @break
+                                    @case('trix')
+                                        <x-trix-editor
+                                            name="{{$field['id'] ?? $key}}"
+                                            label="{{$field['label'] ?? $key}}"
+                                            rows="{{$field['rows'] ?? null}}"
+                                            :error="$errors->first($field['id'] ?? $key)"
+                                            value="{!! html_entity_decode($result[$field['id'] ?? $key]) !!}"
+                                        />
+                                        @break
                                     @case('textarea')
                                         <x-textarea
                                             name="{{$field['id'] ?? $key}}"

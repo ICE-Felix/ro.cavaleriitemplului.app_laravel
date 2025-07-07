@@ -42,7 +42,7 @@
             "placeholder": "Keywords"
         },
         "body": {
-            "type": "text",
+            "type": "trix",
             "label": "Body",
             "placeholder": "Body"
         },
