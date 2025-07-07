@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Changed
+- Added text excerpt functionality for Trix editor content in data tables
+  - Limited Trix content display to 100 characters
+  - Added automatic ellipsis for truncated content
+  - Stripped HTML tags for cleaner excerpt display
 - Updated `storage/app/json/locale.json` schema configuration
   - Fixed singular name from "local" to "locale" for consistency
   - Updated placeholder text to be more descriptive ("en" for code, "English" for label)
@@ -43,10 +47,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Fixed boolean field casting in edit forms (true/false to 1/0)
   - Better error handling for dropdown data population
 - Updated `storage/app/json/news.json` schema/config. See file for details.
-- Added text excerpt functionality for Trix editor content in data tables
-  - Limited Trix content display to 100 characters
-  - Added automatic ellipsis for truncated content
-  - Stripped HTML tags for cleaner excerpt display
 
 ### Fixed
 - Fixed duplicate logout route names in routes/auth.php
