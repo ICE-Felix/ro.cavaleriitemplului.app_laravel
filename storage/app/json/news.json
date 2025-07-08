@@ -3,6 +3,7 @@
         "singular": "news",
         "plural": "news"
     },
+    "debug": [],
     "schema": {
         "id": {
             "label": "#",
@@ -15,15 +16,16 @@
             "type": "image",
             "label": "Featured image",
             "upload_key": "image_base64"
-          },
+        },
         "title": {
             "type": "text",
             "label": "Title",
             "placeholder": "Title"
+
         },
         "news_category_title": {
             "type": "select",
-            "label": "Category",
+            "label": "Primary Category",
             "key": "news_categories_id",
             "data": {
                 "type": "class",
@@ -56,11 +58,9 @@
             "label": "Reads",
             "placeholder": "Reads"
         },
-
-
         "partner_company_name": {
             "type": "select",
-            "label": "Partner",
+            "label": "Primary Partner",
             "key": "partner_id",
             "data": {
                 "type": "class",
@@ -73,7 +73,6 @@
                 "name": "company_name"
             }
         },
-
         "locale_label": {
             "type": "select",
             "label": "Language",
@@ -88,6 +87,72 @@
                 "value": "id",
                 "name": "label"
             }
+        },
+        "is_featured": {
+            "type": "checkbox",
+            "label": "Featured Article",
+            "key": "is_featured",
+            "value": false,
+            "text": "Make this article featured on homepage"
+        },
+        "is_published": {
+            "type": "checkbox",
+            "label": "Published Status",
+            "key": "is_published",
+            "value": true,
+            "text": "Publish this article immediately"
+        },
+        "allow_comments": {
+            "type": "checkbox",
+            "label": "Comments",
+            "key": "allow_comments",
+            "value": true,
+            "text": "Allow users to comment on this article"
+        },
+        "categories": {
+            "type": "checkbox",
+            "label": "Additional Categories",
+            "key": "category_ids",
+            "value": [1, 2],
+            "data": {
+                "type": "class",
+                "source": [
+                    "App\\Services\\Supabase\\SupabaseService",
+                    "read_edge",
+                    "news_categories"
+                ],
+                "value": "id",
+                "name": "name"
+            }
+        },
+        "related_categories": {
+            "type": "checkbox",
+            "label": "Related Categories",
+            "key": "related_category_ids",
+            "value": [],
+            "data": {
+                "type": "class",
+                "source": [
+                    "App\\Services\\Supabase\\SupabaseService",
+                    "read_edge",
+                    "news_categories"
+                ],
+                "value": "id",
+                "name": "name"
+            }
+        },
+        "tags": {
+            "type": "checkbox",
+            "label": "Article Tags",
+            "key": "tag_ids",
+            "value": ["breaking", "important"],
+            "options": [
+                {"value": "breaking", "name": "Breaking News"},
+                {"value": "important", "name": "Important"},
+                {"value": "trending", "name": "Trending"},
+                {"value": "exclusive", "name": "Exclusive"},
+                {"value": "opinion", "name": "Opinion"}
+            ]
         }
     },
     "GET": "edge",

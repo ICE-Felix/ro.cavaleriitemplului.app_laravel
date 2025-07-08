@@ -7,6 +7,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Implemented comprehensive debugging system for dynamic CRUD operations
+  - Added configurable debug flags in entity JSON files (`"debug": ["GET", "POST", "UPDATE", "DELETE"]`)
+  - Added granular debug output for each CRUD operation stage
+  - Implemented step-by-step debug flow: request data → Supabase communication → final state
+  - Added final debug dumps before views/redirects for complete operation visibility
+  - Debug output includes raw request data, processed data, Supabase requests/responses, and final states
+- Created comprehensive Dynamic CRUD System Documentation (`DYNAMIC_CRUD_DOCUMENTATION.md`)
+  - Complete developer guide for creating new entities
+  - Detailed component documentation for all field types (text, trix, numeric, select, checkbox, image, date)
+  - Architecture overview and communication flow diagrams
+  - Step-by-step entity creation process with examples
+  - Debugging system usage guide and troubleshooting section
+  - Best practices, common issues, and advanced features documentation
+- Enhanced error handling in blade templates
+  - Added null checks for array keys to prevent "Undefined array key" errors
+  - Improved graceful handling of missing ID fields in data tables
+  - Added fallback displays for records without proper ID fields
 - Added location picker component to edit form
   - Integrated location picker in edit views
   - Added support for existing location data display
@@ -19,6 +36,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Added proper value handling and HTML entity decoding
 
 ### Changed
+- Enhanced SupabaseService with configurable debug output
+  - Updated all edge function methods (create_edge, read_edge, update_edge, delete_edge) to accept debug parameters
+  - Added conditional debug output using dump() for informational data and dd() for final error states
+  - Improved error handling with detailed debug information for HTTP errors and exceptions
+  - Added request/response logging for better troubleshooting capabilities
+- Upgraded GeneralController debugging capabilities
+  - Added debug checks in all CRUD operations (index, store, update, destroy, edit)
+  - Implemented final debug dumps before redirects and view rendering
+  - Added comprehensive data inspection at each processing stage
+  - Enhanced error tracking and state validation for all operations
+- Updated news.json configuration with debug flags for targeted debugging control
 - Added text excerpt functionality for Trix editor content in data tables
   - Limited Trix content display to 100 characters
   - Added automatic ellipsis for truncated content
@@ -61,6 +89,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Updated `storage/app/json/news.json` schema/config. See file for details.
 
 ### Fixed
+- Fixed "Undefined array key 'id'" errors in data index view
+  - Added proper null checks for ID fields in blade templates
+  - Enhanced error handling for records missing required keys
+  - Improved graceful fallback for invalid data structures
+- Resolved debugging output inconsistencies in CRUD operations
+  - Standardized dump() vs dd() usage: dump() for informational output, dd() for final states
+  - Fixed success case debugging to allow continued execution to views
+  - Ensured error case debugging properly halts execution for inspection
 - Fixed duplicate logout route names in routes/auth.php
   - Renamed GET logout route to 'logout.get' to avoid naming conflicts
   - Resolved Laravel route caching errors during deployment

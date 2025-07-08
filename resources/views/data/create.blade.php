@@ -127,6 +127,34 @@
                                                 max="2024-12-31"
                                         />
                                         @break
+                                        @case('checkbox')
+                                        @php
+                                            $label = $field['label'] ?? ucfirst($key);
+                                            $values = [];
+                                            
+                                            // Check for static options in field configuration
+                                            if(isset($field['options'])) {
+                                                foreach ($field['options'] as $option) {
+                                                    $values[$option['value']] = ucfirst($option['name']);
+                                                }
+                                            }
+                                            // Fallback to dynamic data if no static options
+                                            elseif(isset($data[$key])) {
+                                                foreach ($data[$key] as $elem) {
+                                                    $values[$elem['value']] = ucfirst($elem['name']);
+                                                }
+                                            }
+                                        @endphp
+                                        <x-checkbox
+                                            name="{{ $field['key'] ?? $key }}"
+                                            label="{{ $label }}"
+                                            :error="$errors->first($field['key'] ?? $key)"
+                                            :checked="old($field['key'] ?? $key, $field['value'] ?? false)"
+                                            :default="$field['value'] ?? false"
+                                            :options="$values"
+                                            :text="$field['text'] ?? null"
+                                        />
+                                        @break
                                 @endswitch
                             @endif
                         @endforeach
