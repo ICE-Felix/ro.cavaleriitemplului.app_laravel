@@ -48,6 +48,7 @@
     <link rel="stylesheet" href="/assets/css/style.css"/>
     @vite(['resources/js/app.js'])
     @yield('header')
+    @stack('styles')
 </head>
 
 <body>
@@ -112,6 +113,7 @@
     }
 </script>
 @yield('footer')
+@stack('scripts')
 
 </body>
 
