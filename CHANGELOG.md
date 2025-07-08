@@ -7,6 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- Added location picker component to edit form
+  - Integrated location picker in edit views
+  - Added support for existing location data display
+  - Implemented fallback coordinates (44.4268, 26.1025)
+  - Added proper error handling and success messages
 - Implemented Trix rich text editor component
   - Added TrixEditor blade component with error handling
   - Integrated Trix editor in create and edit forms
