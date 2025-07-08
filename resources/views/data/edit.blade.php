@@ -126,6 +126,18 @@
                                             />
                                             @endisset
                                         @break
+                                        
+                                        @case('location')
+                                        <x-location-picker
+                                            name="location"
+                                            label="Location"
+                                            :error="$errors->first('location')"
+                                            :success="session('location')"
+                                            :latitude="$result['location_latitude'] ?? 44.4268"
+                                            :longitude="$result['location_longitude'] ?? 26.1025"
+                                        />
+                                        @break
+                                        
                                         @case('date')
                                         <x-date-input
                                                 name="{{ $field['id'] ?? $key }}"
