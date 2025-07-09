@@ -1,0 +1,139 @@
+{
+  "name": {
+    "singular": "venue",
+    "plural": "venues",
+    "label_singular": "Venue",
+    "label_plural": "Venues"
+  },
+  "debug": [],
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+    "name": {
+      "type": "text",
+      "label": "Name",
+      "placeholder": "Name"
+    },
+    "contact_name": {
+      "type": "select",
+      "label": "Contact",
+      "key": "contact_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "contacts"
+        ],
+        "value": "id",
+        "name": "{first_name} {last_name}"
+      }
+    },
+    "category_name": {
+      "type": "select",
+      "label": "Category",
+      "key": "venue_category_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "venue_categories"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    },
+    "description": {
+      "type": "trix",
+      "label": "Description",
+      "placeholder": "Description"
+    },
+    "image_url": {
+      "key": "image_id",
+      "type": "image",
+      "label": "Image",
+      "upload_key": "image_base64"
+    },
+    "attribute_name": {
+      "type": "select",
+      "label": "Addressability",
+      "key": "venue_attribute_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "venue_general_attributes"
+        ],
+        "value": "id",
+        "name": "{type} - {value}"
+      }
+    },
+    "country_name": {
+      "type": "select",
+      "label": "Country",
+      "key": "country_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "countries"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    },
+    "region_name": {
+      "type": "select",
+      "label": "Region",
+      "key": "region_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "regions"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    },
+    "city": {
+      "type": "text",
+      "label": "City",
+      "placeholder": "Bucharest"
+    },
+    "address": {
+      "type": "varchar",
+      "label": "Address",
+      "placeholder": ""
+    },
+    "latitude": {
+      "type": "text",
+      "label": "Latitude",
+      "placeholder": "44.405964"
+    },
+    "longitude": {
+      "type": "text",
+      "label": "Longitude",
+      "placeholder": "26.104081"
+    },
+    "is_active": {
+      "type": "checkbox",
+      "label": "Active",
+      "key": "is_active",
+      "value": true,
+      "text": "Venue is active"
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}
