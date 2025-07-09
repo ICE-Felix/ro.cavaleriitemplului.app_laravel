@@ -5,7 +5,7 @@
     "label_singular": "Region",
     "label_plural": "Regions"
   },
-  "debug": ["GET", "POST", "UPDATE", "DELETE"],
+  "debug": [],
   "schema": {
     "id": {
       "label": "#",

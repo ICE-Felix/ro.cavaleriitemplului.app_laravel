@@ -5,7 +5,7 @@
     "label_singular": "Venue Attribute",
     "label_plural": "Venue Attributes"
   },
-  "debug": ["GET", "POST", "UPDATE", "DELETE"],
+  "debug": [],
   "schema": {
     "id": {
       "label": "#",
