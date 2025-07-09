@@ -134,7 +134,7 @@
                                                             @isset($field["cast"])
                                                                 @switch($field["cast"])
                                                                     @case('bool')
-                                                                        {{$elem[$key] !== null ? (ucfirst($elem[$key] !== false ? "true" : "false")) : "False"}}
+                                                                        {{isset($elem[$key]) ? ($elem[$key] ? "True": "False"): "False"}}
                                                                     @break
                                                                     @default
                                                                         {{ucfirst($elem[$key] ?? '')}}

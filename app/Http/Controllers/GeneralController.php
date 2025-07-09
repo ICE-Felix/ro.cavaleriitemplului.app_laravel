@@ -74,7 +74,6 @@ class GeneralController extends Controller
                 });
             }
 
-            $data = $this->getData($data);
             $props = $this->props;
 
             // DEBUG: Final data being sent to view
