@@ -1,8 +1,11 @@
 {
   "name": {
     "singular": "venue",
-    "plural": "venues"
+    "plural": "venues",
+    "label_singular": "Venue",
+    "label_plural": "Venues"
   },
+  "debug": ["GET", "POST", "UPDATE", "DELETE"],
   "schema": {
     "id": {
       "label": "#",
@@ -13,7 +16,7 @@
     "name": {
       "type": "text",
       "label": "Name",
-      "placeholder": "Romania"
+      "placeholder": "Name"
     },
     "contact_name": {
       "type": "select",
@@ -43,6 +46,32 @@
         ],
         "value": "id",
         "name": "name"
+      }
+    },
+    "description": {
+      "type": "trix",
+      "label": "Description",
+      "placeholder": "Description"
+    },
+    "image_url": {
+      "key": "image_id",
+      "type": "image",
+      "label": "Image",
+      "upload_key": "image_base64"
+    },
+    "attribute_name": {
+      "type": "select",
+      "label": "Addressability",
+      "key": "venue_attribute_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "venue_general_attributes"
+        ],
+        "value": "id",
+        "name": "{type} - {value}"
       }
     },
     "country_name": {
@@ -96,38 +125,11 @@
       "placeholder": "26.104081"
     },
     "is_active": {
-      "type": "select",
+      "type": "checkbox",
       "label": "Active",
-      "cast": "bool",
-      "data": {
-        "source": {
-          "true": {
-            "value": true,
-            "name": "True"
-          },
-          "false": {
-            "value": false,
-            "name": "False"
-          }
-        }
-      }
-    },
-    "is_online": {
-      "type": "select",
-      "label": "Online",
-      "cast": "bool",
-      "data": {
-        "source": {
-          "true": {
-            "value": true,
-            "name": "True"
-          },
-          "false": {
-            "value": false,
-            "name": "False"
-          }
-        }
-      }
+      "key": "is_active",
+      "value": true,
+      "text": "Venue is active"
     }
   },
   "GET": "edge",

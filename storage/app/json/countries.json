@@ -1,8 +1,11 @@
 {
   "name": {
     "singular": "country",
-    "plural": "countries"
+    "plural": "countries",
+    "label_singular": "Country",
+    "label_plural": "Countries"
   },
+  "debug": ["GET", "POST", "UPDATE", "DELETE"],
   "schema": {
     "id": {
       "label": "#",

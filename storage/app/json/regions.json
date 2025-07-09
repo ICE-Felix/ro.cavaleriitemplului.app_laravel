@@ -1,8 +1,11 @@
 {
   "name": {
     "singular": "region",
-    "plural": "regions"
+    "plural": "regions",
+    "label_singular": "Region",
+    "label_plural": "Regions"
   },
+  "debug": ["GET", "POST", "UPDATE", "DELETE"],
   "schema": {
     "id": {
       "label": "#",

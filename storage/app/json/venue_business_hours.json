@@ -3,6 +3,7 @@
     "singular": "venue_business_hour",
     "plural": "venue_business_hours"
   },
+  "debug": ["GET", "POST", "UPDATE", "DELETE"],
   "schema": {
     "id": {
       "label": "#",

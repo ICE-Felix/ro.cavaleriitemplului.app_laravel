@@ -1,8 +1,11 @@
 {
   "name": {
     "singular": "venue_category",
-    "plural": "venue_categories"
+    "plural": "venue_categories",
+    "label_singular": "Venue category",
+    "label_plural": "Venue categories"
   },
+  "debug": ["GET", "POST", "UPDATE", "DELETE"],
   "schema": {
     "id": {
       "label": "#",
