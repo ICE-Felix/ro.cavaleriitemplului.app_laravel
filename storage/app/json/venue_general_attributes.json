@@ -14,9 +14,24 @@
       "visible": false
     },
     "type": {
-      "type": "text",
-      "label": "Type",
-      "placeholder": "Age"
+      "type": "select",
+      "label": "",
+      "data": {
+        "source": {
+          "varsta": {
+            "value": "varsta",
+            "name": "varsta"
+          },
+          "facilitati": {
+            "value": "facilitati",
+            "name": "facilitati"
+          },
+          "capacitate": {
+            "value": "capacitate",
+            "name": "capacitate"
+          }
+        }
+      }
     },
     "value": {
       "type": "text",
