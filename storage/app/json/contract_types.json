@@ -1,7 +1,9 @@
 {
   "name": {
-    "singular": "subscription_type",
-    "plural": "subscriptions_types"
+    "singular": "contract_type",
+    "plural": "contract_types",
+    "label_singular": "Contract type",
+    "label_plural": "Contract types"
   },
   "schema": {
     "id": {
@@ -13,39 +15,10 @@
     "name": {
       "label": "Name",
       "type": "text"
-    },
-    "sessions_no": {
-      "label": "Sessions number",
-      "type": "text"
-    },
-    "weekend": {
-      "type": "select",
-      "cast": "bool",
-      "data": {
-        "source": {
-          "true": {
-            "value": true,
-            "name": "True"
-          },
-          "false": {
-            "value": false,
-            "name": "False"
-          }
-        }
-      }
-    },
-    "price": {
-      "label": "Price",
-      "type": "text"
-    },
-    "order_no": {
-      "label": "Order no.",
-      "type": "text",
-      "visible": false
     }
   },
-  "GET": "read_rpc",
-  "INSERT": "create",
-  "DELETE": "delete",
-  "UPDATE": "update"
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
 }
