@@ -6,7 +6,51 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- Implemented comprehensive debugging system for dynamic CRUD operations
+  - Added configurable debug flags in entity JSON files (`"debug": ["GET", "POST", "UPDATE", "DELETE"]`)
+  - Added granular debug output for each CRUD operation stage
+  - Implemented step-by-step debug flow: request data → Supabase communication → final state
+  - Added final debug dumps before views/redirects for complete operation visibility
+  - Debug output includes raw request data, processed data, Supabase requests/responses, and final states
+- Created comprehensive Dynamic CRUD System Documentation (`DYNAMIC_CRUD_DOCUMENTATION.md`)
+  - Complete developer guide for creating new entities
+  - Detailed component documentation for all field types (text, trix, numeric, select, checkbox, image, date)
+  - Architecture overview and communication flow diagrams
+  - Step-by-step entity creation process with examples
+  - Debugging system usage guide and troubleshooting section
+  - Best practices, common issues, and advanced features documentation
+- Enhanced error handling in blade templates
+  - Added null checks for array keys to prevent "Undefined array key" errors
+  - Improved graceful handling of missing ID fields in data tables
+  - Added fallback displays for records without proper ID fields
+- Added location picker component to edit form
+  - Integrated location picker in edit views
+  - Added support for existing location data display
+  - Implemented fallback coordinates (44.4268, 26.1025)
+  - Added proper error handling and success messages
+- Implemented Trix rich text editor component
+  - Added TrixEditor blade component with error handling
+  - Integrated Trix editor in create and edit forms
+  - Added custom CSS styling for Trix editor
+  - Added proper value handling and HTML entity decoding
+
 ### Changed
+- Enhanced SupabaseService with configurable debug output
+  - Updated all edge function methods (create_edge, read_edge, update_edge, delete_edge) to accept debug parameters
+  - Added conditional debug output using dump() for informational data and dd() for final error states
+  - Improved error handling with detailed debug information for HTTP errors and exceptions
+  - Added request/response logging for better troubleshooting capabilities
+- Upgraded GeneralController debugging capabilities
+  - Added debug checks in all CRUD operations (index, store, update, destroy, edit)
+  - Implemented final debug dumps before redirects and view rendering
+  - Added comprehensive data inspection at each processing stage
+  - Enhanced error tracking and state validation for all operations
+- Updated news.json configuration with debug flags for targeted debugging control
+- Added text excerpt functionality for Trix editor content in data tables
+  - Limited Trix content display to 100 characters
+  - Added automatic ellipsis for truncated content
+  - Stripped HTML tags for cleaner excerpt display
 - Updated `storage/app/json/locale.json` schema configuration
   - Fixed singular name from "local" to "locale" for consistency
   - Updated placeholder text to be more descriptive ("en" for code, "English" for label)
@@ -15,6 +59,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Added phone field for better contact information management
   - Changed role field to userrole for better naming convention
   - Simplified edge permissions to use consistent 'edge' pattern
+- Updated `storage/app/json/contacts.json` schema configuration
+  - Enhanced contact structure with separate first_name and last_name fields
+  - Added comprehensive department type selection with predefined options
+  - Included department types: vanzari, management, operational, tehnic, financiar, suport-clienti, administrator
+  - Added proper labeling for singular/plural forms
+- Updated `storage/app/json/contracts.json` schema configuration
+  - Added partner selection linked to partners table via partner_id
+  - Integrated contract type selection linked to contract_types table
+  - Added file_url field for contract document management
+  - Implemented approval system with checkbox for is_active status
+  - Enhanced contract numbering and commenting system
+- Created new `storage/app/json/contract_types.json` configuration
+  - Simple contract type management with id and name fields
+  - Proper singular/plural labeling structure
+  - Full CRUD operations support via edge functions
 - Improved data table display with enhanced null checking
   - Added proper null checking in data index view to prevent display errors
   - Enhanced conditional rendering for select field data sources
@@ -45,6 +104,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Updated `storage/app/json/news.json` schema/config. See file for details.
 
 ### Fixed
+- Fixed "Undefined array key 'id'" errors in data index view
+  - Added proper null checks for ID fields in blade templates
+  - Enhanced error handling for records missing required keys
+  - Improved graceful fallback for invalid data structures
+- Resolved debugging output inconsistencies in CRUD operations
+  - Standardized dump() vs dd() usage: dump() for informational output, dd() for final states
+  - Fixed success case debugging to allow continued execution to views
+  - Ensured error case debugging properly halts execution for inspection
 - Fixed duplicate logout route names in routes/auth.php
   - Renamed GET logout route to 'logout.get' to avoid naming conflicts
   - Resolved Laravel route caching errors during deployment

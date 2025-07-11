@@ -35,37 +35,63 @@ class GeneralController extends Controller
     public function index(): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
     {
         $data = [];
-        $methodName = $this->props['GET'];
+        
+        try {
+            $methodName = $this->props['GET'];
 
-        switch ($methodName) {
-            case 'edge':
-                $methodName = "read_edge";
-                break;
+            switch ($methodName) {
+                case 'edge':
+                    $methodName = "read_edge";
+                    break;
+            }
+
+            if (method_exists($this->supabase, $methodName)) {
+                // DEBUG: Check if GET debugging is enabled
+                if (isset($this->props['debug']) && in_array('GET', $this->props['debug'])) {
+                    dump('=== GET OPERATION ===');
+                    dump([
+                        'method' => $methodName,
+                        'table' => $this->props['name']['plural']
+                    ]);
+                }
+                
+                // Pass debug flag to SupabaseService
+                $debugEnabled = isset($this->props['debug']) && in_array('GET', $this->props['debug']);
+                $data = $this->supabase->$methodName($this->props['name']['plural'], $debugEnabled);
+            } else {
+                dd("Method $methodName does not exist on the object.");
+            }
+
+            // Sorting logic
+            if (isset($this->props['order_by']) && is_array($this->props['order_by'])) {
+                [$field, $direction] = $this->props['order_by'];
+                $direction = strtolower($direction) === 'desc' ? SORT_DESC : SORT_ASC;
+
+                usort($data, function ($a, $b) use ($field, $direction) {
+                    return $direction === SORT_DESC
+                        ? $b[$field] <=> $a[$field]
+                        : $a[$field] <=> $b[$field];
+                });
+            }
+
+            $props = $this->props;
+
+            // DEBUG: Final data being sent to view
+            if (isset($this->props['debug']) && in_array('GET', $this->props['debug'])) {
+                dd('=== FINAL DATA TO VIEW ===', [
+                    'data' => $data,
+                    'props' => $props
+                ]);
+            }
+
+            return view('data.index', compact('data', 'props'));
+        } catch (GuzzleException $e) {
+            if ($e->getCode() == 403) {
+                return back()->withErrors(['general' => 'You don\'t have permissions to access this resource']);
+            }
+        } catch (Exception $e) {
+            dd($e);
         }
-
-        // Check if the method exists
-        if (method_exists($this->supabase, $methodName)) {
-            // Fetch data using the specified method
-            $data = $this->supabase->$methodName($this->props['name']['plural']);
-        } else {
-            abort(404, "Method $methodName does not exist on the object.");
-        }
-
-        // Sorting logic
-        if (isset($this->props['order_by']) && is_array($this->props['order_by'])) {
-            [$field, $direction] = $this->props['order_by'];
-            $direction = strtolower($direction) === 'desc' ? SORT_DESC : SORT_ASC;
-
-            usort($data, function ($a, $b) use ($field, $direction) {
-                return $direction === SORT_DESC
-                    ? $b[$field] <=> $a[$field]
-                    : $a[$field] <=> $b[$field];
-            });
-        }
-
-        $props = $this->props;
-
-        return view('data.index', compact('data', 'props'));
     }
 
 
@@ -80,6 +106,16 @@ class GeneralController extends Controller
             $data = [];
 
             $data = $this->getData($data);
+            $props = $this->props;
+
+            // DEBUG: Final data being sent to view
+            if (isset($this->props['debug']) && in_array('GET', $this->props['debug'])) {
+                dd('=== FINAL DATA TO CREATE VIEW ===', [
+                    'data' => $data,
+                    'props' => $props
+                ]);
+            }
+
             return view('data.create', compact('data', 'props'));
 
         } catch (GuzzleException $e) {
@@ -96,10 +132,21 @@ class GeneralController extends Controller
         $data = null;
         try {
             foreach ($this->props['schema'] as $key => $prop) {
-
                 if (!isset($prop['readonly']) || !$prop['readonly']) {
                     if ($request->get($prop['key'] ?? $key) !== null) {
-                        $data[$prop['key'] ?? $key] = $request->get($prop['key'] ?? $key);
+                        // Get the value from request
+                        $value = $request->get($prop['key'] ?? $key);
+                        
+                        // Handle arrays (from checkboxes with multiple options) vs strings
+                        if (is_array($value)) {
+                            // For arrays, decode each element if it's a string
+                            $data[$prop['key'] ?? $key] = array_map(function($item) {
+                                return is_string($item) ? html_entity_decode($item, ENT_QUOTES | ENT_HTML5 | ENT_XML1, 'UTF-8') : $item;
+                            }, $value);
+                        } else {
+                            // For strings, decode as usual
+                            $data[$prop['key'] ?? $key] = html_entity_decode($value, ENT_QUOTES | ENT_HTML5 | ENT_XML1, 'UTF-8');
+                        }
                     }
                 }
                 if (isset($prop['type']) && $prop['type'] === 'image') {
@@ -120,6 +167,16 @@ class GeneralController extends Controller
                     $data[$prop['key'] ?? $key] = (float)$data[$prop['key'] ?? $key];
                 }
             }
+            
+            // DEBUG: Check if POST debugging is enabled
+            if (isset($this->props['debug']) && in_array('POST', $this->props['debug'])) {
+                dump('=== RAW REQUEST DATA ===');
+                dump($request->all());
+                
+                dump('=== PROCESSED DATA FOR SUPABASE ===');
+                dump($data);
+            }
+            
             $methodName = $this->props['INSERT'];
 
             switch ($methodName) {
@@ -130,14 +187,36 @@ class GeneralController extends Controller
 
             if (method_exists($this->supabase, $methodName) && $data !== null) {
                 try {
+                    // DEBUG: Check if POST debugging is enabled
+                    if (isset($this->props['debug']) && in_array('POST', $this->props['debug'])) {
+                        dump('=== SUPABASE CALL INFO ===');
+                        dump([
+                            'method' => $methodName,
+                            'table' => $this->props['name']['plural'],
+                            'data' => $data
+                        ]);
+                    }
 
-                    $this->supabase->$methodName($data, $this->props['name']['plural']);
+                    // Pass debug flag to SupabaseService
+                    $debugEnabled = isset($this->props['debug']) && in_array('POST', $this->props['debug']);
+                    $this->supabase->$methodName($data, $this->props['name']['plural'], $debugEnabled);
                 } catch (Exception $e) {
                     Log::error('There was an error creating the ' . ($this->props['name']['label_singular'] ?? $this->props['name']['singular']) . ': ' . $e->getMessage());
                     return back()->withErrors(['msg' => "There was an error creating the " . isset($this->props['name']['label_singular']) ?  strtolower($this->props['name']['label_singular']) : strtolower($this->props['name']['singular']) . "!"]);
                 }
             } else {
                 dd("Method $methodName does not exist on the object.");
+            }
+
+            // DEBUG: Final state before redirect
+            if (isset($this->props['debug']) && in_array('POST', $this->props['debug'])) {
+                dd('=== FINAL STATE BEFORE REDIRECT (POST) ===', [
+                    'operation' => 'CREATE',
+                    'table' => $this->props['name']['plural'],
+                    'processed_data' => $data,
+                    'redirect_route' => $this->props['name']['plural'],
+                    'success_message' => (isset($this->props['name']['label_singular']) ? ucfirst($this->props['name']['label_singular']) : ucfirst($this->props['name']['singular'])) . ' has been created successfully!'
+                ]);
             }
 
             return redirect($this->props['name']['plural'])->with('success', (isset($this->props['name']['label_singular']) ? ucfirst($this->props['name']['label_singular']) : ucfirst($this->props['name']['singular'])) . ' has been created successfully!');
@@ -173,7 +252,19 @@ class GeneralController extends Controller
                     break;
             }
             if (method_exists($this->supabase, $methodName)) {
-                $data = $this->supabase->$methodName($this->props['name']['plural']);
+                // DEBUG: Check if GET debugging is enabled
+                if (isset($this->props['debug']) && in_array('GET', $this->props['debug'])) {
+                    dump('=== GET OPERATION FOR EDIT ===');
+                    dump([
+                        'method' => $methodName,
+                        'table' => $this->props['name']['plural'],
+                        'id' => $id
+                    ]);
+                }
+                
+                // Pass debug flag to SupabaseService
+                $debugEnabled = isset($this->props['debug']) && in_array('GET', $this->props['debug']);
+                $data = $this->supabase->$methodName($this->props['name']['plural'], $debugEnabled);
             } else {
                 dd("Method $methodName does not exist on the object.");
             }
@@ -187,6 +278,16 @@ class GeneralController extends Controller
                 }
             }
 
+            $props = $this->props;
+
+            // DEBUG: Final data being sent to view
+            if (isset($this->props['debug']) && in_array('GET', $this->props['debug'])) {
+                dd('=== FINAL DATA TO EDIT VIEW ===', [
+                    'data' => $data,
+                    'props' => $props,
+                    'result' => $result
+                ]);
+            }
 
             return view('data.edit', compact('data', 'props', 'result'));
 
@@ -207,10 +308,21 @@ class GeneralController extends Controller
         $data = null;
         try {
             foreach ($this->props['schema'] as $key => $prop) {
-
                 if (!isset($prop['readonly']) || !$prop['readonly']) {
                     if($prop['type'] !== 'image') {
-                        $data[$prop['key'] ?? $key] = $request->get($prop['key'] ?? $key);
+                        // Get the value from request
+                        $value = $request->get($prop['key'] ?? $key);
+                        
+                        // Handle arrays (from checkboxes with multiple options) vs strings
+                        if (is_array($value)) {
+                            // For arrays, decode each element if it's a string
+                            $data[$prop['key'] ?? $key] = array_map(function($item) {
+                                return is_string($item) ? html_entity_decode($item, ENT_QUOTES | ENT_HTML5 | ENT_XML1, 'UTF-8') : $item;
+                            }, $value);
+                        } else {
+                            // For strings, decode as usual
+                            $data[$prop['key'] ?? $key] = html_entity_decode($value, ENT_QUOTES | ENT_HTML5 | ENT_XML1, 'UTF-8');
+                        }
                     }
                 }
 
@@ -243,13 +355,38 @@ class GeneralController extends Controller
 
             if (method_exists($this->supabase, $methodName) && $data !== null) {
                 try {
-                    $this->supabase->$methodName($id, $data, $this->props['name']['plural']);
+                    // DEBUG: Check if UPDATE debugging is enabled
+                    if (isset($this->props['debug']) && in_array('UPDATE', $this->props['debug'])) {
+                        dump('=== UPDATE OPERATION ===');
+                        dump([
+                            'id' => $id,
+                            'method' => $methodName,
+                            'table' => $this->props['name']['plural'],
+                            'data' => $data
+                        ]);
+                    }
+                    
+                    // Pass debug flag to SupabaseService
+                    $debugEnabled = isset($this->props['debug']) && in_array('UPDATE', $this->props['debug']);
+                    $this->supabase->$methodName($id, $data, $this->props['name']['plural'], $debugEnabled);
                 } catch (Exception $e) {
                     Log::error('There was an error creating the ' . $this->props['name']['singular'] . ': ' . $e->getMessage());
                     return back()->withErrors(['msg' => "There was an error creating the ' . $this->props['name']['singular'] . '!"]);
                 }
             } else {
                 dd("Method $methodName does not exist on the object.");
+            }
+
+            // DEBUG: Final state before redirect
+            if (isset($this->props['debug']) && in_array('UPDATE', $this->props['debug'])) {
+                dd('=== FINAL STATE BEFORE REDIRECT (UPDATE) ===', [
+                    'operation' => 'UPDATE',
+                    'id' => $id,
+                    'table' => $this->props['name']['plural'],
+                    'processed_data' => $data,
+                    'redirect_route' => $this->props['name']['plural'] . '.index',
+                    'success_message' => ucfirst($this->props['name']['label_singular'] ?? $this->props['name']['singular']) . " has been updated successfully!"
+                ]);
             }
 
             return redirect()->route($this->props['name']['plural'] . '.index')
@@ -277,10 +414,34 @@ class GeneralController extends Controller
         }
 
         if (method_exists($this->supabase, $methodName)) {
-            $this->supabase->$methodName($id, $this->props['name']['plural']);
+            // DEBUG: Check if DELETE debugging is enabled
+            if (isset($this->props['debug']) && in_array('DELETE', $this->props['debug'])) {
+                dump('=== DELETE OPERATION ===');
+                dump([
+                    'id' => $id,
+                    'method' => $methodName,
+                    'table' => $this->props['name']['plural']
+                ]);
+            }
+            
+            // Pass debug flag to SupabaseService
+            $debugEnabled = isset($this->props['debug']) && in_array('DELETE', $this->props['debug']);
+            $this->supabase->$methodName($id, $this->props['name']['plural'], $debugEnabled);
         } else {
             dd("Method $methodName does not exist on the object.");
         }
+        
+        // DEBUG: Final state before redirect
+        if (isset($this->props['debug']) && in_array('DELETE', $this->props['debug'])) {
+            dd('=== FINAL STATE BEFORE REDIRECT (DELETE) ===', [
+                'operation' => 'DELETE',
+                'id' => $id,
+                'table' => $this->props['name']['plural'],
+                'redirect_route' => $this->props['name']['plural'],
+                'success_message' => (isset($this->props['name']['label_singular']) ? ucfirst($this->props['name']['label_singular']) : ucfirst($this->props['name']['singular'])) . ' has been deleted successfully!'
+            ]);
+        }
+        
         return redirect($this->props['name']['plural'])->with('success', (isset($this->props['name']['label_singular']) ? ucfirst($this->props['name']['label_singular']) : ucfirst($this->props['name']['singular'])) . ' has been deleted successfully!');
     }
 
@@ -300,7 +461,9 @@ class GeneralController extends Controller
                 }
 
                 if (method_exists($serviceInstance, $source[1])) {
-                    $data = $serviceInstance->{$source[1]}($source[2]);
+                    // Pass debug flag to SupabaseService for GET operations
+                    $debugEnabled = isset($this->props['debug']) && in_array('GET', $this->props['debug']);
+                    $data = $serviceInstance->{$source[1]}($source[2], $debugEnabled);
                     return array_map(function ($item) use ($valueKey, $nameKey, $template) {
                         return [
                             'value' => $item[$valueKey],
@@ -330,7 +493,7 @@ class GeneralController extends Controller
     public function getData(array $data): array
     {
         foreach ($this->props['schema'] as $key => $prop) {
-            if (isset($prop['type']) && $prop['type'] === 'select') {
+            if (isset($prop['type']) && ($prop['type'] === 'select' || $prop['type'] === 'checkbox') && isset($prop['data'])) {
                 $data[$key] =
                     $this->getSourceData($prop['data']['source'],
                         $prop['data']['value'] ?? 'value',
@@ -412,3 +575,4 @@ class GeneralController extends Controller
     }
 
 }
+

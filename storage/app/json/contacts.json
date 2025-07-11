@@ -29,6 +29,42 @@
             "type": "text",
             "label": "Email",
             "placeholder": ""
+        },
+        "type": {
+            "type": "select",
+            "label": "Department type",
+            "data": {
+                "source": {
+                    "vanzari": {
+                        "value": "vanzari",
+                        "name": "Vanzari"
+                    },
+                    "management": {
+                        "value": "management",
+                        "name": "Management"
+                    },
+                    "operational": {
+                        "value": "operational",
+                        "name": "Operational"
+                    },
+                    "tehnic": {
+                        "value": "tehnic",
+                        "name": "Tehnic"
+                    },
+                    "financiar": {
+                        "value": "financiar",
+                        "name": "Financiar"
+                    },
+                    "suport-clienti": {
+                        "value": "suport-clienti",
+                        "name": "Suport Clienti"
+                    },
+                    "administrator": {
+                        "value": "administrator",
+                        "name": "Administrator"
+                    }
+                }
+            }
         }
     },
     "GET": "edge",

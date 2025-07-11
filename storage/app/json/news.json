@@ -3,6 +3,7 @@
         "singular": "news",
         "plural": "news"
     },
+    "debug": [],
     "schema": {
         "id": {
             "label": "#",
@@ -15,15 +16,16 @@
             "type": "image",
             "label": "Featured image",
             "upload_key": "image_base64"
-          },
+        },
         "title": {
             "type": "text",
             "label": "Title",
             "placeholder": "Title"
+
         },
         "news_category_title": {
             "type": "select",
-            "label": "Category",
+            "label": "Primary Category",
             "key": "news_categories_id",
             "data": {
                 "type": "class",
@@ -42,7 +44,7 @@
             "placeholder": "Keywords"
         },
         "body": {
-            "type": "text",
+            "type": "trix",
             "label": "Body",
             "placeholder": "Body"
         },
@@ -56,11 +58,9 @@
             "label": "Reads",
             "placeholder": "Reads"
         },
-
-
         "partner_company_name": {
             "type": "select",
-            "label": "Partner",
+            "label": "Primary Partner",
             "key": "partner_id",
             "data": {
                 "type": "class",
@@ -73,7 +73,6 @@
                 "name": "company_name"
             }
         },
-
         "locale_label": {
             "type": "select",
             "label": "Language",

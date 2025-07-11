@@ -134,7 +134,7 @@
                                                             @isset($field["cast"])
                                                                 @switch($field["cast"])
                                                                     @case('bool')
-                                                                        {{$elem[$key] !== null ? (ucfirst($elem[$key] !== false ? "true" : "false")) : "False"}}
+                                                                        {{isset($elem[$key]) ? ($elem[$key] ? "True": "False"): "False"}}
                                                                     @break
                                                                     @default
                                                                         {{ucfirst($elem[$key] ?? '')}}
@@ -161,8 +161,11 @@
                                                         @case('date')
                                                             {{ parseTemplate($field['format'] ?? $key, $elem) }}
                                                         @break
+                                                        @case('trix')
+                                                            {!! \Illuminate\Support\Str::limit(strip_tags(html_entity_decode($elem[$key] ?? '')), 100) !!}
+                                                        @break
                                                         @default
-                                                            {{$elem[$key] ?? ''}}
+                                                            {!! html_entity_decode($elem[$key] ?? '') !!}
                                                             @break
                                                     @endswitch
                                                 </td>
@@ -178,11 +181,11 @@
 
                                     @if($canEdit || $canDelete)
                                         <td>
-                                            @if($canEdit)
+                                            @if($canEdit && isset($elem['id']))
                                                 <a href="{{ route($props['name']['plural'] . '.edit', [ $elem['id']]) }}"
                                                    class="btn btn_secondary uppercase">Edit</a>
                                             @endif
-                                            @if($canDelete)
+                                            @if($canDelete && isset($elem['id']))
                                                 <form
                                                     action="{{ route($props['name']['plural'] . '.destroy', [$elem['id']]) }}"
                                                     method="POST" style="display: inline;">
@@ -192,6 +195,9 @@
                                                             onclick="confirmDelete(event)">Delete
                                                     </button>
                                                 </form>
+                                            @endif
+                                            @if(!isset($elem['id']))
+                                                <span class="text-gray-500">No ID available</span>
                                             @endif
                                         </td>
                                     @endif

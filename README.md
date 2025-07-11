@@ -163,4 +163,7 @@ This project is proprietary software. All rights reserved.
 
 - Updated `storage/app/json/news.json` schema/config. See CHANGELOG.md for details.
 - Updated `storage/app/json/locale.json` and `storage/app/json/users.json` schema configurations with improved field definitions and structure
+- Updated `storage/app/json/contacts.json` with enhanced contact management including department types and structured name fields
+- Updated `storage/app/json/contracts.json` with partner integration, contract types, and approval system
+- Created new `storage/app/json/contract_types.json` for contract type management
 - Enhanced data display handling with better null checking and error prevention

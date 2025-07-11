@@ -20,9 +20,21 @@ class Input extends Component
         $this->name = $name;
         $this->label = $label ?? ucfirst($name);
         $this->placeholder = $placeholder;
-        $this->value = $value;
+        
+        if ($value !== null) {
+            // First decode HTML entities
+            $decodedValue = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            // Convert the incorrect character encoding to proper UTF-8
+            $this->value = str_replace(
+                ['ǎ', 'ǐ', 'ǔ', 'ǒ'], 
+                ['ă', 'î', 'ț', 'ș'], 
+                $decodedValue
+            );
+        } else {
+            $this->value = null;
+        }
+        
         $this->success = $success;
-
         $this->error = $error;
     }
 

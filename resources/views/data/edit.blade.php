@@ -42,7 +42,7 @@
                                             name="{{$field['id'] ?? $key}}"
                                             placeholder="{{$field['placeholder'] ?? null}}"
                                             :error="$errors->first($field['id'] ?? $key)"
-                                            value="{{$result[$field['id'] ?? $key] ?? ''}}"
+                                            value="{!! html_entity_decode($result[$field['id'] ?? $key] ?? '') !!}"
                                         />
                                         @break
                                     @case('json')
@@ -64,13 +64,22 @@
                                             value="{{$result[$field['id'] ?? $key] ?? 0}}"
                                         />
                                         @break
+                                    @case('trix')
+                                        <x-trix-editor
+                                            name="{{$field['id'] ?? $key}}"
+                                            label="{{$field['label'] ?? $key}}"
+                                            rows="{{$field['rows'] ?? null}}"
+                                            :error="$errors->first($field['id'] ?? $key)"
+                                            value="{!! html_entity_decode($result[$field['id'] ?? $key]) !!}"
+                                        />
+                                        @break
                                     @case('textarea')
                                         <x-textarea
                                             name="{{$field['id'] ?? $key}}"
                                             label="{{$field['label'] ?? $key}}"
                                             rows="{{$field['rows'] ?? null}}"
                                             :error="$errors->first($field['id'] ?? $key)"
-                                            value="{{$result[$field['id'] ?? $key]}}"
+                                            value="{!! html_entity_decode($result[$field['id'] ?? $key]) !!}"
                                         />
                                         @break
                                     @case('select')
@@ -117,6 +126,18 @@
                                             />
                                             @endisset
                                         @break
+                                        
+                                        @case('location')
+                                        <x-location-picker
+                                            name="location"
+                                            label="Location"
+                                            :error="$errors->first('location')"
+                                            :success="session('location')"
+                                            :latitude="$result['location_latitude'] ?? 44.4268"
+                                            :longitude="$result['location_longitude'] ?? 26.1025"
+                                        />
+                                        @break
+                                        
                                         @case('date')
                                         <x-date-input
                                                 name="{{ $field['id'] ?? $key }}"
@@ -126,6 +147,33 @@
                                                 value="{{ $result[$key] ?? null }}"
                                                 min="2024-01-01"
                                                 max="2024-12-31"
+                                        />
+                                        @break
+                                        @case('checkbox')
+                                        @php
+                                            $label = $field['label'] ?? ucfirst($key);
+                                            $values = [];
+                                            
+                                            // Check for static options in field configuration
+                                            if(isset($field['options'])) {
+                                                foreach ($field['options'] as $option) {
+                                                    $values[$option['value']] = ucfirst($option['name']);
+                                                }
+                                            }
+                                            // Fallback to dynamic data if no static options
+                                            elseif(isset($data[$key])) {
+                                                foreach ($data[$key] as $elem) {
+                                                    $values[$elem['value']] = ucfirst($elem['name']);
+                                                }
+                                            }
+                                        @endphp
+                                        <x-checkbox
+                                            name="{{ $field['id'] ?? $key }}"
+                                            label="{{ $label }}"
+                                            :error="$errors->first($field['id'] ?? $key)"
+                                            :checked="old($field['id'] ?? $key, $result[$field['id'] ?? $key] ?? false)"
+                                            :default="$field['value'] ?? false"
+                                            :options="$values"
                                         />
                                         @break
                                 @endswitch
