@@ -15,126 +15,36 @@
             "label": "Number",
             "type": "text"
         },
-        "student_full_name" : {
+        "partner_name" : {
             "type" : "select",
-            "label" : "Student",
-            "key" : "student_id",
+            "label" : "Partner",
+            "key" : "partner_id",
             "data" : {
                 "type" : "class",
                 "source" : [
                     "App\\Services\\Supabase\\SupabaseService",
                     "read_rpc",
-                    "students"
+                    "partners"
                 ],
                 "value" : "id",
-                "name" : "full_name"
+                "name" : "company_name"
             }
         },
-        "contact_full_name" : {
+        "contract_type" : {
             "type" : "select",
-            "label" : "Contact",
-            "key" : "contact_id",
+            "label" : "Contract type",
+            "key" : "type_id",
             "data" : {
                 "type" : "class",
                 "source" : [
                     "App\\Services\\Supabase\\SupabaseService",
-                    "read_rpc",
-                    "contacts"
-                ],
-                "value" : "id",
-                "name" : "contact_full_name"
-            }
-        },
-        "emergency_contact_full_name" : {
-            "type" : "select",
-            "label" : "Emergency Contact",
-            "key" : "emergency_contact_id",
-            "data" : {
-                "type" : "class",
-                "source" : [
-                    "App\\Services\\Supabase\\SupabaseService",
-                    "read_rpc",
-                    "contacts"
-                ],
-                "value" : "id",
-                "name" : "contact_full_name"
-            }
-        },
-        "date": {
-            "label": "Date",
-            "type": "text"
-        },
-        "phone_no": {
-            "label": "Phone number",
-            "type": "text",
-            "readonly": true
-        },
-        "email": {
-            "label": "Email",
-            "type": "email",
-            "readonly": true
-        },
-        "address": {
-            "label": "Address",
-            "type": "text",
-            "readonly": true,
-            "visible": false
-        },
-        "cnp": {
-            "label": "CNP",
-            "type": "text",
-            "readonly": true
-        },
-        "cui": {
-            "label": "CUI",
-            "type": "text",
-            "readonly": true
-        },
-        "subscription_type_name" : {
-            "type" : "select",
-            "label" : "Subscription type",
-            "key" : "subscription_type_id",
-            "data" : {
-                "type" : "class",
-                "source" : [
-                    "App\\Services\\Supabase\\SupabaseService",
-                    "read_rpc",
-                    "subscriptions_types"
+                    "read_edge",
+                    "contract_types"
                 ],
                 "value" : "id",
                 "name" : "name"
             }
-        },
-        "first_timeslot" : {
-            "type" : "select",
-            "label" : "First timeslot",
-            "key" : "first_timeslot_id",
-            "data" : {
-                "type" : "class",
-                "source" : [
-                    "App\\Services\\Supabase\\SupabaseService",
-                    "read_rpc",
-                    "timeslots"
-                ],
-                "value" : "id",
-                "name" : "timeslot"
-            }
-        },
-        "second_timeslot" : {
-            "type" : "select",
-            "label" : "Second timeslot",
-            "key" : "second_timeslot_id",
-            "data" : {
-                "type" : "class",
-                "source" : [
-                    "App\\Services\\Supabase\\SupabaseService",
-                    "read_rpc",
-                    "timeslots"
-                ],
-                "value" : "id",
-                "name" : "timeslot"
-            }
-        },
+        },     
         "file_url": {
             "label": "Contract file",
             "type": "button"
@@ -143,11 +53,17 @@
             "type": "text",
             "label": "Comment",
             "placeholder": "Comment"
+        },
+        "approved" : {
+            "type": "checkbox",
+            "label": "Approved",
+            "key": "is_active",
+            "value": true,
+            "text": "Contract is active and approved"
         }
     },
-    "order_by": ["number", "ASC"],
-    "GET": "read_rpc",
-    "INSERT": "create_edge",
-    "DELETE": "delete",
-    "UPDATE": "update"
+    "GET": "edge",
+    "INSERT": "edge",
+    "DELETE": "edge",
+    "UPDATE": "edge"
 }

@@ -59,6 +59,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Added phone field for better contact information management
   - Changed role field to userrole for better naming convention
   - Simplified edge permissions to use consistent 'edge' pattern
+- Updated `storage/app/json/contacts.json` schema configuration
+  - Enhanced contact structure with separate first_name and last_name fields
+  - Added comprehensive department type selection with predefined options
+  - Included department types: vanzari, management, operational, tehnic, financiar, suport-clienti, administrator
+  - Added proper labeling for singular/plural forms
+- Updated `storage/app/json/contracts.json` schema configuration
+  - Added partner selection linked to partners table via partner_id
+  - Integrated contract type selection linked to contract_types table
+  - Added file_url field for contract document management
+  - Implemented approval system with checkbox for is_active status
+  - Enhanced contract numbering and commenting system
+- Created new `storage/app/json/contract_types.json` configuration
+  - Simple contract type management with id and name fields
+  - Proper singular/plural labeling structure
+  - Full CRUD operations support via edge functions
 - Improved data table display with enhanced null checking
   - Added proper null checking in data index view to prevent display errors
   - Enhanced conditional rendering for select field data sources
