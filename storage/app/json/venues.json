@@ -33,10 +33,11 @@
         "name": "{first_name} {last_name}"
       }
     },
-    "category_name": {
-      "type": "select",
-      "label": "Category",
+    "categories": {
+      "type": "checkbox",
+      "label": "Categories",
       "key": "venue_category_id",
+      "value": [],
       "data": {
         "type": "class",
         "source": [
@@ -48,6 +49,7 @@
         "name": "name"
       }
     },
+
     "description": {
       "type": "trix",
       "label": "Description",
@@ -60,8 +62,9 @@
       "upload_key": "image_base64"
     },
     "attribute_name": {
-      "type": "select",
+      "type": "checkbox",
       "label": "Addressability",
+      "value": [],
       "key": "venue_attribute_id",
       "data": {
         "type": "class",

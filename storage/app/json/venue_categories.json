@@ -27,11 +27,23 @@
         "source": [
           "App\\Services\\Supabase\\SupabaseService",
           "read_edge",
-          "categories"
+          "venue_categories"
         ],
         "value": "id",
         "name": "name"
       }
+    },
+    "filter_option": {
+      "type": "text",
+      "label": "Filter",
+      "placeholder": ""
+    },
+    "active": {
+      "type": "checkbox",
+      "label": "Active",
+      "key": "active",
+      "value": true,
+      "text": "Category is active"
     }
   },
   "GET": "edge",
