@@ -166,6 +166,12 @@ class GeneralController extends Controller
                 if (isset($prop['type']) && $prop['type'] === 'numeric') {
                     $data[$prop['key'] ?? $key] = (float)$data[$prop['key'] ?? $key];
                 }
+                
+                //if type switch, cast to boolean
+                if (isset($prop['type']) && $prop['type'] === 'switch') {
+                    $value = $data[$prop['key'] ?? $key] ?? false;
+                    $data[$prop['key'] ?? $key] = (bool)($value === '1' || $value === 1 || $value === true || $value === 'true');
+                }
             }
             
             // DEBUG: Check if POST debugging is enabled
@@ -342,6 +348,12 @@ class GeneralController extends Controller
                 //if type numeric, cast to int or double
                 if (isset($prop['type']) && $prop['type'] === 'numeric') {
                     $data[$prop['key'] ?? $key] = ((float)$data[$prop['key'] ?? $key]) ?? 0;
+                }
+                
+                //if type switch, cast to boolean
+                if (isset($prop['type']) && $prop['type'] === 'switch') {
+                    $value = $data[$prop['key'] ?? $key] ?? false;
+                    $data[$prop['key'] ?? $key] = (bool)($value === '1' || $value === 1 || $value === true || $value === 'true');
                 }
             }
 

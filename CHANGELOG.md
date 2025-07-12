@@ -28,6 +28,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Responsive design with proper indentation and visual hierarchy
   - Form validation support with state preservation
 
+- **Switch Component for Active/Inactive States**
+  - New `switch` component type for boolean toggle functionality (`resources/views/components/switch.blade.php`)
+  - Modern toggle switch UI with smooth CSS animations and visual feedback
+  - Customizable ON/OFF labels (default: "Active"/"Inactive")
+  - Automatic boolean conversion: ON state saves as `true`, OFF state saves as `false`
+  - Accessible design with keyboard navigation support and ARIA attributes
+  - Error handling and validation integration with form error display
+  - Proper form submission with hidden input fallback for unchecked states
+  - Responsive design with consistent styling across all screen sizes
+
 ### Enhanced
 - **Supabase Service Layer Improvements**
   - Extended `SupabaseService` with `read_edge_filtered()` method for dynamic query filtering
@@ -42,12 +52,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Enhanced form field processing to support `hierarchical_checkbox` type
   - Improved filter extraction from JSON schema configurations
   - Added comprehensive debug logging for filter processing pipeline
+  - **Switch Component Support**: Added boolean type casting for `switch` field types
+    - Automatic conversion of form values ('1', 1, true, 'true') to boolean true
+    - Proper handling of unchecked switch states (false, '0', 0) to boolean false
+    - Integrated switch processing in both `store()` and `update()` methods
 
 - **Form View Improvements**
   - Updated `create.blade.php` and `edit.blade.php` to support hierarchical checkbox rendering
   - Added proper value handling for nested category selections
   - Enhanced form state preservation during validation errors
   - Improved component naming for multiple hierarchical checkbox instances
+  - **Switch Component Integration**: Added switch field type support in form views
+    - Integrated switch component rendering in both create and edit forms
+    - Added proper value handling for boolean states in edit mode
+    - Enhanced form validation error display for switch fields
 
 - Implemented comprehensive debugging system for dynamic CRUD operations
   - Added configurable debug flags in entity JSON files (`"debug": ["GET", "POST", "UPDATE", "DELETE"]`)
@@ -78,6 +96,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Added proper value handling and HTML entity decoding
 
 ### Changed
+- **Updated JSON Schema Configurations for Switch Component**
+  - Updated `storage/app/json/venues.json`: Replaced `is_active` checkbox with switch component
+    - Changed from `"type": "checkbox"` to `"type": "switch"`
+    - Added `"on_label": "Active"` and `"off_label": "Inactive"` for better UX
+    - Updated label from "Active" to "Venue Status" for clarity
+  - Updated `storage/app/json/venue_categories.json`: Replaced `active` checkbox with switch component
+    - Changed from `"type": "checkbox"` to `"type": "switch"`
+    - Added `"on_label": "Active"` and `"off_label": "Inactive"` for better UX
+    - Updated label from "Active" to "Category Status" for clarity
+
 - Enhanced SupabaseService with configurable debug output
   - Updated all edge function methods (create_edge, read_edge, update_edge, delete_edge) to accept debug parameters
   - Added conditional debug output using dump() for informational data and dd() for final error states

@@ -179,6 +179,20 @@
                                             componentName="create_{{ $field['key'] ?? $key }}"
                                         />
                                         @break
+                                        @case('switch')
+                                        @php
+                                            $label = $field['label'] ?? ucfirst($key);
+                                        @endphp
+                                        <x-switch
+                                            name="{{ $field['key'] ?? $key }}"
+                                            label="{{ $label }}"
+                                            :value="old($field['key'] ?? $key, $field['value'] ?? false)"
+                                            :error="$errors->first($field['key'] ?? $key)"
+                                            :required="$field['required'] ?? false"
+                                            :onLabel="$field['on_label'] ?? 'Active'"
+                                            :offLabel="$field['off_label'] ?? 'Inactive'"
+                                        />
+                                        @break
                                 @endswitch
                             @endif
                         @endforeach

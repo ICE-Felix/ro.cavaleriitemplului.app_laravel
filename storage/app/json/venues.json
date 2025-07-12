@@ -5,7 +5,7 @@
     "label_singular": "Venue",
     "label_plural": "Venues"
   },
-  "debug": ["POST"],
+  "debug": [],
   "schema": {
     "id": {
       "label": "#",
@@ -109,11 +109,12 @@
       "placeholder": "Address location"
     },
     "is_active": {
-      "type": "checkbox",
-      "label": "Active",
+      "type": "switch",
+      "label": "Venue Status",
       "key": "is_active",
       "value": true,
-      "text": "Venue is active"
+      "on_label": "Active",
+      "off_label": "Inactive"
     }
   },
   "GET": "edge",
