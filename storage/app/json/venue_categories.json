@@ -26,8 +26,13 @@
         "type": "class",
         "source": [
           "App\\Services\\Supabase\\SupabaseService",
-          "read_edge",
-          "venue_categories"
+          "read_edge_filtered",
+          "venue_categories",
+          [
+            "parent_id",
+            "is",
+            null
+          ]
         ],
         "value": "id",
         "name": "name"

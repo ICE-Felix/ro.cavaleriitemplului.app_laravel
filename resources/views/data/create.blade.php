@@ -155,6 +155,30 @@
                                             :text="$field['text'] ?? null"
                                         />
                                         @break
+                                        @case('hierarchical_checkbox')
+                                        @php
+                                            $label = $field['label'] ?? ucfirst($key);
+                                            $values = [];
+                                            
+                                            // Get top-level categories
+                                            if(isset($data[$key])) {
+                                                foreach ($data[$key] as $elem) {
+                                                    $values[] = [
+                                                        'value' => $elem['value'],
+                                                        'name' => ucfirst($elem['name'])
+                                                    ];
+                                                }
+                                            }
+                                        @endphp
+                                        <x-hierarchical-checkbox
+                                            name="{{ $field['key'] ?? $key }}"
+                                            label="{{ $label }}"
+                                            :options="$values"
+                                            :value="old($field['key'] ?? $key, $field['value'] ?? [])"
+                                            :subcategorySource="$field['subcategory_source'] ?? null"
+                                            componentName="create_{{ $field['key'] ?? $key }}"
+                                        />
+                                        @break
                                 @endswitch
                             @endif
                         @endforeach

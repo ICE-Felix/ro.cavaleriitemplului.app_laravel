@@ -448,7 +448,7 @@ class GeneralController extends Controller
     /**
      * @throws Exception
      */
-    function getSourceData($source, $valueKey = 'value', $nameKey = 'name', $type = "array", $template = null): array
+    function getSourceData($source, $valueKey = 'value', $nameKey = 'name', $type = "array", $template = null, $filters = []): array
     {
         if (is_array($source) && isset($source[0])) {
             if ($type === 'class') {
@@ -463,7 +463,27 @@ class GeneralController extends Controller
                 if (method_exists($serviceInstance, $source[1])) {
                     // Pass debug flag to SupabaseService for GET operations
                     $debugEnabled = isset($this->props['debug']) && in_array('GET', $this->props['debug']);
-                    $data = $serviceInstance->{$source[1]}($source[2], $debugEnabled);
+                    
+                    // Handle filtered methods
+                    if ($source[1] === 'read_edge_filtered') {
+                        // Extract filters from source array (4th element) if provided
+                        $sourceFilters = isset($source[3]) && is_array($source[3]) ? $source[3] : [];
+                        // Merge with any additional filters passed as parameter
+                        $allFilters = array_merge($sourceFilters, $filters);
+                        
+                        if ($debugEnabled) {
+                            dump('=== CONTROLLER FILTER DEBUG ===');
+                            dump('Source array:', $source);
+                            dump('Source filters (4th element):', $sourceFilters);
+                            dump('Additional filters:', $filters);
+                            dump('All filters to pass:', $allFilters);
+                        }
+                        
+                        $data = $serviceInstance->{$source[1]}($source[2], $allFilters, $debugEnabled);
+                    } else {
+                        $data = $serviceInstance->{$source[1]}($source[2], $debugEnabled);
+                    }
+                    
                     return array_map(function ($item) use ($valueKey, $nameKey, $template) {
                         return [
                             'value' => $item[$valueKey],
@@ -493,13 +513,14 @@ class GeneralController extends Controller
     public function getData(array $data): array
     {
         foreach ($this->props['schema'] as $key => $prop) {
-            if (isset($prop['type']) && ($prop['type'] === 'select' || $prop['type'] === 'checkbox') && isset($prop['data'])) {
+            if (isset($prop['type']) && ($prop['type'] === 'select' || $prop['type'] === 'checkbox' || $prop['type'] === 'hierarchical_checkbox') && isset($prop['data'])) {
                 $data[$key] =
                     $this->getSourceData($prop['data']['source'],
                         $prop['data']['value'] ?? 'value',
                         $prop['data']['name'] ?? 'name',
                         $prop['data']['type'] ?? null,
-                        $prop['data']['name'] ?? ($prop['data']['value'] ?? null)
+                        $prop['data']['name'] ?? ($prop['data']['value'] ?? null),
+                        $prop['filters'] ?? []
                     );
             }
         }
@@ -571,6 +592,66 @@ class GeneralController extends Controller
                 'success' => false,
                 'error' => 'Failed to generate image: ' . $e->getMessage()
             ]);
+        }
+    }
+
+    /**
+     * Get subcategories for a given parent category
+     */
+    public function getSubcategories(Request $request, $table)
+    {
+        try {
+            $parentId = $request->query('parent_id');
+            
+            // Add debug logging
+            \Log::info('getSubcategories called', [
+                'table' => $table,
+                'parent_id' => $parentId,
+                'request_headers' => $request->headers->all(),
+                'user_authenticated' => session()->has('jwt_token')
+            ]);
+            
+            if (!$parentId) {
+                \Log::warning('getSubcategories: Parent ID is required');
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Parent ID is required'
+                ], 400);
+            }
+
+            // Use the filtered method to get subcategories
+            $filters = ['parent_id', 'eq', $parentId];
+            
+            \Log::info('getSubcategories: Calling read_edge_filtered', [
+                'table' => $table,
+                'filters' => $filters
+            ]);
+            
+            $subcategories = $this->supabase->read_edge_filtered($table, $filters);
+            
+            \Log::info('getSubcategories: Success', [
+                'table' => $table,
+                'subcategories_count' => count($subcategories),
+                'subcategories' => $subcategories
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'subcategories' => $subcategories
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error loading subcategories', [
+                'table' => $table,
+                'parent_id' => $request->query('parent_id'),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to load subcategories: ' . $e->getMessage()
+            ], 500);
         }
     }
 

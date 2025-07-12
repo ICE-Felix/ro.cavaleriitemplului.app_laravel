@@ -176,6 +176,36 @@
                                             :options="$values"
                                         />
                                         @break
+                                        @case('hierarchical_checkbox')
+                                        @php
+                                            $label = $field['label'] ?? ucfirst($key);
+                                            $values = [];
+                                            
+                                            // Get top-level categories
+                                            if(isset($data[$key])) {
+                                                foreach ($data[$key] as $elem) {
+                                                    $values[] = [
+                                                        'value' => $elem['value'],
+                                                        'name' => ucfirst($elem['name'])
+                                                    ];
+                                                }
+                                            }
+                                            
+                                            // Get current selected values
+                                            $currentValues = old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? []);
+                                            if (!is_array($currentValues)) {
+                                                $currentValues = [];
+                                            }
+                                        @endphp
+                                        <x-hierarchical-checkbox
+                                            name="{{ $field['key'] ?? $key }}"
+                                            label="{{ $label }}"
+                                            :options="$values"
+                                            :value="$currentValues"
+                                            :subcategorySource="$field['subcategory_source'] ?? null"
+                                            componentName="edit_{{ $field['key'] ?? $key }}"
+                                        />
+                                        @break
                                 @endswitch
                             @endif
                         @endforeach

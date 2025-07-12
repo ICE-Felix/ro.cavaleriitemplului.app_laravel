@@ -7,6 +7,48 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- **Hierarchical Category Selection System for Venues**
+  - Created new `hierarchical_checkbox` field type for dynamic parent-child category selection
+  - Implemented `read_edge_filtered` method in SupabaseService for filtered database queries
+  - Added support for PostgREST-style query parameters (`parent_id=is.null`, `parent_id=eq.{id}`)
+  - Built dynamic AJAX-based subcategory loading system
+  - Created `/api/subcategories/{table}` endpoint for real-time subcategory fetching
+
+- **Enhanced Venue Category Management**
+  - Updated `venue_categories.json` to use filtered queries for parent category selection
+  - Modified `venues.json` to support hierarchical category selection with `hierarchical_checkbox` type
+  - Added `subcategory_source` configuration for defining child category data sources
+  - Implemented parent-child relationship filtering using `parent_id` field
+
+- **New Blade Component: hierarchical-checkbox.blade.php**
+  - Interactive checkbox component with expandable subcategory sections
+  - Real-time subcategory loading with loading states and error handling
+  - Automatic parent-child checkbox relationship management
+  - Support for multiple parent category selection with independent subcategory lists
+  - Responsive design with proper indentation and visual hierarchy
+  - Form validation support with state preservation
+
+### Enhanced
+- **Supabase Service Layer Improvements**
+  - Extended `SupabaseService` with `read_edge_filtered()` method for dynamic query filtering
+  - Added array-based filter processing (`["field", "operator", "value"]` format)
+  - Enhanced query parameter handling for PostgREST-style filtering
+  - Improved debug logging for filtered queries with detailed parameter inspection
+  - Added `is_assoc()` helper method for proper array type detection
+
+- **GeneralController Enhancements**
+  - Extended `getSourceData()` method to handle filtered data sources
+  - Added `getSubcategories()` API method for AJAX subcategory loading
+  - Enhanced form field processing to support `hierarchical_checkbox` type
+  - Improved filter extraction from JSON schema configurations
+  - Added comprehensive debug logging for filter processing pipeline
+
+- **Form View Improvements**
+  - Updated `create.blade.php` and `edit.blade.php` to support hierarchical checkbox rendering
+  - Added proper value handling for nested category selections
+  - Enhanced form state preservation during validation errors
+  - Improved component naming for multiple hierarchical checkbox instances
+
 - Implemented comprehensive debugging system for dynamic CRUD operations
   - Added configurable debug flags in entity JSON files (`"debug": ["GET", "POST", "UPDATE", "DELETE"]`)
   - Added granular debug output for each CRUD operation stage
@@ -104,6 +146,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Updated `storage/app/json/news.json` schema/config. See file for details.
 
 ### Fixed
+- **Fixed Hierarchical Category Selection System Issues**
+  - **API Route Authentication**: Fixed `/api/subcategories/{table}` route not being protected by authentication middleware
+    - Moved API route inside `middleware(['supabase.auth', 'supabase.permissions'])` group in `routes/web.php`
+    - Resolved "Error loading subcategories" due to unauthenticated requests
+  - **Dynamic Table Name Resolution**: Fixed hardcoded table name in hierarchical checkbox JavaScript
+    - Implemented dynamic table name extraction from `subcategorySource` configuration
+    - Added `data-table-name` attribute to hierarchical checkbox container
+    - JavaScript now uses `fetch(\`/api/subcategories/\${tableName}?parent_id=\${parentId}\`)` instead of hardcoded `venue_categories`
+  - **Route Cache Issues**: Cleared route cache to ensure new API routes are properly registered
+    - Executed `php artisan route:clear` to resolve route registration problems
+  - **Enhanced Debugging**: Added comprehensive logging to `getSubcategories()` method
+    - Added request logging with table, parent_id, headers, and authentication status
+    - Added detailed error logging with stack traces for troubleshooting
+    - Added success logging with subcategory count and data for verification
+
 - Fixed "Undefined array key 'id'" errors in data index view
   - Added proper null checks for ID fields in blade templates
   - Enhanced error handling for records missing required keys
@@ -150,6 +207,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Integration with contacts system for administrator assignment
 
 ### Technical
+- **Hierarchical Category Filtering Logic Implementation**
+  - **Filter Array Format**: Implemented support for `["field", "operator", "value"]` filter arrays in JSON configurations
+  - **PostgREST Query Translation**: Added automatic conversion from filter arrays to PostgREST query parameters:
+    - `["parent_id", "is", null]` → `parent_id=is.null`
+    - `["parent_id", "eq", "123"]` → `parent_id=eq.123`
+    - `["parent_id", "neq", "123"]` → `parent_id=neq.123`
+  - **Edge Function Integration**: Enhanced Supabase Edge Functions to handle filtered queries:
+    - Parse query parameters (`parent_id=is.null`)
+    - Convert to SQL conditions (`WHERE parent_id IS NULL`)
+    - Return filtered results with proper success/error responses
+  - **AJAX Loading Pipeline**: Implemented real-time subcategory loading:
+    1. User checks parent category checkbox
+    2. JavaScript triggers AJAX request to `/api/subcategories/{table}?parent_id={id}`
+    3. Laravel controller calls `read_edge_filtered()` with `["parent_id", "eq", "{id}"]`
+    4. Supabase Edge Function executes filtered query
+    5. Results rendered as nested checkboxes with proper form integration
+  - **Component State Management**: Added sophisticated checkbox state handling:
+    - Parent checkbox controls subcategory visibility
+    - Unchecking parent automatically unchecks all children
+    - Multiple parent selections maintain independent subcategory lists
+    - Form validation preserves selected state across page reloads
+
 - Updated package-lock.json dependencies
 - Updated various asset metadata files (.DS_Store files)
 - Project structure cleanup and simplification

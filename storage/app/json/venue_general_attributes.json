@@ -15,7 +15,7 @@
     },
     "type": {
       "type": "select",
-      "label": "",
+      "label": "Main attribute",
       "data": {
         "source": {
           "varsta": {
