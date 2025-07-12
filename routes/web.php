@@ -41,6 +41,11 @@ Route::middleware(['supabase.auth', 'supabase.permissions'])->group(function () 
     
     // API route for loading subcategories
     Route::get('/api/subcategories/{table}', [\App\Http\Controllers\GeneralController::class, 'getSubcategories'])->name('api.subcategories');
+    
+    // API routes for gallery operations
+    Route::post('/api/gallery/upload', [\App\Http\Controllers\GeneralController::class, 'uploadGalleryImage'])->name('api.gallery.upload');
+    Route::delete('/api/gallery/delete', [\App\Http\Controllers\GeneralController::class, 'deleteGalleryImage'])->name('api.gallery.delete');
+    Route::get('/api/gallery/{galleryId}/images', [\App\Http\Controllers\GeneralController::class, 'listGalleryImages'])->name('api.gallery.list');
 });
 
 

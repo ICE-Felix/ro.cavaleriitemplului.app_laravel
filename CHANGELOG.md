@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- **Gallery Component Bug Fix**
+  - Fixed undefined property error `$supabaseUrl` in SupabaseService
+  - Corrected `getStoragePublicUrl()` method to use `$this->baseUrl` instead of non-existent `$this->supabaseUrl`
+  - Gallery image upload now works correctly with proper public URL generation
+
 ### Added
 - **Hierarchical Category Selection System for Venues**
   - Created new `hierarchical_checkbox` field type for dynamic parent-child category selection
@@ -50,6 +56,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - JSON data storage in Supabase with flexible structure for complex queries
   - Smooth animations and transitions for enhanced user experience
 
+- **Gallery Management System for Venues**
+  - New `gallery` component type for multi-image upload and management (`resources/views/components/gallery.blade.php`)
+  - Drag & drop image upload with visual feedback and progress indicators
+  - Multiple image selection support (configurable 1-6 images per gallery)
+  - Real-time image preview with responsive grid layout
+  - Individual image editing modal with alt text and caption fields
+  - Image deletion functionality with confirmation dialogs
+  - File validation (JPG, PNG, GIF formats, max 5MB per image)
+  - Automatic unique filename generation to prevent conflicts
+  - Empty state with helpful upload instructions and visual cues
+  - Mobile-responsive design with touch-friendly controls
+  - Supabase Storage integration for secure cloud image storage
+  - JSON metadata storage with organized folder structure per gallery
+
 ### Enhanced
 - **Supabase Service Layer Improvements**
   - Extended `SupabaseService` with `read_edge_filtered()` method for dynamic query filtering
@@ -57,6 +77,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Enhanced query parameter handling for PostgREST-style filtering
   - Improved debug logging for filtered queries with detailed parameter inspection
   - Added `is_assoc()` helper method for proper array type detection
+  - **Gallery Storage Integration**: Extended SupabaseService with comprehensive storage methods
+    - Added `uploadToStorage()` method for file uploads to Supabase Storage buckets
+    - Added `deleteFromStorage()` method for file deletion from storage
+    - Added `getStoragePublicUrl()` method for generating public URLs for stored files
+    - Added `listStorageFiles()` method for listing files in storage buckets
+    - Implemented proper error handling and response processing for all storage operations
+    - Added support for custom content types and upload options (upsert functionality)
 
 - **GeneralController Enhancements**
   - Extended `getSourceData()` method to handle filtered data sources
@@ -73,6 +100,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - Proper handling of schedule data structure with day-by-day configuration
     - Integrated schedule processing in both `store()` and `update()` methods
     - Support for null/empty schedule data with proper fallback handling
+  - **Gallery Component Support**: Added comprehensive gallery management API methods
+    - Added `uploadGalleryImage()` method for handling image uploads with validation
+    - Added `deleteGalleryImage()` method for secure image deletion from storage
+    - Added `listGalleryImages()` method for retrieving gallery image listings
+    - Integrated gallery data processing in both `store()` and `update()` methods
+    - Added proper file validation (type, size, format) and error handling
+    - Implemented unique filename generation and path organization
+    - Added support for gallery metadata management (alt text, captions, ordering)
 
 - **Form View Improvements**
   - Updated `create.blade.php` and `edit.blade.php` to support hierarchical checkbox rendering
@@ -88,6 +123,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - Added proper value handling for JSON schedule data in edit mode
     - Enhanced form validation error display for schedule fields
     - Support for old() form data preservation during validation errors
+  - **Gallery Component Integration**: Added gallery field type support in form views
+    - Integrated gallery component rendering in both create and edit forms
+    - Added proper value handling for JSON gallery data in edit mode
+    - Enhanced form validation error display for gallery fields
+    - Support for configurable gallery properties (min/max images, bucket name)
+    - Added gallery data preservation during form validation errors
 
 - Implemented comprehensive debugging system for dynamic CRUD operations
   - Added configurable debug flags in entity JSON files (`"debug": ["GET", "POST", "UPDATE", "DELETE"]`)
@@ -106,6 +147,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Added null checks for array keys to prevent "Undefined array key" errors
   - Improved graceful handling of missing ID fields in data tables
   - Added fallback displays for records without proper ID fields
+- Added Gallery Management API Routes (`routes/web.php`)
+  - Added `POST /api/gallery/upload` endpoint for image uploads
+  - Added `DELETE /api/gallery/delete` endpoint for image deletion
+  - Added `GET /api/gallery/{galleryId}/images` endpoint for listing gallery images
+  - All routes protected with authentication and permission middleware
+  - Comprehensive error handling and response formatting for all endpoints
 - Added location picker component to edit form
   - Integrated location picker in edit views
   - Added support for existing location data display
@@ -131,6 +178,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - Added new `business_hours` field with `"type": "schedule"`
     - Configured for weekly business hours management with JSON data storage
     - Set as non-required field with null default value for flexible venue configuration
+  - Updated `storage/app/json/venues.json`: Added gallery component for venue images
+    - Added new `gallery` field with `"type": "gallery"`
+    - Configured for 1-6 images per venue with `venue-galleries` storage bucket
+    - Set as required field with comprehensive validation and metadata support
+    - Added configurable min/max image limits and bucket specification
 
 - Enhanced SupabaseService with configurable debug output
   - Updated all edge function methods (create_edge, read_edge, update_edge, delete_edge) to accept debug parameters

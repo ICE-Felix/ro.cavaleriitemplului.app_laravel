@@ -935,4 +935,154 @@ class SupabaseService
         }
     }
 
+    /**
+     * Upload file to Supabase Storage
+     */
+    public function uploadToStorage($bucket, $path, $fileContent, $contentType = 'application/octet-stream', $options = [])
+    {
+        $url = "storage/v1/object/{$bucket}/{$path}";
+        
+        $headers = [
+            'Authorization' => 'Bearer ' . Session::get('jwt_token'),
+            'Content-Type' => $contentType,
+        ];
+        
+        // Add upsert option if specified
+        if (isset($options['upsert']) && $options['upsert']) {
+            $headers['x-upsert'] = 'true';
+        }
+        
+        try {
+            $response = $this->processRequest($url, [
+                'headers' => $headers,
+                'body' => $fileContent,
+            ], 'POST');
+            
+            if ($response === null) {
+                throw new \Exception("No response received while uploading to storage.");
+            }
+            
+            $body = json_decode((string) $response->getBody(), true);
+            
+            if ($response->getStatusCode() === 200 || $response->getStatusCode() === 201) {
+                return [
+                    'success' => true,
+                    'data' => $body,
+                    'public_url' => $this->getStoragePublicUrl($bucket, $path)
+                ];
+            }
+            
+            return [
+                'success' => false,
+                'error' => $body
+            ];
+            
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => ['message' => $e->getMessage()]
+            ];
+        }
+    }
+    
+    /**
+     * Delete file from Supabase Storage
+     */
+    public function deleteFromStorage($bucket, $path)
+    {
+        $url = "storage/v1/object/{$bucket}/{$path}";
+        
+        try {
+            $response = $this->processRequest($url, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . Session::get('jwt_token'),
+                ],
+            ], 'DELETE');
+            
+            if ($response === null) {
+                throw new \Exception("No response received while deleting from storage.");
+            }
+            
+            $body = json_decode((string) $response->getBody(), true);
+            
+            if ($response->getStatusCode() === 200) {
+                return [
+                    'success' => true,
+                    'data' => $body
+                ];
+            }
+            
+            return [
+                'success' => false,
+                'error' => $body
+            ];
+            
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => ['message' => $e->getMessage()]
+            ];
+        }
+    }
+    
+    /**
+     * Get public URL for file in Supabase Storage
+     */
+    public function getStoragePublicUrl($bucket, $path)
+    {
+        return $this->baseUrl . "/storage/v1/object/public/{$bucket}/{$path}";
+    }
+    
+    /**
+     * List files in Supabase Storage bucket
+     */
+    public function listStorageFiles($bucket, $path = '', $options = [])
+    {
+        $url = "storage/v1/object/list/{$bucket}";
+        
+        $params = [];
+        if ($path) {
+            $params['prefix'] = $path;
+        }
+        if (isset($options['limit'])) {
+            $params['limit'] = $options['limit'];
+        }
+        if (isset($options['offset'])) {
+            $params['offset'] = $options['offset'];
+        }
+        
+        try {
+            $response = $this->processRequest($url, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . Session::get('jwt_token'),
+                ],
+                'json' => $params
+            ], 'POST');
+            
+            if ($response === null) {
+                throw new \Exception("No response received while listing storage files.");
+            }
+            
+            $body = json_decode((string) $response->getBody(), true);
+            
+            if ($response->getStatusCode() === 200) {
+                return [
+                    'success' => true,
+                    'data' => $body
+                ];
+            }
+            
+            return [
+                'success' => false,
+                'error' => $body
+            ];
+            
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => ['message' => $e->getMessage()]
+            ];
+        }
+    }
+
 }

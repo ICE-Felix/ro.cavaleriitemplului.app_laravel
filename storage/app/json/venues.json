@@ -122,6 +122,16 @@
       "key": "business_hours",
       "value": null,
       "required": false
+    },
+    "gallery": {
+      "type": "gallery",
+      "label": "Venue Gallery",
+      "key": "gallery",
+      "value": null,
+      "required": true,
+      "min_images": 1,
+      "max_images": 6,
+      "bucket": "venue-galleries"
     }
   },
   "GET": "edge",

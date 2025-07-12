@@ -234,6 +234,22 @@
                                             :required="$field['required'] ?? false"
                                         />
                                         @break
+                                        @case('gallery')
+                                        @php
+                                            $label = $field['label'] ?? ucfirst($key);
+                                            $currentValue = old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? $field['value'] ?? null);
+                                        @endphp
+                                        <x-gallery
+                                            name="{{ $field['key'] ?? $key }}"
+                                            label="{{ $label }}"
+                                            :value="$currentValue"
+                                            :error="$errors->first($field['key'] ?? $key)"
+                                            :required="$field['required'] ?? false"
+                                            :minImages="$field['min_images'] ?? 1"
+                                            :maxImages="$field['max_images'] ?? 6"
+                                            :bucket="$field['bucket'] ?? 'venue-galleries'"
+                                        />
+                                        @break
                                 @endswitch
                             @endif
                         @endforeach

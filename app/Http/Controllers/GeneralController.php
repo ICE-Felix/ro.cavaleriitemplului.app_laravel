@@ -188,6 +188,22 @@ class GeneralController extends Controller
                         $data[$prop['key'] ?? $key] = null;
                     }
                 }
+                
+                //if type gallery, ensure proper JSON structure
+                if (isset($prop['type']) && $prop['type'] === 'gallery') {
+                    $galleryData = $data[$prop['key'] ?? $key] ?? null;
+                    if ($galleryData) {
+                        // If it's a JSON string, decode it
+                        if (is_string($galleryData)) {
+                            $galleryData = json_decode($galleryData, true);
+                        }
+                        // Ensure it's properly formatted for Supabase
+                        $data[$prop['key'] ?? $key] = $galleryData;
+                    } else {
+                        // Set default empty gallery if no data provided
+                        $data[$prop['key'] ?? $key] = null;
+                    }
+                }
             }
             
             // DEBUG: Check if POST debugging is enabled
@@ -384,6 +400,22 @@ class GeneralController extends Controller
                         $data[$prop['key'] ?? $key] = $scheduleData;
                     } else {
                         // Set default empty schedule if no data provided
+                        $data[$prop['key'] ?? $key] = null;
+                    }
+                }
+                
+                //if type gallery, ensure proper JSON structure
+                if (isset($prop['type']) && $prop['type'] === 'gallery') {
+                    $galleryData = $data[$prop['key'] ?? $key] ?? null;
+                    if ($galleryData) {
+                        // If it's a JSON string, decode it
+                        if (is_string($galleryData)) {
+                            $galleryData = json_decode($galleryData, true);
+                        }
+                        // Ensure it's properly formatted for Supabase
+                        $data[$prop['key'] ?? $key] = $galleryData;
+                    } else {
+                        // Set default empty gallery if no data provided
                         $data[$prop['key'] ?? $key] = null;
                     }
                 }
@@ -695,6 +727,145 @@ class GeneralController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to load subcategories: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Upload gallery image to Supabase Storage
+     */
+    public function uploadGalleryImage(Request $request)
+    {
+        try {
+            $request->validate([
+                'file' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+                'gallery_id' => 'required|string',
+                'bucket' => 'required|string'
+            ]);
+            
+            $file = $request->file('file');
+            $galleryId = $request->input('gallery_id');
+            $bucket = $request->input('bucket', 'venue-galleries');
+            
+            // Generate unique filename
+            $filename = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $galleryId . '/' . $filename;
+            
+            // Read file content
+            $fileContent = file_get_contents($file->getPathname());
+            $contentType = $file->getMimeType();
+            
+            // Upload to Supabase Storage
+            $result = $this->supabase->uploadToStorage($bucket, $path, $fileContent, $contentType);
+            
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'image' => [
+                        'id' => uniqid(),
+                        'url' => $result['public_url'],
+                        'path' => $path,
+                        'filename' => $filename,
+                        'size' => $file->getSize(),
+                        'mime_type' => $contentType
+                    ]
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'error' => $result['error']['message'] ?? 'Upload failed'
+                ], 500);
+            }
+            
+        } catch (\Exception $e) {
+            \Log::error('Gallery upload error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Delete gallery image from Supabase Storage
+     */
+    public function deleteGalleryImage(Request $request)
+    {
+        try {
+            $request->validate([
+                'gallery_id' => 'required|string',
+                'image_path' => 'required|string',
+                'bucket' => 'required|string'
+            ]);
+            
+            $galleryId = $request->input('gallery_id');
+            $imagePath = $request->input('image_path');
+            $bucket = $request->input('bucket', 'venue-galleries');
+            
+            // Delete from Supabase Storage
+            $result = $this->supabase->deleteFromStorage($bucket, $imagePath);
+            
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Image deleted successfully'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'error' => $result['error']['message'] ?? 'Delete failed'
+                ], 500);
+            }
+            
+        } catch (\Exception $e) {
+            \Log::error('Gallery delete error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * List gallery images from Supabase Storage
+     */
+    public function listGalleryImages(Request $request, $galleryId)
+    {
+        try {
+            $bucket = $request->input('bucket', 'venue-galleries');
+            
+            // List files in gallery folder
+            $result = $this->supabase->listStorageFiles($bucket, $galleryId);
+            
+            if ($result['success']) {
+                $images = array_map(function($file) use ($bucket) {
+                    return [
+                        'id' => $file['id'] ?? uniqid(),
+                        'name' => $file['name'],
+                        'url' => $this->supabase->getStoragePublicUrl($bucket, $file['name']),
+                        'path' => $file['name'],
+                        'size' => $file['metadata']['size'] ?? 0,
+                        'created_at' => $file['created_at'] ?? null,
+                        'updated_at' => $file['updated_at'] ?? null
+                    ];
+                }, $result['data']);
+                
+                return response()->json([
+                    'success' => true,
+                    'images' => $images
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'error' => $result['error']['message'] ?? 'Failed to list images'
+                ], 500);
+            }
+            
+        } catch (\Exception $e) {
+            \Log::error('Gallery list error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
             ], 500);
         }
     }
