@@ -172,6 +172,22 @@ class GeneralController extends Controller
                     $value = $data[$prop['key'] ?? $key] ?? false;
                     $data[$prop['key'] ?? $key] = (bool)($value === '1' || $value === 1 || $value === true || $value === 'true');
                 }
+                
+                //if type schedule, ensure proper JSON structure
+                if (isset($prop['type']) && $prop['type'] === 'schedule') {
+                    $scheduleData = $data[$prop['key'] ?? $key] ?? null;
+                    if ($scheduleData) {
+                        // If it's a JSON string, decode it
+                        if (is_string($scheduleData)) {
+                            $scheduleData = json_decode($scheduleData, true);
+                        }
+                        // Ensure it's properly formatted for Supabase
+                        $data[$prop['key'] ?? $key] = $scheduleData;
+                    } else {
+                        // Set default empty schedule if no data provided
+                        $data[$prop['key'] ?? $key] = null;
+                    }
+                }
             }
             
             // DEBUG: Check if POST debugging is enabled
@@ -354,6 +370,22 @@ class GeneralController extends Controller
                 if (isset($prop['type']) && $prop['type'] === 'switch') {
                     $value = $data[$prop['key'] ?? $key] ?? false;
                     $data[$prop['key'] ?? $key] = (bool)($value === '1' || $value === 1 || $value === true || $value === 'true');
+                }
+                
+                //if type schedule, ensure proper JSON structure
+                if (isset($prop['type']) && $prop['type'] === 'schedule') {
+                    $scheduleData = $data[$prop['key'] ?? $key] ?? null;
+                    if ($scheduleData) {
+                        // If it's a JSON string, decode it
+                        if (is_string($scheduleData)) {
+                            $scheduleData = json_decode($scheduleData, true);
+                        }
+                        // Ensure it's properly formatted for Supabase
+                        $data[$prop['key'] ?? $key] = $scheduleData;
+                    } else {
+                        // Set default empty schedule if no data provided
+                        $data[$prop['key'] ?? $key] = null;
+                    }
                 }
             }
 

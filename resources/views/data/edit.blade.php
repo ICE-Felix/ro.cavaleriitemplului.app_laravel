@@ -221,6 +221,19 @@
                                             :offLabel="$field['off_label'] ?? 'Inactive'"
                                         />
                                         @break
+                                        @case('schedule')
+                                        @php
+                                            $label = $field['label'] ?? ucfirst($key);
+                                            $currentValue = old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? $field['value'] ?? null);
+                                        @endphp
+                                        <x-schedule
+                                            name="{{ $field['key'] ?? $key }}"
+                                            label="{{ $label }}"
+                                            :value="$currentValue"
+                                            :error="$errors->first($field['key'] ?? $key)"
+                                            :required="$field['required'] ?? false"
+                                        />
+                                        @break
                                 @endswitch
                             @endif
                         @endforeach

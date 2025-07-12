@@ -264,7 +264,69 @@ JSON Config → GeneralController → SupabaseService → Supabase Edge Function
 - `["parent_id", "is", null]` → `parent_id=is.null` → `WHERE parent_id IS NULL`
 - `["parent_id", "eq", "123"]` → `parent_id=eq.123` → `WHERE parent_id = '123'`
 
-### 8. Image Upload (`image`)
+### 8. Schedule (`schedule`)
+
+```json
+{
+    "business_hours": {
+        "type": "schedule",
+        "label": "Business Hours",
+        "key": "business_hours",
+        "value": null,
+        "required": false
+    }
+}
+```
+
+**Component**: `resources/views/components/schedule.blade.php`
+
+**Features**:
+- Interactive weekly schedule with day-by-day configuration
+- Enable/disable individual days with checkboxes
+- Time pickers for opening and closing hours for each day
+- Quick action buttons for common scenarios (Enable All, Disable All, Business Hours)
+- Real-time schedule preview showing selected days and hours
+- Responsive design that works on desktop and mobile
+- Stores data as JSON in Supabase for flexible querying
+
+**Data Structure** (stored as JSON in database):
+```json
+{
+    "monday": {"enabled": true, "open": "09:00", "close": "17:00"},
+    "tuesday": {"enabled": true, "open": "09:00", "close": "17:00"},
+    "wednesday": {"enabled": true, "open": "09:00", "close": "17:00"},
+    "thursday": {"enabled": true, "open": "09:00", "close": "17:00"},
+    "friday": {"enabled": true, "open": "09:00", "close": "17:00"},
+    "saturday": {"enabled": false, "open": "10:00", "close": "16:00"},
+    "sunday": {"enabled": false, "open": "10:00", "close": "16:00"}
+}
+```
+
+**Properties**:
+- `value`: Initial schedule data (JSON object or null for default)
+- `required`: Whether the field is required
+- `label`: Display label for the schedule section
+
+**Quick Actions**:
+- **Enable All Days**: Enables all days with their current time settings
+- **Disable All Days**: Disables all days (venue closed all week)
+- **Set Business Hours**: Enables Monday-Friday 9:00-17:00, disables weekends
+
+**Usage Examples**:
+- **Restaurant**: Different hours for weekdays vs weekends
+- **Retail Store**: Closed on Sundays, different Saturday hours
+- **Office**: Standard business hours Monday-Friday
+- **24/7 Business**: All days enabled with 00:00-23:59 hours
+
+**Visual Features**:
+- Green highlighting for enabled days
+- Gray highlighting for disabled days
+- Real-time preview of the complete schedule
+- Smooth animations and transitions
+- Status badges showing "Open" or "Closed" for each day
+- Disabled time inputs for closed days
+
+### 9. Image Upload (`image`)
 
 ```json
 {
@@ -284,7 +346,7 @@ JSON Config → GeneralController → SupabaseService → Supabase Edge Function
 - Base64 encoding
 - Image validation
 
-### 9. Date Input (`date`)
+### 10. Date Input (`date`)
 
 ```json
 {
@@ -299,7 +361,7 @@ JSON Config → GeneralController → SupabaseService → Supabase Edge Function
 **Component**: `resources/views/components/date-input.blade.php`
 **Usage**: Date and time selection
 
-### 10. Hidden Fields
+### 11. Hidden Fields
 
 ```json
 {

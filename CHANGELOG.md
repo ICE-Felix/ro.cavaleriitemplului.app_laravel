@@ -38,6 +38,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Proper form submission with hidden input fallback for unchecked states
   - Responsive design with consistent styling across all screen sizes
 
+- **Schedule Component for Business Hours Management**
+  - New `schedule` component type for weekly business hours configuration (`resources/views/components/schedule.blade.php`)
+  - Interactive weekly schedule with day-by-day enable/disable functionality
+  - Individual time pickers for opening and closing hours for each day of the week
+  - Quick action buttons: "Enable All Days", "Disable All Days", "Set Business Hours (Mon-Fri 9-17)"
+  - Real-time schedule preview showing complete weekly schedule summary
+  - Visual feedback with green highlighting for open days and gray for closed days
+  - Status badges showing "( Open )" or "( Closed )" for each day
+  - Responsive design optimized for both desktop and mobile devices
+  - JSON data storage in Supabase with flexible structure for complex queries
+  - Smooth animations and transitions for enhanced user experience
+
 ### Enhanced
 - **Supabase Service Layer Improvements**
   - Extended `SupabaseService` with `read_edge_filtered()` method for dynamic query filtering
@@ -56,6 +68,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - Automatic conversion of form values ('1', 1, true, 'true') to boolean true
     - Proper handling of unchecked switch states (false, '0', 0) to boolean false
     - Integrated switch processing in both `store()` and `update()` methods
+  - **Schedule Component Support**: Added JSON data processing for `schedule` field types
+    - Automatic JSON string decoding for schedule data from form submissions
+    - Proper handling of schedule data structure with day-by-day configuration
+    - Integrated schedule processing in both `store()` and `update()` methods
+    - Support for null/empty schedule data with proper fallback handling
 
 - **Form View Improvements**
   - Updated `create.blade.php` and `edit.blade.php` to support hierarchical checkbox rendering
@@ -66,6 +83,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - Integrated switch component rendering in both create and edit forms
     - Added proper value handling for boolean states in edit mode
     - Enhanced form validation error display for switch fields
+  - **Schedule Component Integration**: Added schedule field type support in form views
+    - Integrated schedule component rendering in both create and edit forms
+    - Added proper value handling for JSON schedule data in edit mode
+    - Enhanced form validation error display for schedule fields
+    - Support for old() form data preservation during validation errors
 
 - Implemented comprehensive debugging system for dynamic CRUD operations
   - Added configurable debug flags in entity JSON files (`"debug": ["GET", "POST", "UPDATE", "DELETE"]`)
@@ -105,6 +127,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
     - Changed from `"type": "checkbox"` to `"type": "switch"`
     - Added `"on_label": "Active"` and `"off_label": "Inactive"` for better UX
     - Updated label from "Active" to "Category Status" for clarity
+  - Updated `storage/app/json/venues.json`: Added schedule component for business hours
+    - Added new `business_hours` field with `"type": "schedule"`
+    - Configured for weekly business hours management with JSON data storage
+    - Set as non-required field with null default value for flexible venue configuration
 
 - Enhanced SupabaseService with configurable debug output
   - Updated all edge function methods (create_edge, read_edge, update_edge, delete_edge) to accept debug parameters
@@ -172,6 +198,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Fixed boolean field casting in edit forms (true/false to 1/0)
   - Better error handling for dropdown data population
 - Updated `storage/app/json/news.json` schema/config. See file for details.
+- **Enhanced Dynamic CRUD Documentation**
+  - Added comprehensive documentation for new Schedule component in `DYNAMIC_CRUD_DOCUMENTATION.md`
+  - Documented complete schedule data structure with JSON examples
+  - Added usage examples for different business types (restaurant, retail, office, 24/7)
+  - Documented visual features, quick actions, and responsive design capabilities
+  - Updated section numbering for all subsequent field types (9. Image Upload, 10. Date Input, 11. Hidden Fields)
 
 ### Fixed
 - **Fixed Hierarchical Category Selection System Issues**

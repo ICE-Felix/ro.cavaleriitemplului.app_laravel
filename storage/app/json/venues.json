@@ -115,6 +115,13 @@
       "value": true,
       "on_label": "Active",
       "off_label": "Inactive"
+    },
+    "business_hours": {
+      "type": "schedule",
+      "label": "Business Hours",
+      "key": "business_hours",
+      "value": null,
+      "required": false
     }
   },
   "GET": "edge",
