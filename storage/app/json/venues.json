@@ -34,7 +34,7 @@
       }
     },
     "categories": {
-      "type": "checkbox",
+      "type": "hierarchical_checkbox",
       "label": "Categories",
       "key": "venue_category_id",
       "value": [],
@@ -42,11 +42,27 @@
         "type": "class",
         "source": [
           "App\\Services\\Supabase\\SupabaseService",
-          "read_edge",
-          "venue_categories"
+          "read_edge_filtered",
+          "venue_categories",
+          [
+            "parent_id",
+            "is",
+            null
+          ]
         ],
         "value": "id",
         "name": "name"
+      },
+      "subcategory_source": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge_filtered",
+          "venue_categories"
+        ],
+        "value": "id",
+        "name": "name",
+        "parent_field": "parent_id"
       }
     },
 
@@ -55,10 +71,20 @@
       "label": "Description",
       "placeholder": "Description"
     },
+    "phone_no": {
+      "type": "text",
+      "label": "Phone number",
+      "placeholder": "+40720001222"
+    },
+    "email": {
+      "type": "text",
+      "label": "Email",
+      "placeholder": "contact@venue.ro"
+    },
     "image_url": {
       "key": "image_id",
       "type": "image",
-      "label": "Image",
+      "label": "Gallery of location images",
       "upload_key": "image_base64"
     },
     "attribute_name": {
@@ -77,62 +103,25 @@
         "name": "{type} - {value}"
       }
     },
-    "country_name": {
-      "type": "select",
-      "label": "Country",
-      "key": "country_id",
-      "data": {
-        "type": "class",
-        "source": [
-          "App\\Services\\Supabase\\SupabaseService",
-          "read_edge",
-          "countries"
-        ],
-        "value": "id",
-        "name": "name"
-      }
-    },
-    "region_name": {
-      "type": "select",
-      "label": "Region",
-      "key": "region_id",
-      "data": {
-        "type": "class",
-        "source": [
-          "App\\Services\\Supabase\\SupabaseService",
-          "read_edge",
-          "regions"
-        ],
-        "value": "id",
-        "name": "name"
-      }
-    },
-    "city": {
-      "type": "text",
-      "label": "City",
-      "placeholder": "Bucharest"
-    },
     "address": {
-      "type": "varchar",
-      "label": "Address",
-      "placeholder": ""
-    },
-    "latitude": {
-      "type": "text",
-      "label": "Latitude",
-      "placeholder": "44.405964"
-    },
-    "longitude": {
-      "type": "text",
-      "label": "Longitude",
-      "placeholder": "26.104081"
+      "type": "location",
+      "label": "Address location",
+      "placeholder": "Address location"
     },
     "is_active": {
-      "type": "checkbox",
-      "label": "Active",
+      "type": "switch",
+      "label": "Venue Status",
       "key": "is_active",
       "value": true,
-      "text": "Venue is active"
+      "on_label": "Active",
+      "off_label": "Inactive"
+    },
+    "business_hours": {
+      "type": "schedule",
+      "label": "Business Hours",
+      "key": "business_hours",
+      "value": null,
+      "required": false
     }
   },
   "GET": "edge",

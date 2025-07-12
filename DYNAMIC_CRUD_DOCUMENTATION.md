@@ -164,7 +164,169 @@ JSON Config → GeneralController → SupabaseService → Supabase Edge Function
 **Component**: `resources/views/components/checkbox.blade.php`
 **Usage**: Single or multiple selections
 
-### 6. Image Upload (`image`)
+### 6. Switch Toggle (`switch`)
+
+```json
+{
+    "is_active": {
+        "type": "switch",
+        "label": "Status",
+        "key": "is_active",
+        "value": true,
+        "on_label": "Active",
+        "off_label": "Inactive"
+    }
+}
+```
+
+**Component**: `resources/views/components/switch.blade.php`
+**Features**:
+- Modern toggle switch UI with smooth animations
+- Saves `true` when ON, `false` when OFF to Supabase
+- Customizable on/off labels
+- Visual feedback with color changes (green for active, gray for inactive)
+- Accessible with keyboard navigation and focus states
+- Hover effects and smooth transitions
+- Error handling and validation support
+
+**Properties**:
+- `on_label`: Text displayed when switch is ON (default: "Active")
+- `off_label`: Text displayed when switch is OFF (default: "Inactive")
+- `value`: Initial state (true/false)
+- `required`: Whether the field is required
+- `disabled`: Whether the switch is disabled
+
+### 7. Hierarchical Checkbox (`hierarchical_checkbox`)
+
+```json
+{
+    "venue_categories": {
+        "type": "hierarchical_checkbox",
+        "label": "Venue Categories",
+        "key": "venue_category_ids",
+        "value": [],
+        "data": {
+            "type": "class",
+            "source": [
+                "App\\Services\\Supabase\\SupabaseService",
+                "read_edge_filtered",
+                "venue_categories",
+                ["parent_id", "is", null]
+            ],
+            "value": "id",
+            "name": "name"
+        },
+        "subcategory_source": {
+            "source": [
+                "App\\Services\\Supabase\\SupabaseService",
+                "read_edge_filtered",
+                "venue_categories"
+            ],
+            "value": "id",
+            "name": "name"
+        }
+    }
+}
+```
+
+**Component**: `resources/views/components/hierarchical-checkbox.blade.php`
+**API Endpoint**: `/api/subcategories/{table}` (GET)
+
+**Features**:
+- Interactive parent-child category selection with dynamic loading
+- Real-time AJAX subcategory loading when parent categories are selected
+- Automatic parent-child checkbox relationship management
+- Support for multiple parent selections with independent subcategory trees
+- Loading states and comprehensive error handling
+- Responsive design with proper visual hierarchy and indentation
+- Form validation support with state preservation
+- Expandable/collapsible subcategory sections
+
+**Properties**:
+- `data`: Configuration for parent categories (top-level items)
+  - Uses filtered queries to get only parent categories (`["parent_id", "is", null]`)
+- `subcategory_source`: Configuration for child categories
+  - Defines how to fetch subcategories for selected parents
+  - Uses same table but with `["parent_id", "eq", "{parent_id}"]` filter
+- `value`: Array of selected category IDs (both parent and child)
+- `key`: Form field name for submission
+
+**Technical Implementation**:
+1. **Initial Load**: Displays top-level categories (parent_id = null)
+2. **Parent Selection**: When user checks a parent category, JavaScript triggers AJAX request
+3. **AJAX Request**: `GET /api/subcategories/{table}?parent_id={parent_id}`
+4. **Backend Processing**: `GeneralController::getSubcategories()` uses `read_edge_filtered` with filters
+5. **Dynamic Display**: Subcategories are rendered as indented checkboxes below parent
+6. **State Management**: Unchecking parent automatically unchecks and hides all subcategories
+7. **Form Submission**: All selected IDs (parent + children) are submitted as array
+
+**Filter Translation**:
+- `["parent_id", "is", null]` → `parent_id=is.null` → `WHERE parent_id IS NULL`
+- `["parent_id", "eq", "123"]` → `parent_id=eq.123` → `WHERE parent_id = '123'`
+
+### 8. Schedule (`schedule`)
+
+```json
+{
+    "business_hours": {
+        "type": "schedule",
+        "label": "Business Hours",
+        "key": "business_hours",
+        "value": null,
+        "required": false
+    }
+}
+```
+
+**Component**: `resources/views/components/schedule.blade.php`
+
+**Features**:
+- Interactive weekly schedule with day-by-day configuration
+- Enable/disable individual days with checkboxes
+- Time pickers for opening and closing hours for each day
+- Quick action buttons for common scenarios (Enable All, Disable All, Business Hours)
+- Real-time schedule preview showing selected days and hours
+- Responsive design that works on desktop and mobile
+- Stores data as JSON in Supabase for flexible querying
+
+**Data Structure** (stored as JSON in database):
+```json
+{
+    "monday": {"enabled": true, "open": "09:00", "close": "17:00"},
+    "tuesday": {"enabled": true, "open": "09:00", "close": "17:00"},
+    "wednesday": {"enabled": true, "open": "09:00", "close": "17:00"},
+    "thursday": {"enabled": true, "open": "09:00", "close": "17:00"},
+    "friday": {"enabled": true, "open": "09:00", "close": "17:00"},
+    "saturday": {"enabled": false, "open": "10:00", "close": "16:00"},
+    "sunday": {"enabled": false, "open": "10:00", "close": "16:00"}
+}
+```
+
+**Properties**:
+- `value`: Initial schedule data (JSON object or null for default)
+- `required`: Whether the field is required
+- `label`: Display label for the schedule section
+
+**Quick Actions**:
+- **Enable All Days**: Enables all days with their current time settings
+- **Disable All Days**: Disables all days (venue closed all week)
+- **Set Business Hours**: Enables Monday-Friday 9:00-17:00, disables weekends
+
+**Usage Examples**:
+- **Restaurant**: Different hours for weekdays vs weekends
+- **Retail Store**: Closed on Sundays, different Saturday hours
+- **Office**: Standard business hours Monday-Friday
+- **24/7 Business**: All days enabled with 00:00-23:59 hours
+
+**Visual Features**:
+- Green highlighting for enabled days
+- Gray highlighting for disabled days
+- Real-time preview of the complete schedule
+- Smooth animations and transitions
+- Status badges showing "Open" or "Closed" for each day
+- Disabled time inputs for closed days
+
+### 9. Image Upload (`image`)
 
 ```json
 {
@@ -184,7 +346,7 @@ JSON Config → GeneralController → SupabaseService → Supabase Edge Function
 - Base64 encoding
 - Image validation
 
-### 7. Date Input (`date`)
+### 10. Date Input (`date`)
 
 ```json
 {
@@ -199,7 +361,7 @@ JSON Config → GeneralController → SupabaseService → Supabase Edge Function
 **Component**: `resources/views/components/date-input.blade.php`
 **Usage**: Date and time selection
 
-### 8. Hidden Fields
+### 11. Hidden Fields
 
 ```json
 {

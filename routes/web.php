@@ -38,6 +38,9 @@ Route::middleware(['supabase.auth', 'supabase.permissions'])->group(function () 
     foreach ($files as $file) {
         Route::resource(str_replace('.json', '', explode('/', $file)[1]), \App\Http\Controllers\GeneralController::class)->middleware('json.props');
     }
+    
+    // API route for loading subcategories
+    Route::get('/api/subcategories/{table}', [\App\Http\Controllers\GeneralController::class, 'getSubcategories'])->name('api.subcategories');
 });
 
 

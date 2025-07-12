@@ -26,8 +26,13 @@
         "type": "class",
         "source": [
           "App\\Services\\Supabase\\SupabaseService",
-          "read_edge",
-          "venue_categories"
+          "read_edge_filtered",
+          "venue_categories",
+          [
+            "parent_id",
+            "is",
+            null
+          ]
         ],
         "value": "id",
         "name": "name"
@@ -39,11 +44,12 @@
       "placeholder": ""
     },
     "active": {
-      "type": "checkbox",
-      "label": "Active",
+      "type": "switch",
+      "label": "Category Status",
       "key": "active",
       "value": true,
-      "text": "Category is active"
+      "on_label": "Active",
+      "off_label": "Inactive"
     }
   },
   "GET": "edge",

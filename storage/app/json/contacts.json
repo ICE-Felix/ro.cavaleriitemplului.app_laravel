@@ -1,7 +1,9 @@
 {
     "name": {
         "singular": "contact",
-        "plural": "contacts"
+        "plural": "contacts",
+        "label_singular": "Contact",
+        "label_plural": "Contacts"
     },
     "schema": {
         "id": {
