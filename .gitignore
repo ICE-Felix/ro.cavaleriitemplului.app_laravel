@@ -3,3 +3,6 @@
 node_modules/
 public/build/
 vendor/
+
+storage/app/json/
+.github/workflows/prod.yml
