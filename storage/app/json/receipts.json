@@ -1,0 +1,12 @@
+{
+  "name": {
+    "singular": "receipt",
+    "plural": "receipts"
+  },
+  "schema": {
+  },
+  "GET": "read",
+  "INSERT": "create",
+  "DELETE": "delete",
+  "UPDATE": "update"
+}

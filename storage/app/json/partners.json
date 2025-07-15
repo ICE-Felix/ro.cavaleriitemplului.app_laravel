@@ -1,0 +1,91 @@
+{
+    "name": {
+        "singular": "partner",
+        "plural": "partners"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "text",
+            "readonly": true,
+            "visible": false
+        },
+        "company_name": {
+            "type": "text",
+            "label": "Company Name",
+            "placeholder": "Company name"
+        },
+        "tax_id": {
+            "type": "text",
+            "label": "CUI",
+            "placeholder": "RO123456"
+        },
+        "registration_number": {
+            "type": "text",
+            "label": "J",
+            "placeholder": "J56/351/2020"
+        },
+        "address": {
+            "type": "text",
+            "label": "Adresa",
+            "placeholder": ""
+        },
+        "bank_account": {
+            "type": "text",
+            "label": "Cont Bancar",
+            "placeholder": "RO0000BNKRTT....."
+        },
+        "bank_name": {
+            "type": "text",
+            "label": "Denumirea bancii",
+            "placeholder": ""
+        },
+        "is_active": {
+            "type": "select",
+            "label": "Activ",
+            "cast": "bool",
+            "data": {
+                "source": {
+                    "true": {
+                        "value": true,
+                        "name": "True"
+                    },
+                    "false": {
+                        "value": false,
+                        "name": "False"
+                    }
+                }
+            }
+        },
+        "business_email": {
+            "type": "text",
+            "label": "Email business",
+            "placeholder": ""
+        },
+        "orders_email": {
+            "type": "text",
+            "label": "Email comenzi",
+            "placeholder": ""
+        },
+        "administrator_name": {
+            "type": "select",
+            "label": "Administrator contact",
+            "key": "administrator_contact_id",
+            "data": {
+                "type": "class",
+                "source": [
+                    "App\\Services\\Supabase\\SupabaseService",
+                    "read_edge",
+                    "contacts"
+                ],
+                "value": "id",
+                "name": "{first_name} {last_name}"
+            }
+        }
+
+    },
+    "GET": "edge",
+    "INSERT": "edge",
+    "DELETE": "edge",
+    "UPDATE": "edge"
+}

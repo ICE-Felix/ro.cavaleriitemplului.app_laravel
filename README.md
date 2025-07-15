@@ -1,170 +1,206 @@
-# Mommy HAI Application
+# ICE-Felix Core Application Repository
 
-A modern Laravel-based web application for comprehensive business management.
+Welcome to the **ICE-Felix Core Application Repository** - the central template and foundation for all ICE-Felix applications.
 
-## About This Project
+## 🎯 Purpose
 
-This application is built with Laravel 10 and provides a complete business management solution with dynamic data handling, user management, and modern web interfaces. The application uses JSON-based configuration files for flexible schema management.
+This repository serves as the **core/template** for all ICE-Felix applications, providing:
 
-## Features
+- **Shared components** and functionality
+- **Consistent application structure**
+- **Reusable services and helpers**
+- **Standardized configuration**
+- **Common UI components**
 
-- **Laravel 10** - Modern PHP framework with robust features
-- **Dynamic Data Management** - JSON-based schema configuration for flexible data models
-- **Modern UI** - Built with Tailwind CSS for responsive design
-- **Component Architecture** - Reusable Blade components for consistent UI
-- **Vite Build System** - Fast asset compilation and hot module replacement
-- **Alpine.js** - Lightweight JavaScript framework for interactivity
-- **Automated Deployment** - GitHub Actions workflow for seamless deployments
-- **Permission System** - Role-based access control
-- **Multi-Model Support** - Support for various business entities (users, contacts, products, etc.)
+## 🚀 Quick Start
 
-## Architecture
+### For New Projects
 
-### Data Models
-The application supports multiple business entities through JSON configuration:
-- **User Management** - Users, roles, permissions
-- **Contact Management** - Contacts, agents, students
-- **Partner Management** - Business partners with comprehensive company details, tax information, and banking
-- **Business Operations** - Contracts, subscriptions, enrollments
-- **Financial Management** - Payments, invoices, transactions, wallets
-- **Product Management** - Products, categories, gateways
-- **Event Management** - Events, timeslots, series
+```bash
+# Clone this repository
+git clone git@github.com:ICE-Felix/admin.app.icefelix.com.git your-new-project
+cd your-new-project
 
-### Configuration System
-Each data model is defined in `/storage/app/json/` with schema definitions that include:
-- Field types and validation
-- Display labels and formatting
-- API endpoint configurations
-- UI visibility and permissions
+# Set up for your project
+git remote remove origin
+git remote add origin git@github.com:ICE-Felix/your-new-project.git
+git remote add upstream git@github.com:ICE-Felix/admin.app.icefelix.com.git
 
-## Local Development Setup
+# Push to your new repository
+git push -u origin main
+```
 
-### Prerequisites
+### For Existing Projects
 
-- **PHP 8.1+** with required extensions
-- **Composer** for PHP dependency management
-- **Node.js 16+** and npm for frontend assets
-- **Git** for version control
+```bash
+# Add core repository as upstream
+git remote add upstream git@github.com:ICE-Felix/admin.app.icefelix.com.git
 
-### Installation Steps
+# Use the update script
+chmod +x update-core.sh
+./update-core.sh
+```
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/ICE-Felix/app.mommyhai.com.git
-   cd app.mommyhai.com
-   ```
+## 📋 Laravel Application Features
 
-2. **Install PHP dependencies**
-   ```bash
-   composer install
-   ```
+### Core Components
+- **Authentication System** with Supabase integration
+- **Dynamic CRUD Operations** with JSON configuration
+- **Reusable UI Components** (Blade Components)
+- **File Management** with browser component
+- **Form Builders** with validation
+- **Template Parser Service**
+- **OpenAI Integration Service**
 
-3. **Install Node.js dependencies**
-   ```bash
-   npm install
-   ```
+### Included Middleware
+- JSON Props Middleware
+- Supabase Authentication
+- Permission Management
+- Request Validation
 
-4. **Environment Configuration**
-   ```bash
-   cp .env.sample .env
-   ```
-   Edit `.env` with your configuration values
+### Services
+- **SupabaseService** - Database operations
+- **OpenAIService** - AI integrations
+- **TemplateParserService** - Dynamic content
 
-5. **Generate application key**
-   ```bash
-   php artisan key:generate
-   ```
+## 🔧 Installation
 
-6. **Set up storage permissions**
-   ```bash
-   chmod -R 775 storage bootstrap/cache
-   ```
+```bash
+# Install dependencies
+composer install
+npm install
 
-7. **Clear and optimize caches**
-   ```bash
-   php artisan config:clear
-   php artisan cache:clear
-   php artisan view:clear
-   php artisan route:clear
-   php artisan config:cache
-   php artisan route:cache
-   php artisan view:cache
-   ```
+# Copy environment configuration
+cp .env.sample .env
 
-8. **Start development servers**
-   
-   **Terminal 1 - Laravel Server:**
-   ```bash
-   php artisan serve
-   ```
-   
-   **Terminal 2 - Vite Development Server:**
-   ```bash
-   npm run dev
-   ```
+# Generate application key
+php artisan key:generate
 
-9. **Access the application**
-   - Navigate to `http://localhost:8000`
+# Configure your environment
+# Update .env with your Supabase credentials
 
-## Deployment
+# Build assets
+npm run build
 
-The application includes automated deployment via GitHub Actions:
+# Start development server
+php artisan serve
+```
 
-- **Target Environment**: Bitnami on AWS Lightsail
-- **Deployment Trigger**: Push to main branch
-- **Process**: Automated file transfer, dependency installation, and cache optimization
-- **Permissions**: Automatically configured for Laravel requirements
+## 🌟 Core Features
 
-## Configuration Files
+### Dynamic CRUD System
+Configure entities through JSON files in `storage/app/json/`:
+- Automatic form generation
+- Validation rules
+- Relationship handling
+- Custom field types
 
-### JSON Schema Files
-Located in `/storage/app/json/`, these files define:
-- Data structure and validation rules
-- Form field configurations
-- API endpoint mappings
-- Display formats and labels
+### Component Library
+Reusable Blade components:
+- `<x-input>` - Enhanced input fields
+- `<x-select>` - Dynamic select dropdowns
+- `<x-file-browser>` - File management
+- `<x-date-input>` - Date pickers
+- `<x-location-picker>` - Location selection
+- `<x-trix-editor>` - Rich text editor
 
-### Key Configuration Files
-- `users.json` - User management schema
-- `contacts.json` - Contact management configuration
-- `partners.json` - Business partner management with company and financial details
-- `products.json` - Product catalog structure
-- `payments.json` - Payment processing schema
-- And 29+ other entity configurations
+### Supabase Integration
+- Authentication
+- Real-time database operations
+- Row-level security
+- File storage
 
-## Development Workflow
+## 📚 Documentation
 
-1. **Backend Development**
-   - Modify controllers in `/app/Http/Controllers/`
-   - Update service classes in `/app/Services/`
-   - Configure data schemas in `/storage/app/json/`
+- **[Core Usage Guide](CORE_USAGE.md)** - How to use this as a template
+- **[Dynamic CRUD Documentation](documentations/DYNAMIC_CRUD_DOCUMENTATION.md)** - CRUD system details
+- **[Changelog](CHANGELOG.md)** - Version history
 
-2. **Frontend Development**
-   - Edit Blade templates in `/resources/views/`
-   - Modify components in `/resources/views/components/`
-   - Update styles and assets in `/resources/`
+## 🔄 Staying Updated
 
-3. **Schema Management**
-   - Modify JSON configuration files for data models
-   - Update field definitions and validation rules
-   - Configure display options and permissions
+### Regular Updates
+Run the update script regularly to get the latest core improvements:
 
-## Support & Documentation
+```bash
+./update-core.sh
+```
 
-- **Application**: [https://app.mommyhai.com](https://app.mommyhai.com)
-- **Support**: [https://support.mommyhai.com](https://support.mommyhai.com)
-- **Documentation**: [https://docs.app.mommyhai.com](https://docs.app.mommyhai.com)
+### Manual Updates
+```bash
+git fetch upstream
+git checkout -b core-updates
+git rebase upstream/main
+# Resolve conflicts if any
+git checkout main
+git merge core-updates
+```
 
-## License
+## 🛠️ Development Workflow
 
-This project is proprietary software. All rights reserved.
+### For Core Maintainers
+1. Make changes to core functionality
+2. Test thoroughly
+3. Update version and changelog
+4. Push to main branch
+5. Notify project maintainers
 
-## Notes
+### For Project Maintainers
+1. Pull core updates regularly
+2. Test in staging environment
+3. Resolve any conflicts
+4. Deploy to production
+5. Report issues back to core
 
-- Updated `storage/app/json/news.json` schema/config. See CHANGELOG.md for details.
-- Updated `storage/app/json/locale.json` and `storage/app/json/users.json` schema configurations with improved field definitions and structure
-- Updated `storage/app/json/contacts.json` with enhanced contact management including department types and structured name fields
-- Updated `storage/app/json/contracts.json` with partner integration, contract types, and approval system
-- Created new `storage/app/json/contract_types.json` for contract type management
-- Enhanced data display handling with better null checking and error prevention
+## 📁 Project Structure
+
+```
+admin.app.icefelix.com/
+├── app/
+│   ├── Http/Controllers/         # Shared Controllers
+│   ├── View/Components/          # Reusable Components
+│   ├── Helpers/                  # Helper Functions
+│   ├── Services/                 # Core Services
+│   └── Providers/                # Service Providers
+├── resources/
+│   ├── views/                    # Blade Templates
+│   ├── js/                       # JavaScript Assets
+│   └── css/                      # Stylesheets
+├── config/                       # Configuration Files
+├── storage/app/json/             # CRUD Configurations
+├── .env.sample                   # Environment Template
+├── update-core.sh                # Update Script
+└── CORE_USAGE.md                 # Usage Documentation
+```
+
+## 🔒 Security
+
+- Environment variables are properly ignored
+- Sensitive configurations excluded from repository
+- Supabase handles authentication and authorization
+- Regular security updates through core updates
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📞 Support
+
+- **Issues**: Create an issue in this repository
+- **Questions**: Contact the core maintainers
+- **Updates**: Check the changelog for breaking changes
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+**Made with ❤️ by ICE-Felix Team**
+
+admin.app.icefelix.com
+
 # admin.app.icefelix.com

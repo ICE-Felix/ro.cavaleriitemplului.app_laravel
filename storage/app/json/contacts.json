@@ -1,0 +1,76 @@
+{
+    "name": {
+        "singular": "contact",
+        "plural": "contacts",
+        "label_singular": "Contact",
+        "label_plural": "Contacts"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "text",
+            "readonly": true,
+            "visible": false
+        },
+        "first_name": {
+            "type": "text",
+            "label": "First Name",
+            "placeholder": "First name"
+        },
+        "last_name": {
+            "type": "text",
+            "label": "Last Name",
+            "placeholder": "Last name"
+        },
+        "phone_no": {
+            "type": "text",
+            "label": "Phone no.",
+            "placeholder": "Phone no."
+        },
+        "email": {
+            "type": "text",
+            "label": "Email",
+            "placeholder": ""
+        },
+        "type": {
+            "type": "select",
+            "label": "Department type",
+            "data": {
+                "source": {
+                    "vanzari": {
+                        "value": "vanzari",
+                        "name": "Vanzari"
+                    },
+                    "management": {
+                        "value": "management",
+                        "name": "Management"
+                    },
+                    "operational": {
+                        "value": "operational",
+                        "name": "Operational"
+                    },
+                    "tehnic": {
+                        "value": "tehnic",
+                        "name": "Tehnic"
+                    },
+                    "financiar": {
+                        "value": "financiar",
+                        "name": "Financiar"
+                    },
+                    "suport-clienti": {
+                        "value": "suport-clienti",
+                        "name": "Suport Clienti"
+                    },
+                    "administrator": {
+                        "value": "administrator",
+                        "name": "Administrator"
+                    }
+                }
+            }
+        }
+    },
+    "GET": "edge",
+    "INSERT": "edge",
+    "DELETE": "edge",
+    "UPDATE": "edge"
+}

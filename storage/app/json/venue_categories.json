@@ -1,0 +1,59 @@
+{
+  "name": {
+    "singular": "venue_category",
+    "plural": "venue_categories",
+    "label_singular": "Venue category",
+    "label_plural": "Venue categories"
+  },
+  "debug": [],
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+    "name": {
+      "type": "text",
+      "label": "Name",
+      "placeholder": "Vacanta"
+    },
+    "parent_name": {
+      "type": "select",
+      "label": "Parent category",
+      "key": "parent_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge_filtered",
+          "venue_categories",
+          [
+            "parent_id",
+            "is",
+            null
+          ]
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    },
+    "filter_option": {
+      "type": "text",
+      "label": "Filter",
+      "placeholder": ""
+    },
+    "active": {
+      "type": "switch",
+      "label": "Category Status",
+      "key": "active",
+      "value": true,
+      "on_label": "Active",
+      "off_label": "Inactive"
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}

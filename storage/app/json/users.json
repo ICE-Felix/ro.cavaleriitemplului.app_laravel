@@ -1,0 +1,51 @@
+{
+    "name": {
+        "singular": "user",
+        "plural": "users",
+        "label_singular": "user"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "text",
+            "readonly": true,
+            "visible": false
+        },
+        "first_name": {
+            "type": "text",
+            "label": "First name"
+        },
+        "last_name": {
+            "type": "text",
+            "label": "Last name"
+        },
+        "email": {
+            "type": "text",
+            "label": "Email"
+        },
+        "phone": {
+            "type": "text",
+            "label": "Phone"
+        },
+        "userrole" : {
+            "type" : "select",
+            "label": "Role",
+            "data" : {
+                "source" : {
+                    "pos" : {
+                        "value" : "pos",
+                        "name" : "Pos"
+                    },
+                    "admin" : {
+                        "value" : "admin",
+                        "name" : "Admin"
+                    }
+                }
+            }
+        }
+    },
+    "GET": "edge",
+    "INSERT": "edge",
+    "DELETE": "edge",
+    "UPDATE": "edge"
+}

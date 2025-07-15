@@ -1,0 +1,22 @@
+{
+  "name": {
+    "singular": "invoice",
+    "plural": "invoices"
+  },
+  "schema": {
+    "name": {
+      "type": "text",
+      "label": "Name",
+      "placeholder": "Name"
+    },
+    "file_url": {
+      "type": "text",
+      "label": "File URL",
+      "placeholder": "File URL"
+    }
+  },
+  "GET": "read",
+  "INSERT": "create",
+  "DELETE": "delete",
+  "UPDATE": "update"
+}

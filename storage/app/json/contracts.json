@@ -1,0 +1,69 @@
+{
+    "name": {
+        "singular": "contract",
+        "plural": "contracts",
+        "label_singular": "Contract"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "text",
+            "readonly": true,
+            "visible": false
+        },
+        "number": {
+            "label": "Number",
+            "type": "text"
+        },
+        "partner_name" : {
+            "type" : "select",
+            "label" : "Partner",
+            "key" : "partner_id",
+            "data" : {
+                "type" : "class",
+                "source" : [
+                    "App\\Services\\Supabase\\SupabaseService",
+                    "read_rpc",
+                    "partners"
+                ],
+                "value" : "id",
+                "name" : "company_name"
+            }
+        },
+        "contract_type" : {
+            "type" : "select",
+            "label" : "Contract type",
+            "key" : "type_id",
+            "data" : {
+                "type" : "class",
+                "source" : [
+                    "App\\Services\\Supabase\\SupabaseService",
+                    "read_edge",
+                    "contract_types"
+                ],
+                "value" : "id",
+                "name" : "name"
+            }
+        },     
+        "file_url": {
+            "label": "Contract file",
+            "type": "button"
+        },
+        "comment": {
+            "type": "text",
+            "label": "Comment",
+            "placeholder": "Comment"
+        },
+        "approved" : {
+            "type": "checkbox",
+            "label": "Approved",
+            "key": "is_active",
+            "value": true,
+            "text": "Contract is active and approved"
+        }
+    },
+    "GET": "edge",
+    "INSERT": "edge",
+    "DELETE": "edge",
+    "UPDATE": "edge"
+}

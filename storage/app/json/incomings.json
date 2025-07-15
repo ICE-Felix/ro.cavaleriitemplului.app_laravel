@@ -1,0 +1,12 @@
+{
+  "name": {
+    "singular": "incoming",
+    "plural": "incomings"
+  },
+  "schema": {
+  },
+  "GET": "read",
+  "INSERT": "create",
+  "DELETE": "delete",
+  "UPDATE": "update"
+}

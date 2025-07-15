@@ -1,0 +1,111 @@
+{
+    "name": {
+        "singular": "product",
+        "plural": "products"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "int",
+            "readonly": true,
+            "visible": false
+        },
+        "name": {
+            "type": "text",
+            "label": "Name",
+            "placeholder": "Vodafone Romania"
+        },
+        "description": {
+            "type": "textarea",
+            "label": "Description",
+            "rows": 5,
+            "visible": false
+        },
+        "meta": {
+            "type": "json",
+            "label": "Meta",
+            "rows": 5,
+            "visible": false
+        },
+        "featured": {
+            "type": "select",
+            "cast": "bool",
+            "data": {
+                "source": {
+                    "true": {
+                        "value": true,
+                        "name": "True"
+                    },
+                    "false": {
+                        "value": false,
+                        "name": "False"
+                    }
+                }
+            }
+        },
+        "category_name": {
+            "type": "select",
+            "label": "Category",
+            "key": "category_id",
+            "data": {
+                "type" : "class",
+                "source" : [
+                    "App\\Services\\Supabase\\SupabaseService",
+                    "read",
+                    "categories"
+                ],
+                "value": "id",
+                "name": "name"
+            }
+        },
+        "gateway_name": {
+            "type": "select",
+            "label": "Gateway",
+            "key": "gateway_id",
+            "data": {
+                "type": "class",
+                "source": [
+                    "App\\Services\\Supabase\\SupabaseService",
+                    "read",
+                    "gateways"
+                ],
+                "value": "id",
+                "name": "name"
+            }
+        },
+        "status": {
+            "type": "select",
+            "data": {
+                "source": {
+                    "active": {
+                        "value": "active",
+                        "name": "Active"
+                    },
+                    "inactive": {
+                        "value": "inactive",
+                        "name": "Inactive"
+                    }
+                }
+            }
+        },
+        "disabled_reason": {
+            "type": "textarea",
+            "label": "Disabled reason",
+            "visible": false
+        },
+        "image_url": {
+            "key": "image_id",
+            "type": "image",
+            "label": "Featured image"
+        },
+        "priority": {
+            "label": "Priority",
+            "type": "text",
+            "visible": false
+        }
+    },
+    "GET": "read_rpc",
+    "INSERT": "create",
+    "DELETE": "delete",
+    "UPDATE": "update"
+}

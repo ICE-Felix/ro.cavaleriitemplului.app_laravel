@@ -1,0 +1,54 @@
+{
+    "name": {
+        "singular": "agent",
+        "plural": "agents"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "text",
+            "readonly": true,
+            "visible": false
+        },
+        "name": {
+            "type": "text",
+            "label": "Name"
+        },
+        "legal_name": {
+            "type": "text",
+            "label": "Legal name"
+        },
+        "unique_no": {
+            "type": "text",
+            "label": "Unique NO."
+        },
+        "status": {
+            "type": "select",
+            "data": {
+                "source": {
+                    "active": {
+                        "value": "active",
+                        "name": "Active"
+                    },
+                    "inactive": {
+                        "value": "inactive",
+                        "name": "Inactive"
+                    },
+                    "disabled": {
+                        "value": "disabled",
+                        "name": "Disabled"
+                    }
+                }
+            }
+        },
+        "disabled_reason" : {
+            "type": "textarea",
+            "label": "Disabled reason",
+            "visible": false
+        }
+    },
+    "GET": "read",
+    "INSERT": "create",
+    "DELETE": "delete",
+    "UPDATE": "update"
+}

@@ -1,0 +1,82 @@
+{
+    "name": {
+        "singular": "payment",
+        "plural": "payments"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "text",
+            "readonly": true,
+            "visible": false
+        },
+        "user_name": {
+            "type": "select",
+            "label": "User",
+            "key": "user_id",
+            "data": {
+                "type": "class",
+                "source": [
+                    "App\\Services\\Supabase\\SupabaseService",
+                    "read_edge",
+                    "users"
+                ],
+                "value": "id",
+                "name": "name"
+            }
+        },
+        "product_name": {
+            "type": "select",
+            "label": "Product",
+            "key": "product_id",
+            "data": {
+                "type": "class",
+                "source": [
+                    "App\\Services\\Supabase\\SupabaseService",
+                    "read",
+                    "products"
+                ],
+                "value": "id",
+                "name": "name"
+            }
+        },
+
+        "amount": {
+            "type": "numeric",
+            "label": "Amount",
+            "placeholder": "Amount"
+        },
+        "status": {
+            "type": "select",
+            "data": {
+                "source": {
+                    "new": {
+                        "value": "new",
+                        "name": "New"
+                    },
+                    "processing": {
+                        "value": "processing",
+                        "name": "Processing"
+                    },
+                    "completed": {
+                        "value": "completed",
+                        "name": "Completed"
+                    },
+                    "declined": {
+                        "value": "declined",
+                        "name": "Declined"
+                    }
+                }
+            }
+        },
+        "payment_date": {
+            "type": "text",
+            "label": "Payment date",
+            "readonly": true
+        }
+    },
+    "GET": "read_rpc",
+    "INSERT": "create",
+    "DELETE": "delete",
+    "UPDATE": "update"
+}

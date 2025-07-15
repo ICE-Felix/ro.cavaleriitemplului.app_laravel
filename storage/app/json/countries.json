@@ -1,0 +1,26 @@
+{
+  "name": {
+    "singular": "country",
+    "plural": "countries",
+    "label_singular": "Country",
+    "label_plural": "Countries"
+  },
+  "debug": [],
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+    "name": {
+      "type": "text",
+      "label": "Name",
+      "placeholder": "Romania"
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}

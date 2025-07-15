@@ -1,0 +1,136 @@
+{
+  "name": {
+    "singular": "subscription",
+    "plural": "subscriptions"
+  },
+  "schema": {
+    "contract_id" : {
+      "type" : "select",
+      "label" : "Contract",
+      "key" : "contract_id",
+      "data" : {
+        "type" : "class",
+        "source" : [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_rpc",
+          "contracts"
+        ],
+        "value" : "id",
+        "name" : "No: {number}/Date: {date:d-m-Y} - {student_full_name}"
+      },
+      "visible": false
+    },
+    "contract_full_name" : {
+      "type" : "select",
+      "label" : "Contract",
+      "key" : "contract_id",
+      "data" : {
+        "type" : "class",
+        "source" : [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_rpc",
+          "contracts"
+        ],
+        "value" : "id",
+        "name" : "No: {number}/Date: {date:d-m-Y} - {student_full_name}"
+      },
+      "readonly": true
+    },
+    "starting_date": {
+      "label": "Starting Date",
+      "type": "date",
+      "format": "{starting_date:d-m-Y}"
+    },
+    "ending_date": {
+      "label": "Ending Date",
+      "type": "date",
+      "format": "{ending_date:d-m-Y}"
+    },
+    "invoice_name": {
+      "type": "select",
+      "label": "Invoice",
+      "key": "invoice_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read",
+          "invoices"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    },
+
+    "invoice_status": {
+      "label": "Invoice status",
+      "type": "select",
+      "data": {
+        "source": {
+          "not_generated": {
+            "value": "not_generated",
+            "name": "Not generated",
+            "color": "badge_secondary"
+          },
+          "proforma_generated": {
+            "value": "proforma_generated",
+            "name": "Proforma generated",
+            "color": "badge_warning"
+          },
+          "proforma_sent": {
+            "value": "proforma_sent",
+            "name": "Proforma sent",
+            "color": "badge_info"
+          },
+          "fiscal_generated": {
+            "value": "fiscal_generated",
+            "name": "Fiscal generated",
+            "color": "badge_primary"
+          },
+          "fiscal_sent": {
+            "value": "fiscal_sent",
+            "name": "Fiscal sent",
+            "color": "badge_success"
+          },
+          "canceled": {
+            "value": "canceled",
+            "name": "Canceled",
+            "color": "badge_danger"
+          }
+        }
+      }
+    },
+    "payment_status": {
+      "label": "Payment status",
+      "type": "select",
+      "data": {
+        "source": {
+          "not_payed": {
+            "value": "not_payed",
+            "name": "Not payed",
+            "color": "badge_secondary"
+          },
+          "payed": {
+            "value": "payed",
+            "name": "Payed",
+            "color": "badge_success"
+          },
+          "delayed": {
+            "value": "delayed",
+            "name": "Delayed",
+            "color": "badge_warning"
+          },
+          "canceled": {
+            "value": "canceled",
+            "name": "Canceled",
+            "color": "badge_danger"
+          }
+        }
+      }
+    }
+  },
+  "GET": "read_rpc",
+  "INSERT": "create_edge",
+  "DELETE": "delete",
+  "UPDATE": "update"
+}

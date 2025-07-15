@@ -1,0 +1,63 @@
+{
+    "name": {
+        "singular": "point_of_sale",
+        "plural": "points_of_sale",
+        "label_singular" : "POS",
+        "label_plural" : "POS"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "text",
+            "readonly": true,
+            "visible": false
+        },
+        "name": {
+            "type": "text",
+            "label": "Name"
+        },
+        "agent_id" : {
+            "type" : "select",
+            "label" : "Agent",
+            "key" : "agent_id",
+            "data" : {
+                "type" : "class",
+                "source" : [
+                    "App\\Services\\Supabase\\SupabaseService",
+                    "read",
+                    "agents"
+                ],
+                "value" : "id",
+                "name" : "name"
+            }
+        },
+        "status": {
+            "type": "select",
+            "data": {
+                "source": {
+                    "active": {
+                        "value": "active",
+                        "name": "Active"
+                    },
+                    "inactive": {
+                        "value": "inactive",
+                        "name": "Inactive"
+                    },
+                    "disabled": {
+                        "value": "disabled",
+                        "name": "Disabled"
+                    }
+                }
+            }
+        },
+        "disabled_reason" : {
+            "type": "textarea",
+            "label": "Disabled reason",
+            "visible": false
+        }
+    },
+    "GET": "read",
+    "INSERT": "create",
+    "DELETE": "delete",
+    "UPDATE": "update"
+}

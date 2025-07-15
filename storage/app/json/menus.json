@@ -1,0 +1,43 @@
+{
+    "name": {
+        "singular": "menu",
+        "plural": "menus"
+    },
+    "schema": {
+        "id": {
+            "label": "#",
+            "type": "text",
+            "readonly": true,
+            "visible": false
+        },
+        "label": {
+            "type": "text",
+            "label": "Label",
+            "readonly": false,
+            "visible": true
+        },
+        "active": {
+            "type": "select",
+            "cast": "bool",
+            "label": "Active",
+            "readonly": false,
+            "visible": true,
+            "data": {
+                "source": {
+                    "true": {
+                        "value": "true",
+                        "name": "True"
+                    },
+                    "false": {
+                        "value": "false",
+                        "name": "False"
+                    }
+                }
+            }
+        }
+    },
+    "GET": "read_rpc",
+    "INSERT": "create",
+    "DELETE": "delete",
+    "UPDATE": "update"
+}

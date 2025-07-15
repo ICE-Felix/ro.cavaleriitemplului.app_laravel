@@ -1,0 +1,25 @@
+{
+  "name": {
+    "singular": "news_category",
+    "plural": "news_categories",
+    "label_plural": "News categories",
+    "label_singular": "News category"
+  },
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+    "name": {
+      "type": "text",
+      "label": "Title",
+      "placeholder": "Title"
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}

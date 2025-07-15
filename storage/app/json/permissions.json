@@ -1,0 +1,71 @@
+{
+    "name" : {
+    "singular" : "permission",
+    "plural" : "permissions"
+},
+    "schema" : {
+    "id" : {
+        "label" : "#",
+        "type" : "int",
+        "readonly" : true,
+        "visible": false
+    },
+    "role_name": {
+        "label" : "Role name",
+        "type" : "text",
+        "readonly" : true
+    },
+    "role_id" : {
+        "type" : "select",
+        "label" : "Role",
+        "key": "role_id",
+        "data" : {
+            "type" : "class",
+            "source" : [
+                "App\\Services\\Supabase\\SupabaseService",
+                "read",
+                "roles"
+            ],
+            "value" : "id",
+            "name" : "name"
+        },
+        "visible": false
+    },
+    "table_name" : {
+        "type" : "text",
+        "label" : "Action name",
+        "placeholder" : "functions.get_categories"
+    },
+    "actions" : {
+        "type" : "select",
+        "data" : {
+            "source" : {
+                "r" : {
+                    "value" : "r",
+                    "name" : "Read"
+                },
+                "i" : {
+                    "value" : "i",
+                    "name" : "Insert"
+                },
+                "u" : {
+                    "value" : "u",
+                    "name" : "Update"
+                },
+                "d" : {
+                    "value" : "d",
+                    "name" : "Delete"
+                },
+                "*" : {
+                    "value" : "*",
+                    "name" : "All"
+                }
+            }
+        }
+    }
+},
+    "GET": "read_rpc",
+    "INSERT": "create",
+    "DELETE": "delete",
+    "UPDATE": "update"
+}
