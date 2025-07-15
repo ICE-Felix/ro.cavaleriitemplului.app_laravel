@@ -14,7 +14,18 @@ This repository serves as the **core/template** for all ICE-Felix applications, 
 
 ## 🚀 Quick Start
 
-### For New Projects
+### **Approach 1: Git Submodules** (Recommended for new projects)
+
+```bash
+# Create new project with core as submodule
+./create-project-submodule.sh my-awesome-project git@github.com:ICE-Felix/my-awesome-project.git
+
+# Or manually:
+mkdir my-project && cd my-project
+git init && git submodule add git@github.com:ICE-Felix/admin.app.icefelix.com.git core
+```
+
+### **Approach 2: Upstream Remote** (For existing projects)
 
 ```bash
 # Clone this repository
@@ -112,28 +123,45 @@ Reusable Blade components:
 
 ## 📚 Documentation
 
-- **[Core Usage Guide](CORE_USAGE.md)** - How to use this as a template
+- **[Core Usage Guide](CORE_USAGE.md)** - Upstream remote approach
+- **[Submodule Usage Guide](SUBMODULE_USAGE.md)** - Git submodules approach
 - **[Dynamic CRUD Documentation](documentations/DYNAMIC_CRUD_DOCUMENTATION.md)** - CRUD system details
 - **[Changelog](CHANGELOG.md)** - Version history
 
 ## 🔄 Staying Updated
 
-### Regular Updates
-Run the update script regularly to get the latest core improvements:
-
+### **Submodule Approach**
 ```bash
+# Update core submodule
+cd core
+git checkout main && git pull origin main
+cd .. && git add core && git commit -m "Update core submodule"
+```
+
+### **Upstream Remote Approach**
+```bash
+# Use update script
 ./update-core.sh
+
+# Or manually
+git fetch upstream && git rebase upstream/main
 ```
 
-### Manual Updates
-```bash
-git fetch upstream
-git checkout -b core-updates
-git rebase upstream/main
-# Resolve conflicts if any
-git checkout main
-git merge core-updates
-```
+## 🤔 **Which Approach to Choose?**
+
+### **Use Git Submodules if:**
+- ✅ Starting new projects
+- ✅ Want clear separation of core vs project code
+- ✅ Need to pin to specific core versions
+- ✅ Want explicit dependency management
+- ✅ Multiple projects sharing same core
+
+### **Use Upstream Remote if:**
+- ✅ Converting existing projects
+- ✅ Want simpler git workflow
+- ✅ Always want latest core features
+- ✅ Prefer single repository structure
+- ✅ Team familiar with standard git workflows
 
 ## 🛠️ Development Workflow
 
