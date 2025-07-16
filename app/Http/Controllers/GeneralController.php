@@ -132,6 +132,7 @@ class GeneralController extends Controller
         $data = null;
         try {
             foreach ($this->props['schema'] as $key => $prop) {
+
                 if (!isset($prop['readonly']) || !$prop['readonly']) {
                     if ($request->get($prop['key'] ?? $key) !== null) {
                         // Get the value from request
@@ -149,6 +150,7 @@ class GeneralController extends Controller
                         }
                     }
                 }
+
                 if (isset($prop['type']) && $prop['type'] === 'image') {
                     // Check if an image file was uploaded
                     if ($request->hasFile($prop['key'] ?? $key) && $request->file($prop['key'] ?? $key)->isValid()) {
@@ -176,16 +178,32 @@ class GeneralController extends Controller
                 //if type schedule, ensure proper JSON structure
                 if (isset($prop['type']) && $prop['type'] === 'schedule') {
                     $scheduleData = $data[$prop['key'] ?? $key] ?? null;
+                    dump('Business Hours data received --->');
+                    dump('Key: ' . ($prop['key'] ?? $key));
+                    dump('Raw data from request: ' . ($scheduleData ?? 'NULL'));
+                    dump('All request data for debugging:', $request->all());
                     if ($scheduleData) {
-                        // If it's a JSON string, decode it
+                        // If it's a JSON string, decode it first to validate and then re-encode
                         if (is_string($scheduleData)) {
-                            $scheduleData = json_decode($scheduleData, true);
+                            $decoded = json_decode($scheduleData, true);
+                            if ($decoded !== null) {
+                                // Re-encode to ensure proper JSON format for Supabase
+                                $data[$prop['key'] ?? $key] = json_encode($decoded);
+                                \Log::info('Schedule data processed (string input)', ['key' => $prop['key'] ?? $key, 'final_value' => $data[$prop['key'] ?? $key]]);
+                            } else {
+                                // Invalid JSON, set to null
+                                $data[$prop['key'] ?? $key] = null;
+                                \Log::warning('Invalid schedule JSON data', ['key' => $prop['key'] ?? $key, 'raw_data' => $scheduleData]);
+                            }
+                        } else {
+                            // If it's already an array, encode it to JSON string
+                            $data[$prop['key'] ?? $key] = json_encode($scheduleData);
+                            \Log::info('Schedule data processed (array input)', ['key' => $prop['key'] ?? $key, 'final_value' => $data[$prop['key'] ?? $key]]);
                         }
-                        // Ensure it's properly formatted for Supabase
-                        $data[$prop['key'] ?? $key] = $scheduleData;
                     } else {
                         // Set default empty schedule if no data provided
                         $data[$prop['key'] ?? $key] = null;
+                        \Log::info('Schedule data set to null (no data provided)', ['key' => $prop['key'] ?? $key]);
                     }
                 }
                 
@@ -203,6 +221,28 @@ class GeneralController extends Controller
                         // Set default empty gallery if no data provided
                         $data[$prop['key'] ?? $key] = null;
                     }
+                }
+                
+                //if type location, handle latitude and longitude
+                if (isset($prop['type']) && $prop['type'] === 'location') {
+                    $fieldName = $prop['key'] ?? $key;
+                    $latitudeField = $fieldName . '_latitude';
+                    $longitudeField = $fieldName . '_longitude';
+                    
+                    // Get latitude and longitude from request
+                    $latitude = $request->get($latitudeField);
+                    $longitude = $request->get($longitudeField);
+                    
+                    // Store latitude and longitude as separate fields
+                    if ($latitude !== null) {
+                        $data[$latitudeField] = (string)$latitude;
+                    }
+                    if ($longitude !== null) {
+                        $data[$longitudeField] = (string)$longitude;
+                    }
+                    
+                    // Remove the original location field from data if it exists
+                    unset($data[$fieldName]);
                 }
             }
             
@@ -343,6 +383,15 @@ class GeneralController extends Controller
      */
     public function update(Request $request, $id): \Illuminate\Http\RedirectResponse
     {
+        // Debug: Log all incoming request data
+        \Log::info('=== UPDATE REQUEST DEBUG ===');
+        \Log::info('Request method: ' . $request->method());
+        \Log::info('Request URL: ' . $request->url());
+        \Log::info('All request data:', $request->all());
+        \Log::info('business_hours from request->get(): ' . ($request->get('business_hours') ?? 'NULL'));
+        \Log::info('business_hours from request->input(): ' . ($request->input('business_hours') ?? 'NULL'));
+        \Log::info('=== END UPDATE REQUEST DEBUG ===');
+        
         $data = null;
         try {
             foreach ($this->props['schema'] as $key => $prop) {
@@ -391,16 +440,32 @@ class GeneralController extends Controller
                 //if type schedule, ensure proper JSON structure
                 if (isset($prop['type']) && $prop['type'] === 'schedule') {
                     $scheduleData = $data[$prop['key'] ?? $key] ?? null;
+                    dump('Business Hours data received (UPDATE) --->');
+                    dump('Key: ' . ($prop['key'] ?? $key));
+                    dump('Raw data from request: ' . ($scheduleData ?? 'NULL'));
+                    dump('All request data for debugging:', $request->all());
                     if ($scheduleData) {
-                        // If it's a JSON string, decode it
+                        // If it's a JSON string, decode it first to validate and then re-encode
                         if (is_string($scheduleData)) {
-                            $scheduleData = json_decode($scheduleData, true);
+                            $decoded = json_decode($scheduleData, true);
+                            if ($decoded !== null) {
+                                // Re-encode to ensure proper JSON format for Supabase
+                                $data[$prop['key'] ?? $key] = json_encode($decoded);
+                                \Log::info('Schedule data processed (string input - update)', ['key' => $prop['key'] ?? $key, 'final_value' => $data[$prop['key'] ?? $key]]);
+                            } else {
+                                // Invalid JSON, set to null
+                                $data[$prop['key'] ?? $key] = null;
+                                \Log::warning('Invalid schedule JSON data (update)', ['key' => $prop['key'] ?? $key, 'raw_data' => $scheduleData]);
+                            }
+                        } else {
+                            // If it's already an array, encode it to JSON string
+                            $data[$prop['key'] ?? $key] = json_encode($scheduleData);
+                            \Log::info('Schedule data processed (array input - update)', ['key' => $prop['key'] ?? $key, 'final_value' => $data[$prop['key'] ?? $key]]);
                         }
-                        // Ensure it's properly formatted for Supabase
-                        $data[$prop['key'] ?? $key] = $scheduleData;
                     } else {
                         // Set default empty schedule if no data provided
                         $data[$prop['key'] ?? $key] = null;
+                        \Log::info('Schedule data set to null (no data provided - update)', ['key' => $prop['key'] ?? $key]);
                     }
                 }
                 
@@ -418,6 +483,28 @@ class GeneralController extends Controller
                         // Set default empty gallery if no data provided
                         $data[$prop['key'] ?? $key] = null;
                     }
+                }
+                
+                //if type location, handle latitude and longitude
+                if (isset($prop['type']) && $prop['type'] === 'location') {
+                    $fieldName = $prop['key'] ?? $key;
+                    $latitudeField = $fieldName . '_latitude';
+                    $longitudeField = $fieldName . '_longitude';
+                    
+                    // Get latitude and longitude from request
+                    $latitude = $request->get($latitudeField);
+                    $longitude = $request->get($longitudeField);
+                    
+                    // Store latitude and longitude as separate fields
+                    if ($latitude !== null) {
+                        $data[$latitudeField] = (string)$latitude;
+                    }
+                    if ($longitude !== null) {
+                        $data[$longitudeField] = (string)$longitude;
+                    }
+                    
+                    // Remove the original location field from data if it exists
+                    unset($data[$fieldName]);
                 }
             }
 

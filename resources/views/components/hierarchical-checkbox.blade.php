@@ -151,7 +151,6 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .category-item {
-    border-bottom: 1px solid #e2e8f0;
     padding-bottom: 0.75rem;
 }
 
@@ -170,5 +169,9 @@ document.addEventListener('DOMContentLoaded', function() {
 .subcategory-item {
     padding-left: 1rem;
     border-left: 2px solid #e2e8f0;
+}
+
+input[name="venue_category_id[]"] {
+  margin: 0.25rem;
 }
 </style> 

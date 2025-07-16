@@ -11,6 +11,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Fixed undefined property error `$supabaseUrl` in SupabaseService
   - Corrected `getStoragePublicUrl()` method to use `$this->baseUrl` instead of non-existent `$this->supabaseUrl`
   - Gallery image upload now works correctly with proper public URL generation
+- **Location Component Data Processing**
+  - Fixed location data not being saved to database due to missing field type handling
+  - Added proper processing for `location` field type in GeneralController
+  - Location picker now correctly saves `location_latitude` and `location_longitude` fields to Supabase
+  - Enhanced both `store()` and `update()` methods to handle location coordinate data
+- **Schedule Component Data Persistence**
+  - Fixed schedule data not being saved properly to Supabase JSON fields
+  - Enhanced schedule handling to ensure proper JSON string encoding for database storage
+  - Schedule changes are now persistent and correctly saved/loaded from database
+  - Improved JSON validation and error handling for schedule data processing
+  - Added debug logging for schedule data processing to help troubleshoot issues
+  - Fixed JavaScript hidden input field targeting issue (ID/name mismatch)
+  - Schedule component now properly updates the form field that gets submitted
+  - Added comprehensive JavaScript debugging to track schedule data updates and hidden input changes
+  - Added form submission debugging to verify data being sent to server
+  - Added GeneralController request debugging to verify data being received
+  - Added debug button to manually check schedule data state
+  - Enhanced updateHiddenInput function with multiple element finding methods and detailed logging
+  - Added comprehensive debugging to identify why hidden input field is not being updated
+- **Venue Category Display Enhancement**
+  - Added `venue_category_titles` field to venues table display
+  - Hidden the `categories` hierarchical checkbox field from table view (visible only in forms)
+  - Enabled display of prettier category names instead of raw category IDs in venues list
+  - Enhanced venues.json configuration to support both form input and table display of categories
+- **Table Display Array Support**
+  - Enhanced default field display in `index.blade.php` to handle both strings and arrays
+  - Arrays of strings are now automatically converted to comma-separated values for display
+  - Improved compatibility with fields that may return multiple values (like `venue_category_titles` and `attribute_names`)
+  - Added dedicated `switch` case with array support for boolean toggle fields
+  - Switch arrays display proper on/off labels (e.g., "Active, Inactive, Active" for multiple switch values)
+  - Added dedicated `schedule` case for readable business hours display
+  - Schedule data now shows formatted hours (e.g., "Mon: 9:00 AM-5:00 PM, Tue: 9:00 AM-5:00 PM")
+  - Enhanced schedule display with proper time formatting and closed days handling
 
 ### Added
 - **Hierarchical Category Selection System for Venues**

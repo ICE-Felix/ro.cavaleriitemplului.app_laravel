@@ -55,7 +55,7 @@
     
     <div class="schedule-container bg-white border border-gray-300 rounded-lg p-4 mt-2">
         <!-- Hidden input to store the complete schedule as JSON -->
-        <input type="hidden" name="{{ $name }}" id="{{ $name }}_data" value="{{ json_encode($schedule) }}">
+        <input type="hidden" name="{{ $name }}" id="{{ $name }}" value="{{ json_encode($schedule) }}" data-debug="schedule-input">
         
         <!-- Quick Actions -->
         <div class="schedule-quick-actions p-3 flex flex-wrap gap-2">
@@ -143,19 +143,63 @@
     let scheduleData = @json($schedule);
     const scheduleName = '{{ $name }}';
     
+    console.log('Schedule component initialized with name:', scheduleName);
+    console.log('Initial schedule data:', scheduleData);
+    
     // Initialize schedule preview
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, checking hidden input...');
+        const hiddenInput = document.getElementById(scheduleName);
+        if (hiddenInput) {
+            console.log('Hidden input found:', hiddenInput);
+            console.log('Initial hidden input value:', hiddenInput.value);
+        } else {
+            console.error('Hidden input NOT found with ID:', scheduleName);
+        }
         updateSchedulePreview();
+        
+        // Add form submission debugging
+        const form = hiddenInput ? hiddenInput.closest('form') : null;
+        if (form) {
+            console.log('Form found for schedule component');
+            form.addEventListener('submit', function(e) {
+                console.log('Form submission detected!');
+                const currentHiddenInput = document.getElementById(scheduleName);
+                if (currentHiddenInput) {
+                    console.log('Hidden input value at form submission:', currentHiddenInput.value);
+                    console.log('Hidden input name:', currentHiddenInput.name);
+                    console.log('Current scheduleData:', scheduleData);
+                    
+                    // Force update the hidden input one more time before submission
+                    currentHiddenInput.value = JSON.stringify(scheduleData);
+                    console.log('Force updated hidden input value:', currentHiddenInput.value);
+                } else {
+                    console.error('Hidden input not found during form submission!');
+                }
+                
+                // Log all form data being submitted
+                const formData = new FormData(form);
+                console.log('All form data being submitted:');
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key}: ${value}`);
+                }
+            });
+        } else {
+            console.error('Form not found for schedule component');
+        }
     });
     
     // Toggle day enabled/disabled
     function toggleDay(day) {
+        console.log('toggleDay called for:', day);
         const checkbox = document.getElementById(`${scheduleName}_${day}_enabled`);
         const openInput = document.getElementById(`${scheduleName}_${day}_open`);
         const closeInput = document.getElementById(`${scheduleName}_${day}_close`);
         const dayContainer = checkbox.closest('.schedule-day');
         
+        console.log('Checkbox checked:', checkbox.checked);
         scheduleData[day].enabled = checkbox.checked;
+        console.log('Updated scheduleData for', day, ':', scheduleData[day]);
         
         // Enable/disable time inputs
         openInput.disabled = !checkbox.checked;
@@ -184,14 +228,72 @@
     
     // Update schedule time
     function updateSchedule(day, field, value) {
+        console.log('updateSchedule called:', day, field, value);
         scheduleData[day][field] = value;
+        console.log('Updated scheduleData for', day, ':', scheduleData[day]);
         updateHiddenInput();
         updateSchedulePreview();
     }
     
     // Update hidden input with JSON data
     function updateHiddenInput() {
-        document.getElementById(`${scheduleName}_data`).value = JSON.stringify(scheduleData);
+        console.log('=== updateHiddenInput CALLED ===');
+        console.log('Looking for element with name/ID:', scheduleName);
+        
+        const jsonData = JSON.stringify(scheduleData);
+        console.log('JSON data to set:', jsonData);
+        
+        // Try multiple ways to find the hidden input
+        let hiddenInput = null;
+        let method = '';
+        
+        // Method 1: By ID
+        hiddenInput = document.getElementById(scheduleName);
+        if (hiddenInput) {
+            method = 'ID';
+        } else {
+            // Method 2: By name attribute
+            hiddenInput = document.querySelector(`input[name="${scheduleName}"]`);
+            if (hiddenInput) {
+                method = 'name';
+            } else {
+                // Method 3: By data-debug attribute
+                hiddenInput = document.querySelector('[data-debug="schedule-input"]');
+                if (hiddenInput) {
+                    method = 'data-debug';
+                }
+            }
+        }
+        
+        console.log('Hidden input found via', method, ':', hiddenInput);
+        
+        if (hiddenInput) {
+            console.log('Hidden input BEFORE update:', hiddenInput.value);
+            hiddenInput.value = jsonData;
+            console.log('Hidden input AFTER update:', hiddenInput.value);
+            
+            // Verify the update worked
+            if (hiddenInput.value === jsonData) {
+                console.log('✅ Hidden input update SUCCESSFUL');
+            } else {
+                console.error('❌ Hidden input update FAILED - value mismatch');
+            }
+        } else {
+            console.error('❌ Hidden input not found by any method');
+            
+            // Debug: Show all hidden inputs on the page
+            const allHiddenInputs = document.querySelectorAll('input[type="hidden"]');
+            console.log('All hidden inputs on page:', allHiddenInputs);
+            allHiddenInputs.forEach((input, index) => {
+                console.log(`Hidden input ${index}:`, {
+                    name: input.name,
+                    id: input.id,
+                    value: input.value,
+                    element: input
+                });
+            });
+        }
+        console.log('=== updateHiddenInput END ===');
     }
     
     // Set all days enabled/disabled
