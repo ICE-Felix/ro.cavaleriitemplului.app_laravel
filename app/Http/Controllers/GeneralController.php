@@ -132,6 +132,7 @@ class GeneralController extends Controller
         $data = null;
         try {
             foreach ($this->props['schema'] as $key => $prop) {
+
                 if (!isset($prop['readonly']) || !$prop['readonly']) {
                     if ($request->get($prop['key'] ?? $key) !== null) {
                         // Get the value from request
@@ -149,6 +150,7 @@ class GeneralController extends Controller
                         }
                     }
                 }
+
                 if (isset($prop['type']) && $prop['type'] === 'image') {
                     // Check if an image file was uploaded
                     if ($request->hasFile($prop['key'] ?? $key) && $request->file($prop['key'] ?? $key)->isValid()) {
@@ -176,17 +178,71 @@ class GeneralController extends Controller
                 //if type schedule, ensure proper JSON structure
                 if (isset($prop['type']) && $prop['type'] === 'schedule') {
                     $scheduleData = $data[$prop['key'] ?? $key] ?? null;
+                    dump('Business Hours data received --->');
+                    dump('Key: ' . ($prop['key'] ?? $key));
+                    dump('Raw data from request: ' . ($scheduleData ?? 'NULL'));
+                    dump('All request data for debugging:', $request->all());
                     if ($scheduleData) {
-                        // If it's a JSON string, decode it
+                        // If it's a JSON string, decode it first to validate and then re-encode
                         if (is_string($scheduleData)) {
-                            $scheduleData = json_decode($scheduleData, true);
+                            $decoded = json_decode($scheduleData, true);
+                            if ($decoded !== null) {
+                                // Re-encode to ensure proper JSON format for Supabase
+                                $data[$prop['key'] ?? $key] = json_encode($decoded);
+                                \Log::info('Schedule data processed (string input)', ['key' => $prop['key'] ?? $key, 'final_value' => $data[$prop['key'] ?? $key]]);
+                            } else {
+                                // Invalid JSON, set to null
+                                $data[$prop['key'] ?? $key] = null;
+                                \Log::warning('Invalid schedule JSON data', ['key' => $prop['key'] ?? $key, 'raw_data' => $scheduleData]);
+                            }
+                        } else {
+                            // If it's already an array, encode it to JSON string
+                            $data[$prop['key'] ?? $key] = json_encode($scheduleData);
+                            \Log::info('Schedule data processed (array input)', ['key' => $prop['key'] ?? $key, 'final_value' => $data[$prop['key'] ?? $key]]);
                         }
-                        // Ensure it's properly formatted for Supabase
-                        $data[$prop['key'] ?? $key] = $scheduleData;
                     } else {
                         // Set default empty schedule if no data provided
                         $data[$prop['key'] ?? $key] = null;
+                        \Log::info('Schedule data set to null (no data provided)', ['key' => $prop['key'] ?? $key]);
                     }
+                }
+                
+                //if type gallery, ensure proper JSON structure
+                if (isset($prop['type']) && $prop['type'] === 'gallery') {
+                    $galleryData = $data[$prop['key'] ?? $key] ?? null;
+                    if ($galleryData) {
+                        // If it's a JSON string, decode it
+                        if (is_string($galleryData)) {
+                            $galleryData = json_decode($galleryData, true);
+                        }
+                        // Ensure it's properly formatted for Supabase
+                        $data[$prop['key'] ?? $key] = $galleryData;
+                    } else {
+                        // Set default empty gallery if no data provided
+                        $data[$prop['key'] ?? $key] = null;
+                    }
+                }
+                
+                //if type location, handle latitude and longitude
+                if (isset($prop['type']) && $prop['type'] === 'location') {
+                    $fieldName = $prop['key'] ?? $key;
+                    $latitudeField = $fieldName . '_latitude';
+                    $longitudeField = $fieldName . '_longitude';
+                    
+                    // Get latitude and longitude from request
+                    $latitude = $request->get($latitudeField);
+                    $longitude = $request->get($longitudeField);
+                    
+                    // Store latitude and longitude as separate fields
+                    if ($latitude !== null) {
+                        $data[$latitudeField] = (string)$latitude;
+                    }
+                    if ($longitude !== null) {
+                        $data[$longitudeField] = (string)$longitude;
+                    }
+                    
+                    // Remove the original location field from data if it exists
+                    unset($data[$fieldName]);
                 }
             }
             
@@ -327,6 +383,15 @@ class GeneralController extends Controller
      */
     public function update(Request $request, $id): \Illuminate\Http\RedirectResponse
     {
+        // Debug: Log all incoming request data
+        \Log::info('=== UPDATE REQUEST DEBUG ===');
+        \Log::info('Request method: ' . $request->method());
+        \Log::info('Request URL: ' . $request->url());
+        \Log::info('All request data:', $request->all());
+        \Log::info('business_hours from request->get(): ' . ($request->get('business_hours') ?? 'NULL'));
+        \Log::info('business_hours from request->input(): ' . ($request->input('business_hours') ?? 'NULL'));
+        \Log::info('=== END UPDATE REQUEST DEBUG ===');
+        
         $data = null;
         try {
             foreach ($this->props['schema'] as $key => $prop) {
@@ -375,17 +440,71 @@ class GeneralController extends Controller
                 //if type schedule, ensure proper JSON structure
                 if (isset($prop['type']) && $prop['type'] === 'schedule') {
                     $scheduleData = $data[$prop['key'] ?? $key] ?? null;
+                    dump('Business Hours data received (UPDATE) --->');
+                    dump('Key: ' . ($prop['key'] ?? $key));
+                    dump('Raw data from request: ' . ($scheduleData ?? 'NULL'));
+                    dump('All request data for debugging:', $request->all());
                     if ($scheduleData) {
-                        // If it's a JSON string, decode it
+                        // If it's a JSON string, decode it first to validate and then re-encode
                         if (is_string($scheduleData)) {
-                            $scheduleData = json_decode($scheduleData, true);
+                            $decoded = json_decode($scheduleData, true);
+                            if ($decoded !== null) {
+                                // Re-encode to ensure proper JSON format for Supabase
+                                $data[$prop['key'] ?? $key] = json_encode($decoded);
+                                \Log::info('Schedule data processed (string input - update)', ['key' => $prop['key'] ?? $key, 'final_value' => $data[$prop['key'] ?? $key]]);
+                            } else {
+                                // Invalid JSON, set to null
+                                $data[$prop['key'] ?? $key] = null;
+                                \Log::warning('Invalid schedule JSON data (update)', ['key' => $prop['key'] ?? $key, 'raw_data' => $scheduleData]);
+                            }
+                        } else {
+                            // If it's already an array, encode it to JSON string
+                            $data[$prop['key'] ?? $key] = json_encode($scheduleData);
+                            \Log::info('Schedule data processed (array input - update)', ['key' => $prop['key'] ?? $key, 'final_value' => $data[$prop['key'] ?? $key]]);
                         }
-                        // Ensure it's properly formatted for Supabase
-                        $data[$prop['key'] ?? $key] = $scheduleData;
                     } else {
                         // Set default empty schedule if no data provided
                         $data[$prop['key'] ?? $key] = null;
+                        \Log::info('Schedule data set to null (no data provided - update)', ['key' => $prop['key'] ?? $key]);
                     }
+                }
+                
+                //if type gallery, ensure proper JSON structure
+                if (isset($prop['type']) && $prop['type'] === 'gallery') {
+                    $galleryData = $data[$prop['key'] ?? $key] ?? null;
+                    if ($galleryData) {
+                        // If it's a JSON string, decode it
+                        if (is_string($galleryData)) {
+                            $galleryData = json_decode($galleryData, true);
+                        }
+                        // Ensure it's properly formatted for Supabase
+                        $data[$prop['key'] ?? $key] = $galleryData;
+                    } else {
+                        // Set default empty gallery if no data provided
+                        $data[$prop['key'] ?? $key] = null;
+                    }
+                }
+                
+                //if type location, handle latitude and longitude
+                if (isset($prop['type']) && $prop['type'] === 'location') {
+                    $fieldName = $prop['key'] ?? $key;
+                    $latitudeField = $fieldName . '_latitude';
+                    $longitudeField = $fieldName . '_longitude';
+                    
+                    // Get latitude and longitude from request
+                    $latitude = $request->get($latitudeField);
+                    $longitude = $request->get($longitudeField);
+                    
+                    // Store latitude and longitude as separate fields
+                    if ($latitude !== null) {
+                        $data[$latitudeField] = (string)$latitude;
+                    }
+                    if ($longitude !== null) {
+                        $data[$longitudeField] = (string)$longitude;
+                    }
+                    
+                    // Remove the original location field from data if it exists
+                    unset($data[$fieldName]);
                 }
             }
 
@@ -695,6 +814,145 @@ class GeneralController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to load subcategories: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Upload gallery image to Supabase Storage
+     */
+    public function uploadGalleryImage(Request $request)
+    {
+        try {
+            $request->validate([
+                'file' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+                'gallery_id' => 'required|string',
+                'bucket' => 'required|string'
+            ]);
+            
+            $file = $request->file('file');
+            $galleryId = $request->input('gallery_id');
+            $bucket = $request->input('bucket', 'venue-galleries');
+            
+            // Generate unique filename
+            $filename = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $path = $galleryId . '/' . $filename;
+            
+            // Read file content
+            $fileContent = file_get_contents($file->getPathname());
+            $contentType = $file->getMimeType();
+            
+            // Upload to Supabase Storage
+            $result = $this->supabase->uploadToStorage($bucket, $path, $fileContent, $contentType);
+            
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'image' => [
+                        'id' => uniqid(),
+                        'url' => $result['public_url'],
+                        'path' => $path,
+                        'filename' => $filename,
+                        'size' => $file->getSize(),
+                        'mime_type' => $contentType
+                    ]
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'error' => $result['error']['message'] ?? 'Upload failed'
+                ], 500);
+            }
+            
+        } catch (\Exception $e) {
+            \Log::error('Gallery upload error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * Delete gallery image from Supabase Storage
+     */
+    public function deleteGalleryImage(Request $request)
+    {
+        try {
+            $request->validate([
+                'gallery_id' => 'required|string',
+                'image_path' => 'required|string',
+                'bucket' => 'required|string'
+            ]);
+            
+            $galleryId = $request->input('gallery_id');
+            $imagePath = $request->input('image_path');
+            $bucket = $request->input('bucket', 'venue-galleries');
+            
+            // Delete from Supabase Storage
+            $result = $this->supabase->deleteFromStorage($bucket, $imagePath);
+            
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Image deleted successfully'
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'error' => $result['error']['message'] ?? 'Delete failed'
+                ], 500);
+            }
+            
+        } catch (\Exception $e) {
+            \Log::error('Gallery delete error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    
+    /**
+     * List gallery images from Supabase Storage
+     */
+    public function listGalleryImages(Request $request, $galleryId)
+    {
+        try {
+            $bucket = $request->input('bucket', 'venue-galleries');
+            
+            // List files in gallery folder
+            $result = $this->supabase->listStorageFiles($bucket, $galleryId);
+            
+            if ($result['success']) {
+                $images = array_map(function($file) use ($bucket) {
+                    return [
+                        'id' => $file['id'] ?? uniqid(),
+                        'name' => $file['name'],
+                        'url' => $this->supabase->getStoragePublicUrl($bucket, $file['name']),
+                        'path' => $file['name'],
+                        'size' => $file['metadata']['size'] ?? 0,
+                        'created_at' => $file['created_at'] ?? null,
+                        'updated_at' => $file['updated_at'] ?? null
+                    ];
+                }, $result['data']);
+                
+                return response()->json([
+                    'success' => true,
+                    'images' => $images
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'error' => $result['error']['message'] ?? 'Failed to list images'
+                ], 500);
+            }
+            
+        } catch (\Exception $e) {
+            \Log::error('Gallery list error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
             ], 500);
         }
     }

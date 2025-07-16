@@ -264,7 +264,106 @@ JSON Config → GeneralController → SupabaseService → Supabase Edge Function
 - `["parent_id", "is", null]` → `parent_id=is.null` → `WHERE parent_id IS NULL`
 - `["parent_id", "eq", "123"]` → `parent_id=eq.123` → `WHERE parent_id = '123'`
 
-### 8. Schedule (`schedule`)
+### 8. Gallery (`gallery`)
+
+```json
+{
+    "gallery": {
+        "type": "gallery",
+        "label": "Venue Gallery",
+        "key": "gallery",
+        "value": null,
+        "required": true,
+        "min_images": 1,
+        "max_images": 6,
+        "bucket": "venue-galleries"
+    }
+}
+```
+
+**Component**: `resources/views/components/gallery.blade.php`
+**API Endpoints**: 
+- `POST /api/gallery/upload` - Upload images
+- `DELETE /api/gallery/delete` - Delete images  
+- `GET /api/gallery/{galleryId}/images` - List images
+
+**Features**:
+- Drag & drop image upload with visual feedback
+- Multiple image selection (1-6 images configurable)
+- Real-time upload progress indicators
+- Image preview with hover controls (edit/delete)
+- Drag & drop reordering of images
+- Individual image editing (alt text, captions)
+- Supabase Storage integration for scalable file storage
+- Automatic image optimization and validation
+- Responsive grid layout for all screen sizes
+- Empty state with helpful upload instructions
+
+**Data Structure** (stored as JSON in database):
+```json
+{
+    "gallery_id": "gallery_12345abcde",
+    "images": [
+        {
+            "id": "img_001",
+            "url": "https://supabase.co/storage/v1/object/public/venue-galleries/gallery_12345abcde/image1.jpg",
+            "path": "gallery_12345abcde/image1.jpg",
+            "alt": "Restaurant interior",
+            "caption": "Main dining area with elegant decor",
+            "order": 0
+        },
+        {
+            "id": "img_002", 
+            "url": "https://supabase.co/storage/v1/object/public/venue-galleries/gallery_12345abcde/image2.jpg",
+            "path": "gallery_12345abcde/image2.jpg",
+            "alt": "Outdoor seating",
+            "caption": "Beautiful terrace with city views",
+            "order": 1
+        }
+    ]
+}
+```
+
+**Properties**:
+- `min_images`: Minimum number of images required (default: 1)
+- `max_images`: Maximum number of images allowed (default: 6)
+- `bucket`: Supabase Storage bucket name (default: 'venue-galleries')
+- `required`: Whether at least one image is required
+- `value`: Initial gallery data (JSON object or null)
+
+**File Validation**:
+- **Supported formats**: JPG, PNG, GIF
+- **Maximum file size**: 5MB per image
+- **Image optimization**: Automatic compression and resizing
+- **Unique naming**: Prevents filename conflicts with UUID generation
+
+**Storage Structure**:
+```
+venue-galleries/
+├── gallery_12345abcde/
+│   ├── unique_id_1_timestamp.jpg
+│   ├── unique_id_2_timestamp.png
+│   └── unique_id_3_timestamp.gif
+└── gallery_67890fghij/
+    ├── unique_id_4_timestamp.jpg
+    └── unique_id_5_timestamp.png
+```
+
+**User Experience**:
+- **Upload Methods**: Drag & drop or click to browse
+- **Visual Feedback**: Progress bars, loading states, hover effects
+- **Error Handling**: Clear error messages for validation failures
+- **Accessibility**: Keyboard navigation and screen reader support
+- **Mobile Responsive**: Touch-friendly interface on mobile devices
+
+**Technical Implementation**:
+1. **Frontend**: JavaScript handles drag & drop, AJAX uploads, and UI updates
+2. **Backend**: Laravel API endpoints process uploads and deletions
+3. **Storage**: Supabase Storage provides CDN-backed file hosting
+4. **Database**: Gallery metadata stored as JSON in main database
+5. **Validation**: Server-side validation for security and file integrity
+
+### 9. Schedule (`schedule`)
 
 ```json
 {
@@ -326,7 +425,7 @@ JSON Config → GeneralController → SupabaseService → Supabase Edge Function
 - Status badges showing "Open" or "Closed" for each day
 - Disabled time inputs for closed days
 
-### 9. Image Upload (`image`)
+### 10. Image Upload (`image`)
 
 ```json
 {
@@ -346,7 +445,7 @@ JSON Config → GeneralController → SupabaseService → Supabase Edge Function
 - Base64 encoding
 - Image validation
 
-### 10. Date Input (`date`)
+### 11. Date Input (`date`)
 
 ```json
 {
@@ -361,7 +460,7 @@ JSON Config → GeneralController → SupabaseService → Supabase Edge Function
 **Component**: `resources/views/components/date-input.blade.php`
 **Usage**: Date and time selection
 
-### 11. Hidden Fields
+### 12. Hidden Fields
 
 ```json
 {

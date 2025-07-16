@@ -164,8 +164,75 @@
                                                         @case('trix')
                                                             {!! \Illuminate\Support\Str::limit(strip_tags(html_entity_decode($elem[$key] ?? '')), 100) !!}
                                                         @break
+                                                        @case('switch')
+                                                            @php
+                                                                $value = $elem[$key] ?? '';
+                                                                if (is_array($value)) {
+                                                                    $displayValues = [];
+                                                                    foreach ($value as $val) {
+                                                                        $displayValues[] = $val ? ($field['on_label'] ?? 'On') : ($field['off_label'] ?? 'Off');
+                                                                    }
+                                                                    $displayText = implode(', ', $displayValues);
+                                                                } else {
+                                                                    $displayText = $value ? ($field['on_label'] ?? 'On') : ($field['off_label'] ?? 'Off');
+                                                                }
+                                                            @endphp
+                                                            {{ $displayText }}
+                                                        @break
+                                                        @case('schedule')
+                                                            @php
+                                                                $scheduleValue = $elem[$key] ?? '';
+                                                                $scheduleData = null;
+                                                                
+                                                                // Handle both string and array inputs
+                                                                if (is_string($scheduleValue)) {
+                                                                    $scheduleData = json_decode($scheduleValue, true);
+                                                                } elseif (is_array($scheduleValue)) {
+                                                                    $scheduleData = $scheduleValue;
+                                                                }
+                                                                
+                                                                $displayText = '';
+                                                                
+                                                                if ($scheduleData) {
+                                                                    $dayLabels = [
+                                                                        'monday' => 'Mon',
+                                                                        'tuesday' => 'Tue', 
+                                                                        'wednesday' => 'Wed',
+                                                                        'thursday' => 'Thu',
+                                                                        'friday' => 'Fri',
+                                                                        'saturday' => 'Sat',
+                                                                        'sunday' => 'Sun'
+                                                                    ];
+                                                                    
+                                                                    $openDays = [];
+                                                                    foreach ($dayLabels as $dayKey => $dayLabel) {
+                                                                        if (isset($scheduleData[$dayKey]) && $scheduleData[$dayKey]['enabled']) {
+                                                                            $dayData = $scheduleData[$dayKey];
+                                                                            $openTime = date('g:i A', strtotime($dayData['open']));
+                                                                            $closeTime = date('g:i A', strtotime($dayData['close']));
+                                                                            $openDays[] = "{$dayLabel}: {$openTime}-{$closeTime}";
+                                                                        }
+                                                                    }
+                                                                    
+                                                                    if (empty($openDays)) {
+                                                                        $displayText = '<span class="text-red-600">Closed all days</span>';
+                                                                    } else {
+                                                                        $displayText = '<div class="text-sm">' . implode('<br>', $openDays) . '</div>';
+                                                                    }
+                                                                } else {
+                                                                    $displayText = '<span class="text-gray-500">No schedule set</span>';
+                                                                }
+                                                            @endphp
+                                                            {!! $displayText !!}
+                                                        @break
                                                         @default
-                                                            {!! html_entity_decode($elem[$key] ?? '') !!}
+                                                            @php
+                                                                $value = $elem[$key] ?? '';
+                                                                if (is_array($value)) {
+                                                                    $value = implode(', ', $value);
+                                                                }
+                                                            @endphp
+                                                            {!! html_entity_decode($value) !!}
                                                             @break
                                                     @endswitch
                                                 </td>
