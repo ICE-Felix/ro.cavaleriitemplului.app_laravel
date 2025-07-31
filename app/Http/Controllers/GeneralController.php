@@ -507,9 +507,9 @@ class GeneralController extends Controller
                 if (method_exists($serviceInstance, $source[1])) {
                     // Pass debug flag to SupabaseService for GET operations
                     $debugEnabled = isset($this->props['debug']) && in_array('GET', $this->props['debug']);
-                    
+                        
                     // Handle filtered methods
-                    if ($source[1] === 'read_edge_filtered') {
+                    if ($source[1] === 'read_edge') {
                         // Extract filters from source array (4th element) if provided
                         $sourceFilters = isset($source[3]) && is_array($source[3]) ? $source[3] : [];
                         // Merge with any additional filters passed as parameter

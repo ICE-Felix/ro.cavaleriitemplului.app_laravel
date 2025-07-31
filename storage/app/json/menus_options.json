@@ -5,6 +5,7 @@
         "label_singular": "Menu option",
         "label_plural": "Menu options"
     },
+    "debug": ["GET"],
     "schema": {
         "id": {
             "label": "#",
@@ -46,7 +47,7 @@
                     "menus_options"
                 ],
                 "value" : "id",
-                "name" : "label"
+                "name" : "{parent_id} - {label}"
             }
         },
         "menu_label" : {
@@ -70,18 +71,16 @@
         },
         "active": {
             "type": "select",
-            "cast": "bool",
             "label": "Active",
-            "readonly": false,
-            "visible": true,
+            "cast": "bool",
             "data": {
                 "source": {
                     "true": {
-                        "value": "true",
+                        "value": true,
                         "name": "True"
                     },
                     "false": {
-                        "value": "false",
+                        "value": false,
                         "name": "False"
                     }
                 }
