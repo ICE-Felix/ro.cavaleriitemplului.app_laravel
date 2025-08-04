@@ -36,7 +36,7 @@
       "required": true
     },
     "categories": {
-      "type": "hierarchical_checkbox",
+      "type": "three_level_hierarchical_checkbox",
       "label": "Categories",
       "key": "venue_category_id",
       "value": [],
@@ -48,9 +48,9 @@
           "read_edge_filtered",
           "venue_categories",
           [
-            "parent_id",
-            "is",
-            null
+            "level",
+            "eq",
+            1
           ]
         ],
         "value": "id",
@@ -66,7 +66,23 @@
         ],
         "value": "id",
         "name": "name",
-        "parent_field": "parent_id"
+        "parent_field": "parent_id",
+        "level_field": "level",
+        "level_value": 2
+      },
+      "filter_source": {
+        "type": "class",
+        "required": false,
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge_filtered",
+          "venue_categories"
+        ],
+        "value": "id",
+        "name": "name",
+        "parent_field": "parent_id",
+        "level_field": "level",
+        "level_value": 3
       }
     },
     "venue_category_titles": {
@@ -126,6 +142,13 @@
       "value": true,
       "on_label": "Active",
       "off_label": "Inactive"
+    },
+    "order_display": {
+      "type": "text",
+      "label": "Order Display",
+      "value": "0",
+      "placeholder": "0",
+      "visible": true
     },
     "business_hours": {
       "type": "schedule",

@@ -86,24 +86,62 @@
                                         @php
                                             $value = '';
                                             $values = [];
-                                            foreach ($data[$key] as $elem) {
-//                                                @dd($result[$field['id'] ?? $key]);
-                                                $values[$elem['value']] = ucfirst($elem['name']);
-                                                if(isset($field['cast']) && $field['cast'] === "bool") {
-                                                    $value = $result[$field['id'] ?? $key] === true ? "1": "0";
-                                                } else {
-                                                    $value = $result[$field['id'] ?? $key] ?? '';
+                                            
+                                            // Add safety checks for data structure
+                                            if(isset($data[$key]) && is_array($data[$key])) {
+                                                foreach ($data[$key] as $elem) {
+                                                    // Ensure we have the required keys
+                                                    if (is_array($elem) && isset($elem['value']) && isset($elem['name'])) {
+                                                        $values[$elem['value']] = ucfirst($elem['name']);
+                                                    }
                                                 }
                                             }
+                                            
+                                            // Set the current value
+                                            if(isset($field['cast']) && $field['cast'] === "bool") {
+                                                $value = $result[$field['id'] ?? $key] === true ? "1": "0";
+                                            } else {
+                                                $value = $result[$field['id'] ?? $key] ?? '';
+                                            }
+                                            
                                             $label = $field['label'] ?? ucfirst($key);
+                                            
+                                            // Check for conditional visibility
+                                            $isConditional = isset($field['conditional_visibility']);
+                                            $initiallyVisible = $field['visible'] ?? true;
+                                            if ($isConditional) {
+                                                // For edit mode, check if field should be visible based on current values
+                                                $dependsOnField = $field['conditional_visibility']['depends_on'] ?? null;
+                                                if ($dependsOnField && isset($result[$dependsOnField])) {
+                                                    $dependentValue = $result[$dependsOnField];
+                                                    $showWhen = $field['conditional_visibility']['show_when'] ?? [];
+                                                    $hideWhen = $field['conditional_visibility']['hide_when'] ?? [];
+                                                    
+                                                    if (!empty($showWhen)) {
+                                                        $initiallyVisible = in_array($dependentValue, $showWhen);
+                                                    } elseif (!empty($hideWhen)) {
+                                                        $initiallyVisible = !in_array($dependentValue, $hideWhen);
+                                                    }
+                                                }
+                                            }
                                         @endphp
-                                        <x-select
-                                            name="{{$field['key'] ?? $key}}"
-                                            label={{$label}}
-                                            :options="$values"
-                                            :error="$errors->first($field['id'] ?? $key)"
-                                            :selected="$value"
-                                        />
+                                        <div class="form-group {{ $isConditional ? 'conditional-field' : '' }}" 
+                                             data-field-name="{{ $field['key'] ?? $key }}"
+                                             @if($isConditional)
+                                             data-depends-on="{{ $field['conditional_visibility']['depends_on'] }}"
+                                             data-show-when="{{ json_encode($field['conditional_visibility']['show_when'] ?? []) }}"
+                                             data-hide-when="{{ json_encode($field['conditional_visibility']['hide_when'] ?? []) }}"
+                                             data-conditional-filtering="{{ json_encode($field['conditional_filtering'] ?? []) }}"
+                                             @endif
+                                             style="{{ $initiallyVisible ? '' : 'display: none;' }}">
+                                            <x-select
+                                                name="{{$field['key'] ?? $key}}"
+                                                label={{$label}}
+                                                :options="$values"
+                                                :error="$errors->first($field['id'] ?? $key)"
+                                                :selected="$value"
+                                            />
+                                        </div>
                                         @break
                                         @case('image')
                                             @isset($result[$field['id'] ?? $key])
@@ -161,9 +199,12 @@
                                                 }
                                             }
                                             // Fallback to dynamic data if no static options
-                                            elseif(isset($data[$key])) {
+                                            elseif(isset($data[$key]) && is_array($data[$key])) {
                                                 foreach ($data[$key] as $elem) {
-                                                    $values[$elem['value']] = ucfirst($elem['name']);
+                                                    // Ensure we have the required keys
+                                                    if (is_array($elem) && isset($elem['value']) && isset($elem['name'])) {
+                                                        $values[$elem['value']] = ucfirst($elem['name']);
+                                                    }
                                                 }
                                             }
                                         @endphp
@@ -204,6 +245,40 @@
                                             :value="$currentValues"
                                             :subcategorySource="$field['subcategory_source'] ?? null"
                                             componentName="edit_{{ $field['key'] ?? $key }}"
+                                        />
+                                        @break
+                                        @case('three_level_hierarchical_checkbox')
+                                        @php
+                                            $label = $field['label'] ?? ucfirst($key);
+                                            $values = [];
+                                            
+                                            // Get top-level categories (level 1)
+                                            if(isset($data[$key]) && is_array($data[$key])) {
+                                                foreach ($data[$key] as $elem) {
+                                                    // Ensure we have the required keys
+                                                    if (is_array($elem) && isset($elem['value']) && isset($elem['name'])) {
+                                                        $values[] = [
+                                                            'id' => $elem['value'],
+                                                            'name' => ucfirst($elem['name'])
+                                                        ];
+                                                    }
+                                                }
+                                            }
+                                            
+                                            // Get current selected values
+                                            $currentValues = old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? []);
+                                            if (!is_array($currentValues)) {
+                                                $currentValues = [];
+                                            }
+                                        @endphp
+                                        <x-three-level-hierarchical-checkbox
+                                            name="{{ $field['key'] ?? $key }}"
+                                            label="{{ $label }}"
+                                            :data="$values"
+                                            :value="$currentValues"
+                                            :subcategorySource="$field['subcategory_source'] ?? []"
+                                            :filterSource="$field['filter_source'] ?? []"
+                                            :required="$field['required'] ?? false"
                                         />
                                         @break
                                         @case('switch')
@@ -261,6 +336,103 @@
                     </div>
                 </div>
             </div>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Handle conditional field visibility and filtering
+                function handleConditionalFields() {
+                    const conditionalFields = document.querySelectorAll('.conditional-field');
+                    
+                    conditionalFields.forEach(field => {
+                        const dependsOn = field.dataset.dependsOn;
+                        const showWhen = JSON.parse(field.dataset.showWhen || '[]');
+                        const hideWhen = JSON.parse(field.dataset.hideWhen || '[]');
+                        const conditionalFiltering = JSON.parse(field.dataset.conditionalFiltering || '{}');
+                        
+                        if (!dependsOn) return;
+                        
+                        const dependentField = document.querySelector(`[name="${dependsOn}"]`);
+                        if (!dependentField) return;
+                        
+                        // Function to update field visibility and options
+                        function updateField() {
+                            const currentValue = parseInt(dependentField.value) || dependentField.value;
+                            let shouldShow = false;
+                            
+                            // Check visibility conditions
+                            if (showWhen.length > 0) {
+                                shouldShow = showWhen.includes(currentValue);
+                            } else if (hideWhen.length > 0) {
+                                shouldShow = !hideWhen.includes(currentValue);
+                            }
+                            
+                            // Show/hide field
+                            field.style.display = shouldShow ? 'block' : 'none';
+                            
+                            // Update field options based on conditional filtering
+                            if (shouldShow && conditionalFiltering.filters && conditionalFiltering.filters[currentValue]) {
+                                updateFieldOptions(field, currentValue, conditionalFiltering);
+                            }
+                        }
+                        
+                        // Function to update select options via AJAX
+                        async function updateFieldOptions(field, levelValue, conditionalFiltering) {
+                            const selectElement = field.querySelector('select');
+                            if (!selectElement) return;
+                            
+                            const filters = conditionalFiltering.filters[levelValue];
+                            if (!filters || !Array.isArray(filters)) return;
+                            
+                            try {
+                                // Build filter parameters for API call
+                                const filterParams = new URLSearchParams();
+                                filters.forEach(filter => {
+                                    if (Array.isArray(filter) && filter.length === 3) {
+                                        const [field, operator, value] = filter;
+                                        filterParams.append(field, `${operator}.${value}`);
+                                    }
+                                });
+                                
+                                // Make API call to get filtered options
+                                const response = await fetch(`/api/subcategories/venue_categories?${filterParams.toString()}`);
+                                if (response.ok) {
+                                    const options = await response.json();
+                                    
+                                    // Clear existing options except the first (placeholder)
+                                    const firstOption = selectElement.querySelector('option:first-child');
+                                    const currentValue = selectElement.value; // Preserve current selection
+                                    selectElement.innerHTML = '';
+                                    if (firstOption) {
+                                        selectElement.appendChild(firstOption);
+                                    }
+                                    
+                                    // Add new options
+                                    options.forEach(option => {
+                                        const optionElement = document.createElement('option');
+                                        optionElement.value = option.id;
+                                        optionElement.textContent = option.name;
+                                        if (option.id === currentValue) {
+                                            optionElement.selected = true;
+                                        }
+                                        selectElement.appendChild(optionElement);
+                                    });
+                                }
+                            } catch (error) {
+                                console.error('Error updating field options:', error);
+                            }
+                        }
+                        
+                        // Listen for changes on the dependent field
+                        dependentField.addEventListener('change', updateField);
+                        
+                        // Initial update
+                        updateField();
+                    });
+                }
+                
+                // Initialize conditional fields
+                handleConditionalFields();
+            });
+            </script>
         </div>
     </form>
 </x-app-layout>

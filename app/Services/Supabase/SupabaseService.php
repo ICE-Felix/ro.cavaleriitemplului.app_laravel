@@ -307,7 +307,7 @@ class SupabaseService
 
         // Prepare the payload
         $payload = json_encode($data);
-        dump($payload);
+        //dump($payload);
         
         // DEBUG: Show the URL and payload being sent to Supabase only if debugging is enabled
         if ($debug) {

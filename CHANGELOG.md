@@ -7,6 +7,90 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Fixed
+- **Three-Level Hierarchical Checkbox UUID Format**
+  - Fixed `parseInt(checkbox.value)` issue that was converting UUIDs like `5413751a-e4dd-46c8-96cc-276667618786` to just `5413751`
+  - Modified `updateHiddenInput()` to preserve full UUID strings instead of parsing them as integers
+  - Added debugging logs to track UUID comparisons in `loadSubcategories` and `loadFilters` functions
+  - Ensures `selectedValues` array contains proper UUID strings for correct comparison and storage
+  - Fixed `venue_category_id` field to store complete UUIDs like `["5413751a-e4dd-46c8-96cc-276667618786"]`
+  - Added UUID string casting in GeneralController for `checkbox` and `three_level_hierarchical_checkbox` types
+    - Ensures all UUID values are cast to strings before being sent to Supabase, preventing type mismatches
+  - Handles both JSON string input and array input formats with proper UUID preservation
+- **Level Field Integer Casting**
+  - Added automatic casting of `level` field to integer in both `store()` and `update()` methods
+  - Ensures hierarchy levels (1, 2, 3) are stored as integers instead of strings in Supabase
+  - Improves database consistency and enables proper numeric comparisons for filtering
+  - Handles null values gracefully without errors
+- **Conditional Field Visibility and Filtering**
+  - Added conditional visibility system for form fields based on other field values
+  - Implemented dynamic parent category and subcategory dropdowns that show/hide based on selected level
+  - Level 1 (Parent Category): Hides both parent category and subcategory fields
+  - Level 2 (Subcategory): Shows parent category field (level 1 options), hides subcategory field
+  - Level 3 (Filter Option): Hides parent category field, shows subcategory field (level 2 options)
+  - Added JavaScript logic to handle real-time field visibility and option filtering
+  - Integrated with existing API endpoints for dynamic option loading
+  - Works in both create and edit modes with proper state preservation
+
+### Added
+- **Three-Level Hierarchical Category System**
+  - Extended venue category system to support three levels: Parent Category → Subcategory → Filter Options
+  - Example: "Ateliere si cursuri" → "Limbi" → "Engleza, Franceza, Germana"
+  - Added new `level` field to venue_categories schema with values: 1 (Parent), 2 (Subcategory), 3 (Filter)
+  - Created new `three_level_hierarchical_checkbox` component for complex category selection
+  - Enhanced API endpoint `/api/subcategories/{table}` to support level-based filtering with `?level=2` or `?level=3` parameters
+  - Updated SupabaseService to handle multi-field filtering (parent_id + level)
+  - Added visual hierarchy with distinct styling for each level (parent, subcategory, filter)
+  - Implemented progressive disclosure: filters only show when subcategory is selected
+  - Enhanced form validation and data persistence for three-level selections
+
+### Enhanced
+- **Static Options Support for Select Fields**
+  - Added support for static options in select fields (type: "static")
+  - Enhanced GeneralController to process static options alongside dynamic data sources
+  - Updated index.blade.php to display readable names for static option values
+  - Level field now shows "Parent Category", "Subcategory", "Filter Option" instead of numbers 1, 2, 3
+  - Improved table display for all select fields with static options
+- **Venue Categories Management**
+  - Updated `venue_categories.json` to include level selection dropdown
+  - Enhanced parent category filtering to exclude Filter Options from parent selection (`level <= 2`)
+  - Only Parent Categories (level 1) and Subcategories (level 2) can be selected as parents
+  - Filter Options (level 3) are correctly excluded from parent dropdown to maintain hierarchy integrity
+  - Enhanced category creation workflow with level-aware parent selection
+  - Improved category hierarchy visualization in forms
+- **Dynamic Category Loading**
+  - Extended AJAX loading system to handle three levels of category data
+  - Added level parameter support to subcategory API calls
+  - Enhanced JavaScript to manage complex parent-child-grandchild relationships
+  - Improved error handling for multi-level category loading
+- **Form Components Integration**
+  - Updated `create.blade.php` and `edit.blade.php` to support `three_level_hierarchical_checkbox` type
+  - Added proper data binding for existing category selections across all three levels
+  - Enhanced form validation to handle complex nested category arrays
+
+### Technical
+- **Database Structure**
+  - Recommended single-table approach with `level` field for scalability
+  - Supports unlimited nesting depth while maintaining simple queries
+  - Backward compatible with existing two-level hierarchy
+- **API Enhancements**
+  - Extended `getSubcategories()` method in GeneralController to accept `level` parameter
+  - Added support for combined filtering: `parent_id=eq.{id}&level=eq.{level}`
+  - Enhanced debug logging for multi-level category operations
+- **Component Architecture**
+  - New `three-level-hierarchical-checkbox.blade.php` component with advanced JavaScript
+  - Progressive enhancement: gracefully degrades if JavaScript is disabled
+  - Modular design allows easy extension to more levels if needed
+
+### Fixed
+- **Form Field Data Structure Validation**
+  - Fixed "Undefined array key 'source'" error in GeneralController when processing three-level hierarchical checkbox data
+  - Fixed "Undefined array key 'level'" error in create.blade.php and edit.blade.php for three-level hierarchical checkboxes
+  - Fixed "Undefined array key" errors for `select` field types in both create and edit forms
+  - Fixed "Undefined array key" errors for `checkbox` field types in both create and edit forms
+  - Added comprehensive safety checks to ensure required data keys (`value`, `name`) exist before accessing them
+  - Added array validation to prevent errors when data structure is incomplete or missing
+  - Enhanced error handling for all dynamic field configurations (select, checkbox, hierarchical_checkbox, three_level_hierarchical_checkbox)
+  - Forms now gracefully handle incomplete data structures and show empty options instead of crashing
 - **Gallery Component Bug Fix**
   - Fixed undefined property error `$supabaseUrl` in SupabaseService
   - Corrected `getStoragePublicUrl()` method to use `$this->baseUrl` instead of non-existent `$this->supabaseUrl`

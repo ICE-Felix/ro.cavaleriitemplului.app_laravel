@@ -169,6 +169,12 @@ class GeneralController extends Controller
                     $data[$prop['key'] ?? $key] = (float)$data[$prop['key'] ?? $key];
                 }
                 
+                //if field is level, cast to integer (for hierarchy levels 1, 2, 3)
+                if (($prop['key'] ?? $key) === 'level') {
+                    $value = $data[$prop['key'] ?? $key] ?? null;
+                    $data[$prop['key'] ?? $key] = $value !== null ? (int)$value : null;
+                }
+                
                 //if type switch, cast to boolean
                 if (isset($prop['type']) && $prop['type'] === 'switch') {
                     $value = $data[$prop['key'] ?? $key] ?? false;
@@ -178,10 +184,6 @@ class GeneralController extends Controller
                 //if type schedule, ensure proper JSON structure
                 if (isset($prop['type']) && $prop['type'] === 'schedule') {
                     $scheduleData = $data[$prop['key'] ?? $key] ?? null;
-                    dump('Business Hours data received --->');
-                    dump('Key: ' . ($prop['key'] ?? $key));
-                    dump('Raw data from request: ' . ($scheduleData ?? 'NULL'));
-                    dump('All request data for debugging:', $request->all());
                     if ($scheduleData) {
                         // If it's a JSON string, decode it first to validate and then re-encode
                         if (is_string($scheduleData)) {
@@ -243,6 +245,29 @@ class GeneralController extends Controller
                     
                     // Remove the original location field from data if it exists
                     unset($data[$fieldName]);
+                }
+                
+                //if type checkbox or three_level_hierarchical_checkbox, ensure UUID strings
+                if (isset($prop['type']) && in_array($prop['type'], ['checkbox', 'three_level_hierarchical_checkbox'])) {
+                    $fieldName = $prop['key'] ?? $key;
+                    $value = $data[$fieldName] ?? null;
+                    
+                    if ($value) {
+                        // If it's a JSON string, decode it first
+                        if (is_string($value)) {
+                            $decoded = json_decode($value, true);
+                            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                                $value = $decoded;
+                            }
+                        }
+                        
+                        // Ensure all values are UUID strings (not integers)
+                        if (is_array($value)) {
+                            $data[$fieldName] = array_map(function($item) {
+                                return (string)$item; // Cast to string to preserve UUID format
+                            }, array_filter($value)); // Remove empty values
+                        }
+                    }
                 }
             }
             
@@ -431,6 +456,12 @@ class GeneralController extends Controller
                     $data[$prop['key'] ?? $key] = ((float)$data[$prop['key'] ?? $key]) ?? 0;
                 }
                 
+                //if field is level, cast to integer (for hierarchy levels 1, 2, 3)
+                if (($prop['key'] ?? $key) === 'level') {
+                    $value = $data[$prop['key'] ?? $key] ?? null;
+                    $data[$prop['key'] ?? $key] = $value !== null ? (int)$value : null;
+                }
+                
                 //if type switch, cast to boolean
                 if (isset($prop['type']) && $prop['type'] === 'switch') {
                     $value = $data[$prop['key'] ?? $key] ?? false;
@@ -505,6 +536,29 @@ class GeneralController extends Controller
                     
                     // Remove the original location field from data if it exists
                     unset($data[$fieldName]);
+                }
+                
+                //if type checkbox or three_level_hierarchical_checkbox, ensure UUID strings
+                if (isset($prop['type']) && in_array($prop['type'], ['checkbox', 'three_level_hierarchical_checkbox'])) {
+                    $fieldName = $prop['key'] ?? $key;
+                    $value = $data[$fieldName] ?? null;
+                    
+                    if ($value) {
+                        // If it's a JSON string, decode it first
+                        if (is_string($value)) {
+                            $decoded = json_decode($value, true);
+                            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                                $value = $decoded;
+                            }
+                        }
+                        
+                        // Ensure all values are UUID strings (not integers)
+                        if (is_array($value)) {
+                            $data[$fieldName] = array_map(function($item) {
+                                return (string)$item; // Cast to string to preserve UUID format
+                            }, array_filter($value)); // Remove empty values
+                        }
+                    }
                 }
             }
 
@@ -676,15 +730,28 @@ class GeneralController extends Controller
     public function getData(array $data): array
     {
         foreach ($this->props['schema'] as $key => $prop) {
-            if (isset($prop['type']) && ($prop['type'] === 'select' || $prop['type'] === 'checkbox' || $prop['type'] === 'hierarchical_checkbox') && isset($prop['data'])) {
-                $data[$key] =
-                    $this->getSourceData($prop['data']['source'],
-                        $prop['data']['value'] ?? 'value',
-                        $prop['data']['name'] ?? 'name',
-                        $prop['data']['type'] ?? null,
-                        $prop['data']['name'] ?? ($prop['data']['value'] ?? null),
-                        $prop['filters'] ?? []
-                    );
+            if (isset($prop['type']) && ($prop['type'] === 'select' || $prop['type'] === 'checkbox' || $prop['type'] === 'hierarchical_checkbox' || $prop['type'] === 'three_level_hierarchical_checkbox') && isset($prop['data'])) {
+                // Check for static options first
+                if (isset($prop['data']['type']) && $prop['data']['type'] === 'static' && isset($prop['data']['options'])) {
+                    // Handle static options
+                    $data[$key] = array_map(function ($option) {
+                        return [
+                            'value' => $option['value'],
+                            'name' => $option['name']
+                        ];
+                    }, $prop['data']['options']);
+                }
+                // Check if data property has source (for dynamic data)
+                elseif (isset($prop['data']['source'])) {
+                    $data[$key] =
+                        $this->getSourceData($prop['data']['source'],
+                            $prop['data']['value'] ?? 'value',
+                            $prop['data']['name'] ?? 'name',
+                            $prop['data']['type'] ?? null,
+                            $prop['data']['name'] ?? ($prop['data']['value'] ?? null),
+                            $prop['filters'] ?? []
+                        );
+                }
             }
         }
         return $data;
@@ -765,11 +832,13 @@ class GeneralController extends Controller
     {
         try {
             $parentId = $request->query('parent_id');
+            $level = $request->query('level'); // New parameter for level filtering
             
             // Add debug logging
             \Log::info('getSubcategories called', [
                 'table' => $table,
                 'parent_id' => $parentId,
+                'level' => $level,
                 'request_headers' => $request->headers->all(),
                 'user_authenticated' => session()->has('jwt_token')
             ]);
@@ -782,8 +851,19 @@ class GeneralController extends Controller
                 ], 400);
             }
 
-            // Use the filtered method to get subcategories
-            $filters = ['parent_id', 'eq', $parentId];
+            // Build filters based on parent_id and optionally level
+            $filters = [];
+            
+            if ($level) {
+                // If level is specified, filter by both parent_id and level
+                $filters = [
+                    'parent_id' => 'eq.' . $parentId,
+                    'level' => 'eq.' . $level
+                ];
+            } else {
+                // Original behavior: filter by parent_id only
+                $filters = ['parent_id', 'eq', $parentId];
+            }
             
             \Log::info('getSubcategories: Calling read_edge_filtered', [
                 'table' => $table,
@@ -798,15 +878,13 @@ class GeneralController extends Controller
                 'subcategories' => $subcategories
             ]);
 
-            return response()->json([
-                'success' => true,
-                'subcategories' => $subcategories
-            ]);
+            return response()->json($subcategories);
 
         } catch (\Exception $e) {
             \Log::error('Error loading subcategories', [
                 'table' => $table,
                 'parent_id' => $request->query('parent_id'),
+                'level' => $request->query('level'),
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);

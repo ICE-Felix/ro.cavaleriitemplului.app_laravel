@@ -18,10 +18,38 @@
       "label": "Name",
       "placeholder": "Vacanta"
     },
+    "level": {
+      "type": "select",
+      "label": "Category Level",
+      "key": "level",
+      "value": 1,
+      "visible": true,
+      "data": {
+        "type": "static",
+        "options": [
+          {"value": 1, "name": "Parent Category"},
+          {"value": 2, "name": "Subcategory"},
+          {"value": 3, "name": "Filter Option"}
+        ]
+      }
+    },
     "parent_name": {
       "type": "select",
       "label": "Parent category",
       "key": "parent_id",
+      "visible": false,
+      "conditional_visibility": {
+        "depends_on": "level",
+        "show_when": [2],
+        "hide_when": [1, 3]
+      },
+      "conditional_filtering": {
+        "depends_on": "level",
+        "filters": {
+          "2": [["level", "eq", 1]],
+          "3": [["level", "eq", 2]]
+        }
+      },
       "data": {
         "type": "class",
         "source": [
@@ -29,19 +57,54 @@
           "read_edge_filtered",
           "venue_categories",
           [
-            "parent_id",
-            "is",
-            null
+            "level",
+            "eq",
+            1
           ]
         ],
         "value": "id",
         "name": "name"
       }
     },
-    "filter_option": {
+    "subcategory_name": {
+      "type": "select",
+      "label": "Subcategory",
+      "key": "parent_id",
+      "visible": false,
+      "conditional_visibility": {
+        "depends_on": "level",
+        "show_when": [3],
+        "hide_when": [1, 2]
+      },
+      "conditional_filtering": {
+        "depends_on": "level",
+        "filters": {
+          "3": [["level", "eq", 2]]
+        }
+      },
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge_filtered",
+          "venue_categories",
+          [
+            "level",
+            "eq",
+            2
+          ]
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    },
+    "full_path": {
       "type": "text",
-      "label": "Filter",
-      "placeholder": ""
+      "label": "Full Path",
+      "key": "full_path",
+      "value": "",
+      "readonly": true,
+      "visible": true
     },
     "active": {
       "type": "switch",

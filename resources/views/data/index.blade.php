@@ -141,7 +141,20 @@
                                                                         @break
                                                                 @endswitch
                                                             @else
-                                                                @if(isset($props['schema'][$key]['data']['type']) && $props['schema'][$key]['data']['type'] === 'class')
+                                                                @if(isset($props['schema'][$key]['data']['type']) && $props['schema'][$key]['data']['type'] === 'static')
+                                                                    @php
+                                                                        $displayName = '';
+                                                                        if(isset($elem[$key]) && isset($props['schema'][$key]['data']['options'])) {
+                                                                            foreach($props['schema'][$key]['data']['options'] as $option) {
+                                                                                if($option['value'] == $elem[$key]) {
+                                                                                    $displayName = $option['name'];
+                                                                                    break;
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    @endphp
+                                                                    {{ $displayName ?: ($elem[$key] ?? '') }}
+                                                                @elseif(isset($props['schema'][$key]['data']['type']) && $props['schema'][$key]['data']['type'] === 'class')
                                                                     {{ucfirst($elem[$key] ?? '')}}
                                                                 @else
                                                                     @if(isset($elem[$key]))
