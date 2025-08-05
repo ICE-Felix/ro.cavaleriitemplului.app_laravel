@@ -126,6 +126,27 @@
                                             />
                                             @endisset
                                         @break
+                                        @case('file-browser')
+                                            @isset($result[$field['id'] ?? $key])
+                                                <x-file-browser
+                                                    name="{{$field['key'] ?? $key}}"
+                                                    label="{{$field['label']}}"
+                                                    :isImage="$field['is_image'] ?? false"
+                                                    :error="$errors->first($field['key'] ?? $key)"
+                                                    :success="session($field['key'] ?? $key)"
+                                                    preview="{{$result[$field['id'] ?? $key]}}"
+                                                    value="{{$result[$field['id'] ?? $key]}}"
+                                                />
+                                                @else
+                                            <x-file-browser
+                                                    name="{{$field['key'] ?? $key}}"
+                                                    label="{{$field['label']}}"
+                                                    :isImage="$field['is_image'] ?? false"
+                                                    :error="$errors->first($field['key'] ?? $key)"
+                                                    :success="session($field['key'] ?? $key)"
+                                            />
+                                            @endisset
+                                        @break
                                         
                                         @case('location')
                                         <x-location-picker

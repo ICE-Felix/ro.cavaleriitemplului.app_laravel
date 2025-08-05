@@ -9,8 +9,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - **Gallery Component Bug Fix**
   - Fixed undefined property error `$supabaseUrl` in SupabaseService
-  - Corrected `getStoragePublicUrl()` method to use `$this->baseUrl` instead of non-existent `$this->supabaseUrl`
-  - Gallery image upload now works correctly with proper public URL generation
+- **File Browser Component Support**
+  - Added missing `@case('file-browser')` support in `create.blade.php` for file upload functionality
+  - Added missing `@case('file-browser')` support in `edit.blade.php` for file editing functionality  
+  - Added missing `@case('file-browser')` support in `index.blade.php` for file display in tables
+  - File browser fields now properly render in forms and display download links in index tables
+  - Supports both image and non-image file types with configurable `is_image` parameter
+  - Files display as clickable download buttons with proper styling in data tables
+      - Corrected `getStoragePublicUrl()` method to use `$this->baseUrl` instead of non-existent `$this->supabaseUrl`
+    - Gallery image upload now works correctly with proper public URL generation
+
+### Added
+- **Contract Management System**
+  - Added complete contract management functionality with `contracts.json` schema configuration
+  - Contract fields include: number, partner selection, contract type, file upload, comments, and active status
+  - Integrated with partner selection via dynamic dropdown (linked to partners table)
+  - Contract type selection via dynamic dropdown (linked to contract_types table)
+  - File upload capability using file-browser component for contract document storage
+  - Active/inactive status management using switch component
+  - Full CRUD operations (Create, Read, Update, Delete) via Supabase Edge functions
+  - Debug logging enabled for POST, INSERT, UPDATE, PUT operations
+- **Contract Types Management**
+  - Added contract types management system with `contract_types.json` schema configuration
+  - Simple structure with ID and name fields for categorizing different contract types
+  - Full CRUD operations support for managing contract type categories
+  - Integrated with contracts system for dynamic contract type selection
+  - Supports creating, editing, and deleting contract type categories
+  - Used as reference data for contract creation and management
 - **Location Component Data Processing**
   - Fixed location data not being saved to database due to missing field type handling
   - Added proper processing for `location` field type in GeneralController

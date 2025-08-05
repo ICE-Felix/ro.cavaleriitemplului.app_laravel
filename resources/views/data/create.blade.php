@@ -106,6 +106,16 @@
                                             :success="session($field['key'] ?? $key)"
                                         />
                                         @break
+                                        @case('file-browser')
+                                        <x-file-browser
+                                            name="{{$field['key'] ?? $key}}"
+                                            label="{{$field['label']}}"
+                                            :isImage="$field['is_image'] ?? false"
+                                            :error="$errors->first($field['key'] ?? $key)"
+                                            :success="session($field['key'] ?? $key)"
+                                            preview="{{$field['preview'] ?? ''}}"
+                                        />
+                                        @break
                                         @case('location')
                                         <x-location-picker
                                             name="location"

@@ -5,6 +5,7 @@
     "label_singular": "Contract type",
     "label_plural": "Contract types"
   },
+  "debug": [],
   "schema": {
     "id": {
       "label": "#",

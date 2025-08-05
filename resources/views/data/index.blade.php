@@ -124,6 +124,19 @@
                                                                     <span>N/A</span>
                                                             @endisset
                                                             @break
+                                                        @case('file-browser')
+                                                            @isset($elem[$key])
+                                                                @if($elem[$key])
+                                                                    <a href="{{$elem[$key]}}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                                        <i class="fas fa-download"></i> Download
+                                                                    </a>
+                                                                @else
+                                                                    <span class="text-muted">No file</span>
+                                                                @endif
+                                                            @else
+                                                                <span class="text-muted">No file</span>
+                                                            @endisset
+                                                            @break
                                                         @case('boolean')
                                                             {{$elem[$key] ? "TRUE" : "FALSE"}}
                                                             @break
