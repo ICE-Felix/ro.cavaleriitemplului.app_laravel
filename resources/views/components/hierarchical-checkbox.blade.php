@@ -106,8 +106,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             loadingMessage.style.display = 'none';
             
-            if (data.success && data.subcategories.length > 0) {
-                data.subcategories.forEach(subcategory => {
+            if (data && data.length > 0) {
+                data.forEach(subcategory => {
                     const subcategoryItem = document.createElement('div');
                     subcategoryItem.className = 'subcategory-item mb-2';
                     subcategoryItem.innerHTML = `
