@@ -5,13 +5,19 @@
     "label_singular": "Venue",
     "label_plural": "Venues"
   },
-  "debug": [],
+  "debug": ["PUT","POST","INSERT","UPDATE"],
   "schema": {
     "id": {
       "label": "#",
       "type": "int",
       "readonly": true,
       "visible": false
+    },
+     "image_url": {
+      "key": "image_id",
+      "type": "image",
+      "label": "Featured image",
+      "upload_key": "image_base64"
     },
     "name": {
       "type": "text",
