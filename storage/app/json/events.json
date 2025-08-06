@@ -1,40 +1,152 @@
 {
   "name": {
     "singular": "event",
-    "plural": "events"
+    "plural": "events",
+    "label_singular": "Event",
+    "label_plural": "Events"
   },
+  "debug": [],
   "schema": {
-    "title" : {
-      "type" : "select",
-      "label" : "Subscription",
-      "key" : "subscription_id",
-      "data" : {
-        "type" : "class",
-        "source" : [
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+    "title": {
+      "type": "text",
+      "label": "Event Title",
+      "placeholder": "Enter event title",
+      "required": true,
+      "visible": true
+    },
+    "description": {
+      "type": "trix",
+      "label": "Description",
+      "placeholder": "Enter event description",
+      "visible": true
+    },
+    "event_type_name": {
+      "type": "select",
+      "label": "Event Type",
+      "key": "event_type_id",
+      "required": true,
+      "data": {
+        "type": "class",
+        "source": [
           "App\\Services\\Supabase\\SupabaseService",
-          "read_rpc",
-          "subscriptions"
+          "read_edge",
+          "event_types"
         ],
-        "value" : "id",
-        "name" : "{contract_full_name}"
+        "value": "id",
+        "name": "name"
       }
     },
-    "date": {
-      "label": "Date",
+    "venue_name": {
+      "type": "select",
+      "label": "Venue",
+      "key": "venue_id",
+      "required": true,
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "venues"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    },
+    "start_date": {
       "type": "date",
-      "format": "{date:d-m-Y}"
+      "label": "Start Date",
+      "format": "{date:d-m-Y}",
+      "required": true,
+      "visible": true
     },
-    "starting_hour": {
-      "label": "Starting hour",
-      "type": "text"
+    "end_date": {
+      "type": "date",
+      "label": "End Date",
+      "format": "{date:d-m-Y}",
+      "required": true,
+      "visible": true
     },
-    "ending_hour": {
-      "label": "Ending hour",
-      "type": "text"
+    "start_hour": {
+      "type": "time",
+      "label": "Start Hour",
+      "required": true,
+      "visible": true
+    },
+    "end_hour": {
+      "type": "time",
+      "label": "End Hour",
+      "required": true,
+      "visible": true
+    },
+    "schedule_type": {
+      "type": "select",
+      "label": "Schedule Type",
+      "data": {
+        "type": "static",
+        "options": [
+          {"value": "onetime", "name": "Onetime Event"},
+          {"value": "recurring", "name": "Recurring Event"},
+          {"value": "multiday", "name": "Multiday Event"}
+        ]
+      }
+    },
+    "theme": {
+      "type": "text",
+      "label": "Event Theme",
+      "placeholder": "Enter event theme",
+      "visible": true
+    },
+    "agenda": {
+      "type": "textarea",
+      "label": "Agenda",
+      "placeholder": "Enter event agenda",
+      "visible": true
+    },
+    "price": {
+      "type": "text",
+      "label": "Price",
+      "placeholder": "Enter event price (e.g., Free, $50, €25)",
+      "visible": true
+    },
+    "contact_person": {
+      "type": "text",
+      "label": "Contact Person",
+      "placeholder": "Enter contact person name",
+      "visible": true
+    },
+    "phone_no": {
+      "type": "text",
+      "label": "Phone Number",
+      "placeholder": "Enter phone number",
+      "visible": true
+    },
+    "email": {
+      "type": "email",
+      "label": "Contact Email",
+      "placeholder": "Enter contact email",
+      "visible": true
+    },
+    "capacity": {
+      "type": "text",
+      "label": "Event Capacity",
+      "placeholder": "Enter maximum capacity",
+      "visible": true
+    },
+    "event_image_url": {
+      "key": "event_image_id",
+      "type": "image",
+      "label": "Event Image",
+      "upload_key": "event_image_base64"
     }
   },
-  "GET": "read_rpc",
-  "INSERT": "create",
-  "DELETE": "delete",
-  "UPDATE": "update"
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
 }

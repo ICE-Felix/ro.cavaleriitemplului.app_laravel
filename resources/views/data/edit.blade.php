@@ -208,6 +208,19 @@
                                                 max="2024-12-31"
                                         />
                                         @break
+                                        @case('time')
+                                        <x-time-input
+                                            name="{{ $field['key'] ?? $key }}"
+                                            label="{{ $field['label'] ?? ucfirst($key) }}"
+                                            placeholder="{{ $field['placeholder'] ?? 'HH:MM' }}"
+                                            :error="$errors->first($field['key'] ?? $key)"
+                                            value="{{ old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? $field['value'] ?? '') }}"
+                                            :required="$field['required'] ?? false"
+                                            min="{{ $field['min'] ?? '00:00' }}"
+                                            max="{{ $field['max'] ?? '23:59' }}"
+                                            step="{{ $field['step'] ?? '60' }}"
+                                        />
+                                        @break
                                         @case('checkbox')
                                         @php
                                             $label = $field['label'] ?? ucfirst($key);

@@ -187,6 +187,21 @@
                                                         @case('date')
                                                             {{ parseTemplate($field['format'] ?? $key, $elem) }}
                                                         @break
+                                                        @case('time')
+                                                            @php
+                                                                $timeValue = $elem[$key] ?? '';
+                                                                if ($timeValue && $timeValue !== '00:00:00') {
+                                                                    // Convert 24-hour format to 12-hour format if needed
+                                                                    $formattedTime = date('H:i', strtotime($timeValue));
+                                                                } else {
+                                                                    $formattedTime = '--:--';
+                                                                }
+                                                            @endphp
+                                                            <span class="badge bg-light text-dark">
+                                                                <i class="fas fa-clock me-1"></i>
+                                                                {{ $formattedTime }}
+                                                            </span>
+                                                        @break
                                                         @case('trix')
                                                             {!! \Illuminate\Support\Str::limit(strip_tags(html_entity_decode($elem[$key] ?? '')), 100) !!}
                                                         @break

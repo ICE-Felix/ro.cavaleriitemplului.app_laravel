@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- **Time Field Type Support**
+  - Created new `time-input.blade.php` component for time input fields with HTML5 time picker
+  - Added `@case('time')` support in `create.blade.php` for time input in forms
+  - Added `@case('time')` support in `edit.blade.php` for time editing with proper value binding
+  - Added `@case('time')` support in `index.blade.php` with formatted time display and clock icon
+  - Time fields support configurable min/max values, step intervals, and 24-hour format
+  - Time values display as styled badges with clock icons in data tables
+  - Includes placeholder text, validation, and proper error handling
+  - Updated `events.json` to use `time` type for `start_hour` and `end_hour` fields
+  - Time component features:
+    - HTML5 time input with native browser time picker
+    - 24-hour format (HH:MM) with configurable min/max ranges
+    - Step intervals for minute precision (default: 1 minute)
+    - Bootstrap styling with validation states
+    - Required field indicator and help text
+    - Proper old() value handling for form persistence
+
 ### Fixed
 - **Three-Level Hierarchical Checkbox UUID Format**
   - Fixed `parseInt(checkbox.value)` issue that was converting UUIDs like `5413751a-e4dd-46c8-96cc-276667618786` to just `5413751`
