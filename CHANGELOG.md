@@ -7,6 +7,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Added
+- **Dynamic Event Calendar Integration**
+  - Created comprehensive event calendar system with FullCalendar v6.1.8 integration
+  - Added `calendar()` controller method in GeneralController for calendar view rendering
+  - Added `getCalendarEvents()` API endpoint to fetch events data dynamically from Supabase
+  - Created `calendar.blade.php` view with fully interactive calendar interface
+  - Calendar features include:
+    - Month, week, and day view switching capabilities
+    - Dynamic event loading from events database via AJAX
+    - Click-to-create: clicking on calendar slots redirects to event creation with pre-filled date/time
+    - Event details modal showing comprehensive event information (venue, type, contact, etc.)
+    - Event color-coding based on event types (Conference, Workshop, Meeting, etc.)
+    - Drag-and-drop event rescheduling (with visual feedback)
+    - Event resizing for duration adjustment
+    - "New Event" button for quick event creation
+    - Today/Previous/Next navigation controls
+    - Responsive design with Bootstrap styling
+  - Added calendar routes: `/calendar` (view) and `/api/calendar/events` (API)
+  - Updated navigation menu to include "Events Calendar" link
+  - Enhanced event creation form to handle pre-filled date/time parameters from calendar
+  - Date/time fields now auto-populate when creating events from calendar time slots
+  - Events display with proper datetime formatting combining separate date and time fields
+  - Event modal includes complete event details: description, venue, type, price, capacity, contact info
+  - Color-coded events by type with customizable color scheme for different event categories
 - **Time Field Type Support**
   - Created new `time-input.blade.php` component for time input fields with HTML5 time picker
   - Added `@case('time')` support in `create.blade.php` for time input in forms

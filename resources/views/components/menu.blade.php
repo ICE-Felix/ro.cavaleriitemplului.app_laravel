@@ -187,9 +187,9 @@
                 <span class="la la-keyboard"></span>
                 Editors
             </a>
-            <a href="extras-fullcalendar.html">
+            <a href="{{ route('calendar') }}">
                 <span class="la la-calendar"></span>
-                FullCalendar
+                Events Calendar
             </a>
             <a href="extras-sortable.html">
                 <span class="la la-sort"></span>
