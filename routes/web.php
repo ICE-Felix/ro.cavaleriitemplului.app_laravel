@@ -60,3 +60,4 @@ Route::get('/forbidden', function () {
 })->name('error.403');
 
 Route::post('/ai/generate-image', [\App\Http\Controllers\GeneralController::class, 'generateAiImage'])->name('ai.generate-image');
+Route::post('/ai/generate-description', [\App\Http\Controllers\GeneralController::class, 'generateAiDescription'])->name('ai.generate-description');

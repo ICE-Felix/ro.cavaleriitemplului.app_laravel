@@ -13,6 +13,12 @@
       "readonly": true,
       "visible": false
     },
+    "image_url": {
+      "key": "image_id",
+      "type": "image",
+      "label": "Event image",
+      "upload_key": "image_base64"
+    },
     "title": {
       "type": "text",
       "label": "Event Title",
@@ -127,7 +133,7 @@
       "visible": true
     },
     "email": {
-      "type": "email",
+      "type": "text",
       "label": "Contact Email",
       "placeholder": "Enter contact email",
       "visible": true
@@ -137,12 +143,6 @@
       "label": "Event Capacity",
       "placeholder": "Enter maximum capacity",
       "visible": true
-    },
-    "event_image_url": {
-      "key": "event_image_id",
-      "type": "image",
-      "label": "Event Image",
-      "upload_key": "event_image_base64"
     }
   },
   "GET": "edge",

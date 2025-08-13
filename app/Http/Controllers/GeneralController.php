@@ -826,6 +826,78 @@ class GeneralController extends Controller
     }
 
     /**
+     * Generate AI description using OpenAI GPT
+     */
+    public function generateAiDescription(Request $request)
+    {
+        $request->validate([
+            'prompt' => 'required|string|max:1000',
+            'field_name' => 'required|string',
+            'max_length' => 'nullable|integer|min:50|max:2000',
+            'model' => 'nullable|in:gpt-3.5-turbo,gpt-4',
+            'temperature' => 'nullable|numeric|min:0|max:2'
+        ]);
+
+        try {
+            $openAIService = new \App\Services\OpenAIService();
+            
+            $maxTokens = $request->max_length ? min($request->max_length / 4, 500) : 300; // Rough token estimation
+            $model = $request->model ?? 'gpt-3.5-turbo';
+            $temperature = $request->temperature ?? 0.7;
+            
+            // Enhance the prompt with context
+            $enhancedPrompt = $this->buildDescriptionPrompt($request->prompt, $request->field_name);
+            
+            // Generate text
+            $result = $openAIService->generateText($enhancedPrompt, $model, $maxTokens, $temperature);
+            
+            if (!$result['success']) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $result['error']
+                ]);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'text' => $result['text'],
+                'usage' => $result['usage'] ?? null,
+                'word_count' => str_word_count($result['text']),
+                'character_count' => strlen($result['text'])
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('AI Description Generation Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to generate description: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Build enhanced prompt for description generation
+     */
+    private function buildDescriptionPrompt($userPrompt, $fieldName)
+    {
+        $contextualInstructions = [
+            'description' => 'Write a detailed, engaging description that captures the essence and key details.',
+            'agenda' => 'Create a well-structured agenda with clear sections and actionable items.',
+            'body' => 'Generate comprehensive content that is informative and well-organized.',
+            'content' => 'Create engaging, high-quality content that is clear and informative.',
+            'summary' => 'Write a concise yet comprehensive summary that covers the main points.',
+            'overview' => 'Provide a clear overview that gives readers a complete understanding.',
+        ];
+
+        $instruction = $contextualInstructions[$fieldName] ?? 'Generate clear, professional text content.';
+        
+        return "Context: You are generating content for a '{$fieldName}' field.\n\n" .
+               "Instructions: {$instruction}\n\n" .
+               "User Request: {$userPrompt}\n\n" .
+               "Please provide well-formatted, engaging content that directly addresses the request:";
+    }
+
+    /**
      * Get subcategories for a given parent category
      */
     public function getSubcategories(Request $request, $table)
