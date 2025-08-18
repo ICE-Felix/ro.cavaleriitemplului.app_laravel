@@ -5,7 +5,7 @@
     "label_singular": "Venue",
     "label_plural": "Venues"
   },
-  "debug": [],
+  "debug": [ "PUT","POST","INSERT","UPDATE" ],
   "schema": {
     "id": {
       "label": "#",
@@ -13,6 +13,12 @@
       "readonly": true,
       "visible": false
     },
+    "image_url": {
+      "key": "image_id",
+      "type": "image",
+      "label": "Featured image",
+      "upload_key": "image_base64"
+  },
     "name": {
       "type": "text",
       "label": "Name",
@@ -156,16 +162,6 @@
       "key": "business_hours",
       "value": null,
       "required": false
-    },
-    "gallery": {
-      "type": "gallery",
-      "label": "Venue Gallery",
-      "key": "gallery",
-      "value": null,
-      "required": true,
-      "min_images": 1,
-      "max_images": 6,
-      "bucket": "venue-galleries"
     }
   },
   "GET": "edge",
