@@ -682,7 +682,7 @@ class GeneralController extends Controller
                     $debugEnabled = isset($this->props['debug']) && in_array('GET', $this->props['debug']);
                         
                     // Handle filtered methods
-                    if ($source[1] === 'read_edge') {
+                    if ($source[1] === 'read_edge_filtered') {
                         // Extract filters from source array (4th element) if provided
                         $sourceFilters = isset($source[3]) && is_array($source[3]) ? $source[3] : [];
                         // Merge with any additional filters passed as parameter

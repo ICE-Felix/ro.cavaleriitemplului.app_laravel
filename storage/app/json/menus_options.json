@@ -5,7 +5,7 @@
         "label_singular": "Menu option",
         "label_plural": "Menu options"
     },
-    "debug": ["GET"],
+    "debug": [],
     "schema": {
         "id": {
             "label": "#",
