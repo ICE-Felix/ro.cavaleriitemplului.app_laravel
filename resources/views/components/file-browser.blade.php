@@ -33,10 +33,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title">Generate AI Image</h2>
-                <button class="close la la-times" data-dismiss="modal"></button>
+                <button class="close la la-times" onclick="closeAiImageModal('{{ $name }}')"></button>
             </div>
             <div class="modal-body">
-                <div id="aiImageForm-{{ $name }}">
+                <form id="aiImageForm-{{ $name }}">
                     <div class="mb-4">
                         <label class="label block mb-2" for="aiPrompt-{{ $name }}">Image Prompt</label>
                         <textarea 
@@ -66,11 +66,11 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <div class="flex ltr:ml-auto rtl:mr-auto">
-                    <button type="button" class="btn btn_secondary uppercase" data-dismiss="modal">
+                    <button type="button" class="btn btn_secondary uppercase" onclick="closeAiImageModal('{{ $name }}')">
                         Cancel
                     </button>
                     <button type="button" class="btn btn_primary ltr:ml-2 rtl:mr-2 uppercase" onclick="generateAIImage('{{ $name }}')">

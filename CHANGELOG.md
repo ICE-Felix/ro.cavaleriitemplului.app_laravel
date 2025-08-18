@@ -6,6 +6,77 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+- **Dynamic Event Calendar Integration**
+  - Created comprehensive event calendar system with FullCalendar v6.1.8 integration
+  - Added `calendar()` controller method in GeneralController for calendar view rendering
+  - Added `getCalendarEvents()` API endpoint to fetch events data dynamically from Supabase
+  - Created `calendar.blade.php` view with fully interactive calendar interface
+  - Calendar features include:
+    - Month, week, and day view switching capabilities
+    - Dynamic event loading from events database via AJAX
+    - Click-to-create: clicking on calendar slots redirects to event creation with pre-filled date/time
+    - Event details modal showing comprehensive event information (venue, type, contact, etc.)
+    - Event color-coding based on event types (Conference, Workshop, Meeting, etc.)
+    - Drag-and-drop event rescheduling (with visual feedback)
+    - Event resizing for duration adjustment
+    - "New Event" button for quick event creation
+    - Today/Previous/Next navigation controls
+    - Responsive design with Bootstrap styling
+  - Added calendar routes: `/calendar` (view) and `/api/calendar/events` (API)
+  - Updated navigation menu to include "Events Calendar" link
+  - Enhanced event creation form to handle pre-filled date/time parameters from calendar
+  - Date/time fields now auto-populate when creating events from calendar time slots
+  - Events display with proper datetime formatting combining separate date and time fields
+  - Event modal includes complete event details: description, venue, type, price, capacity, contact info
+  - Color-coded events by type with customizable color scheme for different event categories
+- **AI Description Generation System**
+  - Added comprehensive AI-powered text generation functionality using OpenAI GPT models
+  - Created `generateText()` method in OpenAIService for text generation via ChatGPT API
+  - Added `generateAiDescription()` controller method with contextual prompt enhancement
+  - Implemented AI generation for both Trix editor and textarea components
+  - Features include:
+    - Smart prompt enhancement based on field context (description, agenda, content, etc.)
+    - Model selection: GPT-3.5 Turbo (faster) or GPT-4 (higher quality)
+    - Configurable content length: Short (~200 chars) to Very Long (~2000 chars)
+    - Creativity control via temperature slider (0.0 focused to 2.0 creative)
+    - Real-time generation with loading states and progress indicators
+    - Automatic content insertion into Trix editors and textareas
+    - Usage statistics display (word count, character count, token usage)
+    - Error handling with user-friendly messages
+  - Added `/ai/generate-description` API endpoint for text generation requests
+  - Enhanced Trix editor component with "Generate AI Description" button
+  - Enhanced textarea component with "Generate AI Text" button
+  - Modal interface for AI generation with advanced options:
+    - Prompt input with contextual examples
+    - Model selection dropdown
+    - Length control with preset options
+    - Temperature slider for creativity adjustment
+    - Generate button with loading states
+  - Contextual prompt building for different field types:
+    - Description fields: Detailed, engaging descriptions
+    - Agenda fields: Well-structured agenda with actionable items
+    - Content fields: Comprehensive, informative content
+    - Summary fields: Concise yet comprehensive summaries
+  - Integration with existing form validation and error handling
+  - Success notifications with generation statistics
+- **Time Field Type Support**
+  - Created new `time-input.blade.php` component for time input fields with HTML5 time picker
+  - Added `@case('time')` support in `create.blade.php` for time input in forms
+  - Added `@case('time')` support in `edit.blade.php` for time editing with proper value binding
+  - Added `@case('time')` support in `index.blade.php` with formatted time display and clock icon
+  - Time fields support configurable min/max values, step intervals, and 24-hour format
+  - Time values display as styled badges with clock icons in data tables
+  - Includes placeholder text, validation, and proper error handling
+  - Updated `events.json` to use `time` type for `start_hour` and `end_hour` fields
+  - Time component features:
+    - HTML5 time input with native browser time picker
+    - 24-hour format (HH:MM) with configurable min/max ranges
+    - Step intervals for minute precision (default: 1 minute)
+    - Bootstrap styling with validation states
+    - Required field indicator and help text
+    - Proper old() value handling for form persistence
+
 ### Fixed
 - **Three-Level Hierarchical Checkbox UUID Format**
   - Fixed `parseInt(checkbox.value)` issue that was converting UUIDs like `5413751a-e4dd-46c8-96cc-276667618786` to just `5413751`

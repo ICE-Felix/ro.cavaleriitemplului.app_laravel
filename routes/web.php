@@ -46,6 +46,10 @@ Route::middleware(['supabase.auth', 'supabase.permissions'])->group(function () 
     Route::post('/api/gallery/upload', [\App\Http\Controllers\GeneralController::class, 'uploadGalleryImage'])->name('api.gallery.upload');
     Route::delete('/api/gallery/delete', [\App\Http\Controllers\GeneralController::class, 'deleteGalleryImage'])->name('api.gallery.delete');
     Route::get('/api/gallery/{galleryId}/images', [\App\Http\Controllers\GeneralController::class, 'listGalleryImages'])->name('api.gallery.list');
+    
+    // Calendar routes
+    Route::get('/calendar', [\App\Http\Controllers\GeneralController::class, 'calendar'])->name('calendar');
+    Route::get('/api/calendar/events', [\App\Http\Controllers\GeneralController::class, 'getCalendarEvents'])->name('api.calendar.events');
 });
 
 
@@ -56,3 +60,4 @@ Route::get('/forbidden', function () {
 })->name('error.403');
 
 Route::post('/ai/generate-image', [\App\Http\Controllers\GeneralController::class, 'generateAiImage'])->name('ai.generate-image');
+Route::post('/ai/generate-description', [\App\Http\Controllers\GeneralController::class, 'generateAiDescription'])->name('ai.generate-description');
