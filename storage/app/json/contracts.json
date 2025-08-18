@@ -2,8 +2,10 @@
     "name": {
         "singular": "contract",
         "plural": "contracts",
-        "label_singular": "Contract"
+        "label_singular": "Contract",
+        "label_plural": "Contracts"
     },
+    "debug": ["POST","INSERT","UPDATE","PUT"],
     "schema": {
         "id": {
             "label": "#",
@@ -23,14 +25,14 @@
                 "type" : "class",
                 "source" : [
                     "App\\Services\\Supabase\\SupabaseService",
-                    "read_rpc",
+                    "read_edge",
                     "partners"
                 ],
                 "value" : "id",
                 "name" : "company_name"
             }
         },
-        "contract_type" : {
+        "contract_type_name" : {
             "type" : "select",
             "label" : "Contract type",
             "key" : "type_id",
@@ -47,19 +49,26 @@
         },     
         "file_url": {
             "label": "Contract file",
-            "type": "button"
+            "type": "file-browser",
+            "key": "file_url",
+            "value": "",
+            "is_image": false,
+            "preview": "",
+            "success": "",
+            "error": ""
         },
         "comment": {
             "type": "text",
             "label": "Comment",
             "placeholder": "Comment"
         },
-        "approved" : {
-            "type": "checkbox",
-            "label": "Approved",
+        "is_active" : {
+            "type": "switch",
+            "label": "Contract is active and approved",
             "key": "is_active",
             "value": true,
-            "text": "Contract is active and approved"
+            "on_label": "Active",
+            "off_label": "Inactive"
         }
     },
     "GET": "edge",

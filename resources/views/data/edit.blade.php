@@ -66,20 +66,25 @@
                                         @break
                                     @case('trix')
                                         <x-trix-editor
-                                            name="{{$field['id'] ?? $key}}"
+                                            name="{{$field['key'] ?? $key}}"
                                             label="{{$field['label'] ?? $key}}"
-                                            rows="{{$field['rows'] ?? null}}"
-                                            :error="$errors->first($field['id'] ?? $key)"
-                                            value="{!! html_entity_decode($result[$field['id'] ?? $key]) !!}"
+                                            :rows="$field['rows'] ?? 5"
+                                            :error="$errors->first($field['key'] ?? $key)"
+                                            value="{!! html_entity_decode(old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? '')) !!}"
+                                            placeholder="{{$field['placeholder'] ?? null}}"
+                                            :required="$field['required'] ?? false"
+                                            :enableAI="true"
                                         />
                                         @break
                                     @case('textarea')
                                         <x-textarea
-                                            name="{{$field['id'] ?? $key}}"
+                                            name="{{$field['key'] ?? $key}}"
                                             label="{{$field['label'] ?? $key}}"
-                                            rows="{{$field['rows'] ?? null}}"
-                                            :error="$errors->first($field['id'] ?? $key)"
-                                            value="{!! html_entity_decode($result[$field['id'] ?? $key]) !!}"
+                                            :rows="$field['rows'] ?? 5"
+                                            :error="$errors->first($field['key'] ?? $key)"
+                                            value="{!! html_entity_decode(old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? '')) !!}"
+                                            placeholder="{{$field['placeholder'] ?? null}}"
+                                            :required="$field['required'] ?? false"
                                         />
                                         @break
                                     @case('select')
@@ -164,6 +169,27 @@
                                             />
                                             @endisset
                                         @break
+                                        @case('file-browser')
+                                            @isset($result[$field['id'] ?? $key])
+                                                <x-file-browser
+                                                    name="{{$field['key'] ?? $key}}"
+                                                    label="{{$field['label']}}"
+                                                    :isImage="$field['is_image'] ?? false"
+                                                    :error="$errors->first($field['key'] ?? $key)"
+                                                    :success="session($field['key'] ?? $key)"
+                                                    preview="{{$result[$field['id'] ?? $key]}}"
+                                                    value="{{$result[$field['id'] ?? $key]}}"
+                                                />
+                                                @else
+                                            <x-file-browser
+                                                    name="{{$field['key'] ?? $key}}"
+                                                    label="{{$field['label']}}"
+                                                    :isImage="$field['is_image'] ?? false"
+                                                    :error="$errors->first($field['key'] ?? $key)"
+                                                    :success="session($field['key'] ?? $key)"
+                                            />
+                                            @endisset
+                                        @break
                                         
                                         @case('location')
                                         <x-location-picker
@@ -185,6 +211,19 @@
                                                 value="{{ $result[$key] ?? null }}"
                                                 min="2024-01-01"
                                                 max="2024-12-31"
+                                        />
+                                        @break
+                                        @case('time')
+                                        <x-time-input
+                                            name="{{ $field['key'] ?? $key }}"
+                                            label="{{ $field['label'] ?? ucfirst($key) }}"
+                                            placeholder="{{ $field['placeholder'] ?? 'HH:MM' }}"
+                                            :error="$errors->first($field['key'] ?? $key)"
+                                            value="{{ old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? $field['value'] ?? '') }}"
+                                            :required="$field['required'] ?? false"
+                                            min="{{ $field['min'] ?? '00:00' }}"
+                                            max="{{ $field['max'] ?? '23:59' }}"
+                                            step="{{ $field['step'] ?? '60' }}"
                                         />
                                         @break
                                         @case('checkbox')

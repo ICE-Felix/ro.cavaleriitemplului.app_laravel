@@ -1,0 +1,33 @@
+{
+  "name": {
+    "singular": "event_type",
+    "plural": "event_types",
+    "label_plural": "Event types",
+    "label_singular": "Event type"
+  },
+  "debug": [],
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+    "name": {
+      "type": "text",
+      "label": "Name",
+      "placeholder": "Name"
+    },
+    "is_active": {
+      "type": "switch",
+      "label": "Is active",
+      "key": "is_active",
+      "value": true,
+      "on_label": "Active"
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}

@@ -120,4 +120,64 @@ class OpenAIService
             ];
         }
     }
+
+    /**
+     * Generate text using OpenAI GPT
+     *
+     * @param string $prompt The text generation prompt
+     * @param string $model The model to use (gpt-4, gpt-3.5-turbo, etc.)
+     * @param int $maxTokens Maximum tokens to generate
+     * @param float $temperature Controls randomness (0.0 to 2.0)
+     * @return array
+     * @throws GuzzleException
+     */
+    public function generateText(string $prompt, string $model = 'gpt-3.5-turbo', int $maxTokens = 500, float $temperature = 0.7): array
+    {
+        try {
+            $response = $this->client->post('chat/completions', [
+                'json' => [
+                    'model' => $model,
+                    'messages' => [
+                        [
+                            'role' => 'system',
+                            'content' => 'You are a helpful assistant that generates high-quality, engaging content. Write clear, informative, and well-structured text that is appropriate for the given context.'
+                        ],
+                        [
+                            'role' => 'user',
+                            'content' => $prompt
+                        ]
+                    ],
+                    'max_tokens' => $maxTokens,
+                    'temperature' => $temperature,
+                    'top_p' => 1,
+                    'frequency_penalty' => 0,
+                    'presence_penalty' => 0
+                ]
+            ]);
+
+            $result = json_decode($response->getBody(), true);
+            
+            if (isset($result['choices']) && !empty($result['choices'])) {
+                $generatedText = $result['choices'][0]['message']['content'] ?? '';
+                
+                return [
+                    'success' => true,
+                    'text' => trim($generatedText),
+                    'usage' => $result['usage'] ?? null
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => 'No text generated'
+            ];
+
+        } catch (GuzzleException $e) {
+            Log::error('OpenAI Text Generation error: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'error' => 'Failed to generate text: ' . $e->getMessage()
+            ];
+        }
+    }
 } 

@@ -1,5 +1,9 @@
 @php
     $label = $props['name']['label_singular'] ?? $props['name']['singular'];
+    
+    // Handle pre-filled date/time from calendar
+    $preFilledStartDate = request()->get('start_date');
+    $preFilledStartHour = request()->get('start_hour');
 @endphp
 @section('page_title', "Create {$label}")
 <x-app-layout :breadcrumbs="$breadcrumbs ?? []">
@@ -56,20 +60,25 @@
                                         @break
                                     @case('trix')
                                         <x-trix-editor
-                                            name="{{$field['id'] ?? $key}}"
+                                            name="{{$field['key'] ?? $key}}"
                                             label="{{$field['label'] ?? $key}}"
-                                            rows="{{$field['rows'] ?? null}}"
-                                            :error="$errors->first($field['id'] ?? $key)"
+                                            :rows="$field['rows'] ?? 5"
+                                            :error="$errors->first($field['key'] ?? $key)"
                                             value="{!! html_entity_decode($field['value'] ?? '') !!}"
+                                            placeholder="{{$field['placeholder'] ?? null}}"
+                                            :required="$field['required'] ?? false"
+                                            :enableAI="true"
                                         />
                                         @break
                                     @case('textarea')
                                         <x-textarea
-                                            name="{{$field['id'] ?? $key}}"
+                                            name="{{$field['key'] ?? $key}}"
                                             label="{{$field['label'] ?? $key}}"
-                                            rows="{{$field['rows'] ?? null}}"
-                                            :error="$errors->first($field['id'] ?? $key)"
+                                            :rows="$field['rows'] ?? 5"
+                                            :error="$errors->first($field['key'] ?? $key)"
                                             value="{!! html_entity_decode($field['value'] ?? '') !!}"
+                                            placeholder="{{$field['placeholder'] ?? null}}"
+                                            :required="$field['required'] ?? false"
                                         />
                                         @break
                                         @case('json')
@@ -131,6 +140,16 @@
                                             :success="session($field['key'] ?? $key)"
                                         />
                                         @break
+                                        @case('file-browser')
+                                        <x-file-browser
+                                            name="{{$field['key'] ?? $key}}"
+                                            label="{{$field['label']}}"
+                                            :isImage="$field['is_image'] ?? false"
+                                            :error="$errors->first($field['key'] ?? $key)"
+                                            :success="session($field['key'] ?? $key)"
+                                            preview="{{$field['preview'] ?? ''}}"
+                                        />
+                                        @break
                                         @case('location')
                                         <x-location-picker
                                             name="location"
@@ -142,14 +161,41 @@
                                         />
                                         @break
                                         @case('date')
+                                        @php
+                                            // Handle pre-filled date from calendar
+                                            $dateValue = $field['value'] ?? null;
+                                            if (($field['id'] ?? $key) === 'start_date' && $preFilledStartDate) {
+                                                $dateValue = $preFilledStartDate;
+                                            }
+                                        @endphp
                                         <x-date-input
                                                 name="{{ $field['id'] ?? $key }}"
                                                 label="{{ $field['label'] ?? ucfirst($key) }}"
                                                 placeholder="{{ $field['placeholder'] ?? null }}"
                                                 :error="$errors->first($field['id'] ?? $key)"
-                                                value="{{ $field['value'] ?? null }}"
+                                                value="{{ $dateValue }}"
                                                 min="2024-01-01"
                                                 max="2024-12-31"
+                                        />
+                                        @break
+                                        @case('time')
+                                        @php
+                                            // Handle pre-filled time from calendar
+                                            $timeValue = $field['value'] ?? '';
+                                            if (($field['key'] ?? $key) === 'start_hour' && $preFilledStartHour) {
+                                                $timeValue = $preFilledStartHour;
+                                            }
+                                        @endphp
+                                        <x-time-input
+                                            name="{{ $field['key'] ?? $key }}"
+                                            label="{{ $field['label'] ?? ucfirst($key) }}"
+                                            placeholder="{{ $field['placeholder'] ?? 'HH:MM' }}"
+                                            :error="$errors->first($field['key'] ?? $key)"
+                                            value="{{ old($field['key'] ?? $key, $timeValue) }}"
+                                            :required="$field['required'] ?? false"
+                                            min="{{ $field['min'] ?? '00:00' }}"
+                                            max="{{ $field['max'] ?? '23:59' }}"
+                                            step="{{ $field['step'] ?? '60' }}"
                                         />
                                         @break
                                         @case('checkbox')

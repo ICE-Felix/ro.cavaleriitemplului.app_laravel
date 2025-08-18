@@ -124,6 +124,19 @@
                                                                     <span>N/A</span>
                                                             @endisset
                                                             @break
+                                                        @case('file-browser')
+                                                            @isset($elem[$key])
+                                                                @if($elem[$key])
+                                                                    <a href="{{$elem[$key]}}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                                        <i class="fas fa-download"></i> Download
+                                                                    </a>
+                                                                @else
+                                                                    <span class="text-muted">No file</span>
+                                                                @endif
+                                                            @else
+                                                                <span class="text-muted">No file</span>
+                                                            @endisset
+                                                            @break
                                                         @case('boolean')
                                                             {{$elem[$key] ? "TRUE" : "FALSE"}}
                                                             @break
@@ -173,6 +186,21 @@
                                                         @break
                                                         @case('date')
                                                             {{ parseTemplate($field['format'] ?? $key, $elem) }}
+                                                        @break
+                                                        @case('time')
+                                                            @php
+                                                                $timeValue = $elem[$key] ?? '';
+                                                                if ($timeValue && $timeValue !== '00:00:00') {
+                                                                    // Convert 24-hour format to 12-hour format if needed
+                                                                    $formattedTime = date('H:i', strtotime($timeValue));
+                                                                } else {
+                                                                    $formattedTime = '--:--';
+                                                                }
+                                                            @endphp
+                                                            <span class="badge bg-light text-dark">
+                                                                <i class="fas fa-clock me-1"></i>
+                                                                {{ $formattedTime }}
+                                                            </span>
                                                         @break
                                                         @case('trix')
                                                             {!! \Illuminate\Support\Str::limit(strip_tags(html_entity_decode($elem[$key] ?? '')), 100) !!}
