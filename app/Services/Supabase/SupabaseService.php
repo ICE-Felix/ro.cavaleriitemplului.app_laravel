@@ -153,10 +153,12 @@ class SupabaseService
         } catch (GuzzleException $e) {
             switch ($e->getCode()) {
                 case 403:
-                    return view('errors.403')->withErrors(['general' => 'You don\'t have permissions to use this resource']);
+                    // Return null to let calling code handle this appropriately
+                    return null;
                 case 401:
                     if (str_contains($e->getMessage(), 'PGRST301')) {
-                        return redirect('login');
+                        // Return null to let calling code handle this appropriately
+                        return null;
                     }
                     break;
                 case 400:
@@ -168,6 +170,9 @@ class SupabaseService
                     throw $e;
             }
         }
+        
+        // Ensure we always return something (null in case of unhandled paths)
+        return null;
     }
 
     public function get_app_menu()
@@ -680,8 +685,12 @@ class SupabaseService
             ],
             'body' => $payload,
         ], 'POST');
+        // Handle null response (authentication/permission errors)
         if ($response === null) {
-            throw new \Exception("There is no valid response");
+            return [
+                'status' => 'error',
+                'message' => 'Authentication or permission error'
+            ];
         }
 
         return [
@@ -703,6 +712,14 @@ class SupabaseService
             ],
             'body' => $payload,
         ], 'PATCH');
+
+        // Handle null response (authentication/permission errors)
+        if ($response === null) {
+            return [
+                'status' => 'error',
+                'message' => 'Authentication or permission error'
+            ];
+        }
 
         return [
             'status' => $response->getStatusCode(),

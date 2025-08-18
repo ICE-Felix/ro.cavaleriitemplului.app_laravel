@@ -129,6 +129,41 @@ JSON Config → GeneralController → SupabaseService → Supabase Edge Function
 **Component**: `resources/views/components/select.blade.php`
 **Usage**: Dropdown selections from dynamic data sources
 
+#### Boolean Select Dropdown
+
+For true/false selections, you can use a select dropdown with static boolean options:
+
+```json
+{
+    "is_active": {
+        "type": "select",
+        "label": "Activ",
+        "cast": "bool",
+        "data": {
+            "source": {
+                "true": {
+                    "value": true,
+                    "name": "True"
+                },
+                "false": {
+                    "value": false,
+                    "name": "False"
+                }
+            }
+        }
+    }
+}
+```
+
+**Key Properties:**
+- `cast: "bool"` - Ensures proper boolean type casting
+- `data.source` - Static object with true/false options
+- Each option contains:
+  - `value` - The actual boolean value (true/false)
+  - `name` - Display text for the option
+
+**Usage**: Boolean selections where you need a dropdown interface instead of checkbox/switch
+
 ### 5. Checkbox (`checkbox`)
 
 #### Single Checkbox
