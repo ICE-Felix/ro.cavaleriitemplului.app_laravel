@@ -1,0 +1,68 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, pdo_mysql, pdo_pgsql, curl, gd, zip, fileinfo, exif, soap, dom, xmlreader, xmlwriter, openssl, tokenizer, json, bcmath, pcntl, posix, sockets, sysvmsg, sysvsem, sysvshm, shmop, calendar, ffi, gettext, iconv, intl, ldap, mbstring, odbc, pdo, pdo_dblib, pdo_firebird, pdo_mysql, pdo_odbc, pdo_pgsql, pdo_sqlite, pgsql, soap, sockets, sqlite3, tidy, xml, xmlreader, xmlrpc, xmlwriter, xsl, zip
+        coverage: none
+        
+    - name: Copy .env
+      run: cp .env.example .env
+      
+    - name: Install Dependencies
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+      
+    - name: Generate key
+      run: php artisan key:generate
+      
+    - name: Directory Permissions
+      run: chmod -R 777 storage bootstrap/cache
+      
+    - name: Create storage directories
+      run: |
+        mkdir -p storage/app/json
+        mkdir -p storage/app/public
+        mkdir -p storage/framework/cache
+        mkdir -p storage/framework/sessions
+        mkdir -p storage/framework/views
+        mkdir -p storage/logs
+      
+    - name: Ensure JSON files are included
+      run: |
+        echo "Checking JSON files..."
+        ls -la storage/app/json/
+        echo "JSON files found:"
+        find storage/app/json -name "*.json" -type f
+        
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          cd /var/www/html
+          git pull origin main
+          composer install --no-dev --optimize-autoloader
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          php artisan migrate --force
+          chown -R www-data:www-data storage bootstrap/cache
+          chmod -R 775 storage bootstrap/cache
+          echo "Deployment completed successfully!"
