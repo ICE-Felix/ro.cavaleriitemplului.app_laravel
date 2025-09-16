@@ -208,7 +208,7 @@ class GeneralController extends Controller
                         \Log::info('Schedule data set to null (no data provided)', ['key' => $prop['key'] ?? $key]);
                     }
                 }
-                
+
                 //if type gallery, ensure proper JSON structure
                 if (isset($prop['type']) && $prop['type'] === 'gallery') {
                     $galleryData = $data[$prop['key'] ?? $key] ?? null;
@@ -248,26 +248,19 @@ class GeneralController extends Controller
                 }
                 
                 //if type checkbox or three_level_hierarchical_checkbox, ensure UUID strings
-                if (isset($prop['type']) && in_array($prop['type'], ['checkbox', 'three_level_hierarchical_checkbox'])) {
-                    $fieldName = $prop['key'] ?? $key;
-                    $value = $data[$fieldName] ?? null;
-                    
-                    if ($value) {
-                        // If it's a JSON string, decode it first
-                        if (is_string($value)) {
-                            $decoded = json_decode($value, true);
-                            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                                $value = $decoded;
-                            }
-                        }
-                        
-                        // Ensure all values are UUID strings (not integers)
-                        if (is_array($value)) {
-                            $data[$fieldName] = array_map(function($item) {
-                                return (string)$item; // Cast to string to preserve UUID format
-                            }, array_filter($value)); // Remove empty values
-                        }
+                if (isset($prop['type']) && in_array($prop['type'], ['checkbox','three_level_hierarchical_checkbox'])) {
+                    $field = $prop['key'] ?? $key;
+                    $raw = $request->input($field, []);
+
+                    if (is_string($raw)) {
+                        $decoded = json_decode($raw, true);
+                        $raw = (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) ? $decoded : [];
                     }
+
+                    if (!is_array($raw)) $raw = [];
+
+                    $data[$field] = array_values(array_filter(array_map(fn($x) => (string)$x, $raw)));
+                    continue;
                 }
             }
             
@@ -408,210 +401,146 @@ class GeneralController extends Controller
      */
     public function update(Request $request, $id): \Illuminate\Http\RedirectResponse
     {
-        // Debug: Log all incoming request data
-        \Log::info('=== UPDATE REQUEST DEBUG ===');
-        \Log::info('Request method: ' . $request->method());
-        \Log::info('Request URL: ' . $request->url());
-        \Log::info('All request data:', $request->all());
-        \Log::info('business_hours from request->get(): ' . ($request->get('business_hours') ?? 'NULL'));
-        \Log::info('business_hours from request->input(): ' . ($request->input('business_hours') ?? 'NULL'));
-        \Log::info('=== END UPDATE REQUEST DEBUG ===');
-        
-        $data = null;
+        \Log::info('=== UPDATE REQUEST DEBUG ===', [
+            'method' => $request->method(),
+            'url' => $request->url(),
+            'all' => $request->all(),
+            'business_hours_get' => $request->get('business_hours'),
+            'business_hours_input' => $request->input('business_hours'),
+        ]);
+
+        $data = [];
         try {
             foreach ($this->props['schema'] as $key => $prop) {
                 if (!isset($prop['readonly']) || !$prop['readonly']) {
-                    if($prop['type'] !== 'image') {
-                        // Get the value from request
+                    if (($prop['type'] ?? null) !== 'image') {
                         $value = $request->get($prop['key'] ?? $key);
-                        
-                        // Handle arrays (from checkboxes with multiple options) vs strings
+
                         if (is_array($value)) {
-                            // For arrays, decode each element if it's a string
                             $data[$prop['key'] ?? $key] = array_map(function($item) {
                                 return is_string($item) ? html_entity_decode($item, ENT_QUOTES | ENT_HTML5 | ENT_XML1, 'UTF-8') : $item;
                             }, $value);
                         } else {
-                            // For strings, decode as usual
                             $data[$prop['key'] ?? $key] = html_entity_decode($value, ENT_QUOTES | ENT_HTML5 | ENT_XML1, 'UTF-8');
                         }
                     }
                 }
 
-                if (isset($prop['type']) && $prop['type'] === 'image') {
-                    // Check if an image file was uploaded
+                if (($prop['type'] ?? null) === 'image') {
                     if ($request->hasFile($prop['key'] ?? $key) && $request->file($prop['key'] ?? $key)->isValid()) {
                         $file = $request->file($prop['key'] ?? $key);
-                        
-                        // Read file contents and convert to base64
                         $fileContents = file_get_contents($file->getPathname());
                         $base64 = base64_encode($fileContents);
-                        // Store the base64 string instead of object ID
                         $data[$prop['upload_key'] ?? ($prop['key'] ?? $key)] = $base64;
                     }
                 }
 
-                //if type numeric, cast to int or double
-                if (isset($prop['type']) && $prop['type'] === 'numeric') {
-                    $data[$prop['key'] ?? $key] = ((float)$data[$prop['key'] ?? $key]) ?? 0;
+                if (($prop['type'] ?? null) === 'numeric') {
+                    $data[$prop['key'] ?? $key] = isset($data[$prop['key'] ?? $key]) ? (float)$data[$prop['key'] ?? $key] : 0.0;
                 }
-                
-                //if field is level, cast to integer (for hierarchy levels 1, 2, 3)
+
                 if (($prop['key'] ?? $key) === 'level') {
-                    $value = $data[$prop['key'] ?? $key] ?? null;
-                    $data[$prop['key'] ?? $key] = $value !== null ? (int)$value : null;
+                    $v = $data[$prop['key'] ?? $key] ?? null;
+                    $data[$prop['key'] ?? $key] = $v !== null ? (int)$v : null;
                 }
-                
-                //if type switch, cast to boolean
-                if (isset($prop['type']) && $prop['type'] === 'switch') {
-                    $value = $data[$prop['key'] ?? $key] ?? false;
-                    $data[$prop['key'] ?? $key] = (bool)($value === '1' || $value === 1 || $value === true || $value === 'true');
+
+                if (($prop['type'] ?? null) === 'switch') {
+                    $v = $data[$prop['key'] ?? $key] ?? false;
+                    $data[$prop['key'] ?? $key] = (bool)($v === '1' || $v === 1 || $v === true || $v === 'true');
                 }
-                
-                //if type schedule, ensure proper JSON structure
-                if (isset($prop['type']) && $prop['type'] === 'schedule') {
-                    $scheduleData = $data[$prop['key'] ?? $key] ?? null;
-                    dump('Business Hours data received (UPDATE) --->');
-                    dump('Key: ' . ($prop['key'] ?? $key));
-                    dump('Raw data from request: ' . ($scheduleData ?? 'NULL'));
-                    dump('All request data for debugging:', $request->all());
+
+                if (($prop['type'] ?? null) === 'schedule') {
+                    $field = $prop['key'] ?? $key;
+                    $scheduleData = $data[$field] ?? null;
+
                     if ($scheduleData) {
-                        // If it's a JSON string, decode it first to validate and then re-encode
                         if (is_string($scheduleData)) {
                             $decoded = json_decode($scheduleData, true);
                             if ($decoded !== null) {
-                                // Re-encode to ensure proper JSON format for Supabase
-                                $data[$prop['key'] ?? $key] = json_encode($decoded);
-                                \Log::info('Schedule data processed (string input - update)', ['key' => $prop['key'] ?? $key, 'final_value' => $data[$prop['key'] ?? $key]]);
+                                $data[$field] = json_encode($decoded);
+                                \Log::info('Schedule processed (string->json)', ['key' => $field]);
                             } else {
-                                // Invalid JSON, set to null
-                                $data[$prop['key'] ?? $key] = null;
-                                \Log::warning('Invalid schedule JSON data (update)', ['key' => $prop['key'] ?? $key, 'raw_data' => $scheduleData]);
+                                $data[$field] = null;
+                                \Log::warning('Invalid schedule JSON on update', ['key' => $field, 'raw' => $scheduleData]);
                             }
                         } else {
-                            // If it's already an array, encode it to JSON string
-                            $data[$prop['key'] ?? $key] = json_encode($scheduleData);
-                            \Log::info('Schedule data processed (array input - update)', ['key' => $prop['key'] ?? $key, 'final_value' => $data[$prop['key'] ?? $key]]);
+                            $data[$field] = json_encode($scheduleData);
+                            \Log::info('Schedule processed (array->json)', ['key' => $field]);
                         }
                     } else {
-                        // Set default empty schedule if no data provided
-                        $data[$prop['key'] ?? $key] = null;
-                        \Log::info('Schedule data set to null (no data provided - update)', ['key' => $prop['key'] ?? $key]);
+                        $data[$field] = null;
+                        \Log::info('Schedule set null on update', ['key' => $field]);
                     }
                 }
-                
-                //if type gallery, ensure proper JSON structure
-                if (isset($prop['type']) && $prop['type'] === 'gallery') {
-                    $galleryData = $data[$prop['key'] ?? $key] ?? null;
+
+                if (($prop['type'] ?? null) === 'gallery') {
+                    $field = $prop['key'] ?? $key;
+                    $galleryData = $data[$field] ?? null;
                     if ($galleryData) {
-                        // If it's a JSON string, decode it
                         if (is_string($galleryData)) {
                             $galleryData = json_decode($galleryData, true);
                         }
-                        // Ensure it's properly formatted for Supabase
-                        $data[$prop['key'] ?? $key] = $galleryData;
+                        $data[$field] = $galleryData;
                     } else {
-                        // Set default empty gallery if no data provided
-                        $data[$prop['key'] ?? $key] = null;
+                        $data[$field] = null;
                     }
                 }
-                
-                //if type location, handle latitude and longitude
-                if (isset($prop['type']) && $prop['type'] === 'location') {
+
+                if (($prop['type'] ?? null) === 'location') {
                     $fieldName = $prop['key'] ?? $key;
-                    $latitudeField = $fieldName . '_latitude';
-                    $longitudeField = $fieldName . '_longitude';
-                    
-                    // Get latitude and longitude from request
-                    $latitude = $request->get($latitudeField);
-                    $longitude = $request->get($longitudeField);
-                    
-                    // Store latitude and longitude as separate fields
-                    if ($latitude !== null) {
-                        $data[$latitudeField] = (string)$latitude;
-                    }
-                    if ($longitude !== null) {
-                        $data[$longitudeField] = (string)$longitude;
-                    }
-                    
-                    // Remove the original location field from data if it exists
+                    $latField = $fieldName . '_latitude';
+                    $lngField = $fieldName . '_longitude';
+                    $lat = $request->get($latField);
+                    $lng = $request->get($lngField);
+                    if ($lat !== null) $data[$latField] = (string)$lat;
+                    if ($lng !== null) $data[$lngField] = (string)$lng;
                     unset($data[$fieldName]);
                 }
-                
-                //if type checkbox or three_level_hierarchical_checkbox, ensure UUID strings
-                if (isset($prop['type']) && in_array($prop['type'], ['checkbox', 'three_level_hierarchical_checkbox'])) {
-                    $fieldName = $prop['key'] ?? $key;
-                    $value = $data[$fieldName] ?? null;
-                    
-                    if ($value) {
-                        // If it's a JSON string, decode it first
-                        if (is_string($value)) {
-                            $decoded = json_decode($value, true);
-                            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                                $value = $decoded;
-                            }
-                        }
-                        
-                        // Ensure all values are UUID strings (not integers)
-                        if (is_array($value)) {
-                            $data[$fieldName] = array_map(function($item) {
-                                return (string)$item; // Cast to string to preserve UUID format
-                            }, array_filter($value)); // Remove empty values
-                        }
+
+                if (isset($prop['type']) && in_array($prop['type'], ['checkbox','three_level_hierarchical_checkbox'])) {
+                    $field = $prop['key'] ?? $key;
+                    $raw = $request->input($field, []);
+                    if (is_string($raw)) {
+                        $decoded = json_decode($raw, true);
+                        $raw = (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) ? $decoded : [];
                     }
+                    if (!is_array($raw)) $raw = [];
+                    $data[$field] = array_values(array_filter(array_map(fn($x) => (string)$x, $raw)));
+                    continue;
                 }
             }
 
             $methodName = $this->props['UPDATE'];
-
-            switch ($methodName) {
-                case 'edge':
-                    $methodName = "update_edge";
-                    break;
-            }
+            if ($methodName === 'edge') $methodName = 'update_edge';
 
             if (method_exists($this->supabase, $methodName) && $data !== null) {
                 try {
-                    // DEBUG: Check if UPDATE debugging is enabled
-                    if (isset($this->props['debug']) && in_array('UPDATE', $this->props['debug'])) {
-                        dump('=== UPDATE OPERATION ===');
-                        dump([
+                    $debugEnabled = isset($this->props['debug']) && in_array('UPDATE', $this->props['debug']);
+                    if ($debugEnabled) {
+                        \Log::info('=== UPDATE OPERATION ===', [
                             'id' => $id,
                             'method' => $methodName,
                             'table' => $this->props['name']['plural'],
                             'data' => $data
                         ]);
                     }
-                    
-                    // Pass debug flag to SupabaseService
-                    $debugEnabled = isset($this->props['debug']) && in_array('UPDATE', $this->props['debug']);
+
                     $this->supabase->$methodName($id, $data, $this->props['name']['plural'], $debugEnabled);
-                } catch (Exception $e) {
-                    Log::error('There was an error creating the ' . $this->props['name']['singular'] . ': ' . $e->getMessage());
-                    return back()->withErrors(['msg' => "There was an error creating the ' . $this->props['name']['singular'] . '!"]);
+                } catch (\Exception $e) {
+                    \Log::error('Update error: '.$e->getMessage());
+                    return back()->withErrors(['msg' => "There was an error updating the ".$this->props['name']['singular']."!"]);
                 }
             } else {
-                dd("Method $methodName does not exist on the object.");
+                return back()->withErrors(['msg' => "Method $methodName does not exist."]);
             }
 
-            // DEBUG: Final state before redirect
-            if (isset($this->props['debug']) && in_array('UPDATE', $this->props['debug'])) {
-                dd('=== FINAL STATE BEFORE REDIRECT (UPDATE) ===', [
-                    'operation' => 'UPDATE',
-                    'id' => $id,
-                    'table' => $this->props['name']['plural'],
-                    'processed_data' => $data,
-                    'redirect_route' => $this->props['name']['plural'] . '.index',
-                    'success_message' => ucfirst($this->props['name']['label_singular'] ?? $this->props['name']['singular']) . " has been updated successfully!"
-                ]);
-            }
-
-            return redirect()->route($this->props['name']['plural'] . '.index')
-                ->with('success', ucfirst($this->props['name']['label_singular'] ?? $this->props['name']['singular']) . " has been updated successfully!");
-        } catch (Exception $e) {
-            Log::error('Error creating ' . $this->props['name']['singular']  . $e->getMessage());
+            return redirect()->route($this->props['name']['plural'].'.index')
+                ->with('success', ucfirst($this->props['name']['label_singular'] ?? $this->props['name']['singular'])." has been updated successfully!");
+        } catch (\Exception $e) {
+            \Log::error('Update exception: '.$e->getMessage());
             return back()->withErrors(['msg' => $e->getMessage()]);
-        } catch (GuzzleException $e) {
+        } catch (\GuzzleHttp\Exception\GuzzleException $e) {
+            \Log::error('Update HTTP exception: '.$e->getMessage());
             return back()->withErrors(['msg' => $e->getMessage()]);
         }
     }

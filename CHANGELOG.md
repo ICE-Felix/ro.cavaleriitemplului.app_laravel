@@ -558,4 +558,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Updated various asset metadata files (.DS_Store files)
 - Project structure cleanup and simplification
 - Improved deployment workflow with Laravel cache optimization steps
-- Enhanced permission handling for Bitnami server deployments 
+- Enhanced permission handling for Bitnami server deployments
+
+### Added
+- **Create/Update** payloads now include venue_category_id as an array of UUID strings, coming from the 3-level hierarchical picker. This allows selecting parent categories, their subcategories, and leaf filters — all stored together in venue_category_id.
+
+- **Find-All/list** view now resolves those UUIDs into readable labels via a single lookup map and exposes them as venue_category_labels so you can show friendly category names in your table/cards.
+
+- **The hierarchical loader** (/api/subcategories/{table}) supports levels 2 and 3, so the component reveals subcategories and filters on demand without preloading everything.
