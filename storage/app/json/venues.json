@@ -42,53 +42,21 @@
       "required": true
     },
     "categories": {
-      "type": "three_level_hierarchical_checkbox",
+      "type": "checkbox",
       "label": "Categories",
       "key": "venue_category_id",
       "value": [],
       "visible": false,
+      "required": true,
       "data": {
         "type": "class",
         "source": [
           "App\\Services\\Supabase\\SupabaseService",
-          "read_edge_filtered",
-          "venue_categories",
-          [
-            "level",
-            "eq",
-            1
-          ]
+          "read_edge",
+          "venue_categories"
         ],
         "value": "id",
         "name": "name"
-      },
-      "subcategory_source": {
-        "type": "class",
-        "required": true,
-        "source": [
-          "App\\Services\\Supabase\\SupabaseService",
-          "read_edge_filtered",
-          "venue_categories"
-        ],
-        "value": "id",
-        "name": "name",
-        "parent_field": "parent_id",
-        "level_field": "level",
-        "level_value": 2
-      },
-      "filter_source": {
-        "type": "class",
-        "required": false,
-        "source": [
-          "App\\Services\\Supabase\\SupabaseService",
-          "read_edge_filtered",
-          "venue_categories"
-        ],
-        "value": "id",
-        "name": "name",
-        "parent_field": "parent_id",
-        "level_field": "level",
-        "level_value": 3
       }
     },
     "venue_category_titles": {
@@ -138,8 +106,17 @@
     },
     "location": {
       "type": "location",
+      "key": "location",
       "label": "Address location",
-      "placeholder": "Address location"
+      "placeholder": "Address location",
+      "visible": false
+    },
+    "address": {
+      "type": "text",
+      "key": "address",
+      "label": "Address",
+      "readonly": true,
+      "visible": true
     },
     "is_active": {
       "type": "switch",
