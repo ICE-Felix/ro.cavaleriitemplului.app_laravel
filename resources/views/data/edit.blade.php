@@ -228,32 +228,38 @@
                                         @break
                                         @case('checkbox')
                                         @php
+                                            $name  = $field['key'] ?? $key;
                                             $label = $field['label'] ?? ucfirst($key);
                                             $values = [];
-                                            
-                                            // Check for static options in field configuration
-                                            if(isset($field['options'])) {
-                                                foreach ($field['options'] as $option) {
-                                                    $values[$option['value']] = ucfirst($option['name']);
-                                                }
-                                            }
-                                            // Fallback to dynamic data if no static options
-                                            elseif(isset($data[$key]) && is_array($data[$key])) {
-                                                foreach ($data[$key] as $elem) {
-                                                    // Ensure we have the required keys
-                                                    if (is_array($elem) && isset($elem['value']) && isset($elem['name'])) {
-                                                        $values[$elem['value']] = ucfirst($elem['name']);
+
+                                              // Check for static options in field configuration
+                                               if (isset($field['options'])) {
+                                                    foreach ($field['options'] as $option) {
+                                                        $values[(string)$option['value']] = ucfirst($option['name']);
                                                     }
-                                                }
-                                            }
+                                               }
+                                              // Fallback to dynamic data if no static options
+                                              elseif (isset($data[$key]) && is_array($data[$key])) {
+                                                   foreach ($data[$key] as $elem) {
+                                                        if (is_array($elem) && isset($elem['value'], $elem['name'])) {
+                                                            $values[(string)$elem['value']] = ucfirst($elem['name']);
+                                                        }
+                                                   }
+                                               }
+
+                                                $selected = old($name, $result[$name] ?? []);
+                                               if (is_string($selected)) {
+                                                   $decoded = json_decode($selected, true);
+                                                   $selected = is_array($decoded) ? $decoded : [];
+                                               }
+                                               $selected = array_map('strval', (array)$selected);
                                         @endphp
                                         <x-checkbox
-                                            name="{{ $field['id'] ?? $key }}"
-                                            label="{{ $label }}"
-                                            :error="$errors->first($field['id'] ?? $key)"
-                                            :checked="old($field['id'] ?? $key, $result[$field['id'] ?? $key] ?? false)"
-                                            :default="$field['value'] ?? false"
-                                            :options="$values"
+                                                name="{{ $name }}"
+                                                label="{{ $label }}"
+                                                :error="$errors->first($name)"
+                                                :options="$values"
+                                                :checked="$selected"
                                         />
                                         @break
                                         @case('hierarchical_checkbox')

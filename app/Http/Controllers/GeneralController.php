@@ -396,7 +396,6 @@ class GeneralController extends Controller
             'business_hours_get' => $request->get('business_hours'),
             'business_hours_input' => $request->input('business_hours'),
         ]);
-dd($request->all() . "UPDATE");
 
         $data = [];
         try {
