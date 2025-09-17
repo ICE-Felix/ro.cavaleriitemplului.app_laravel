@@ -130,11 +130,13 @@ class GeneralController extends Controller
     public function store(Request $request)
     {
         $data = null;
+
         try {
             foreach ($this->props['schema'] as $key => $prop) {
 
                 // --- CHECKBOX (categories, accessibility, etc.) ---
                 if (($prop['type'] ?? null) === 'checkbox') {
+
                     $field = $prop['key'] ?? $key; // e.g., 'venue_category_id' / 'attribute_ids'
                     $raw = $request->input($field, []);
 
@@ -167,7 +169,6 @@ class GeneralController extends Controller
 
                     $lat = $request->get($latField);
                     $lng = $request->get($lngField);
-
                     // Combined hidden JSON (recommended: {"lat":..,"lng":..,"address":"..."})
                     $combinedRaw = $request->get($fieldName);
                     if ($combinedRaw) {
