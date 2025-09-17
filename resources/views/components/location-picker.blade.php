@@ -76,6 +76,8 @@
 
     <!-- Hidden input for combined value -->
     <input type="hidden" name="{{ $name }}" id="combined-{{ $name }}" value="{{ $value }}">
+    <!-- Hidden input for address (explicit, takes precedence in backend) -->
+    <input type="hidden" name="address" id="address-{{ $name }}" value="{{ $address ?? '' }}">
 
     @if($error || $success)
         <small class="block mt-2 {{ $error ? 'invalid-feedback' : 'valid-feedback' }}">{{ $error ?? $success }}</small>
@@ -127,63 +129,75 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedOption = this.options[this.selectedIndex];
         const lat = selectedOption.getAttribute('data-lat');
         const lon = selectedOption.getAttribute('data-lon');
-        
+
         if (lat && lon) {
             const map = window['map_' + '{{ $name }}'];
             const marker = window['marker_' + '{{ $name }}'];
             const latlng = { lat: parseFloat(lat), lng: parseFloat(lon) };
-            
+            const addressText = selectedOption.textContent;
+            document.getElementById('address-' + '{{ $name }}').value = addressText;
+
             marker.setLatLng(latlng);
             map.setView(latlng, 16);
-            updateCoordinates('{{ $name }}', latlng);
-            
-            // Hide the results and clear search
+            updateCoordinates('{{ $name }}', latlng, addressText);
+
             this.style.display = 'none';
-            document.getElementById('search-' + '{{ $name }}').value = selectedOption.textContent;
+            document.getElementById('search-' + '{{ $name }}').value = addressText;
         }
     });
 });
 
-function initializeMap(componentName, defaultLat, defaultLng) {
-    // Initialize the map
-    var map = L.map('map-' + componentName).setView([defaultLat, defaultLng], 13);
 
-    // Add the OpenStreetMap tiles
+async function reverseGeocode(lat, lon) {
+    const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
+        { headers: { 'Accept-Language': 'en-US,en;q=0.9' } }
+    );
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.display_name || null;
+}
+
+function initializeMap(componentName, defaultLat, defaultLng) {
+    var map = L.map('map-' + componentName).setView([defaultLat, defaultLng], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Add a draggable marker
-    var marker = L.marker([defaultLat, defaultLng], {
-        draggable: true
-    }).addTo(map);
+    var marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
 
-    // Update coordinates when marker is dragged
-    marker.on('dragend', function(e) {
-        updateCoordinates(componentName, e.target.getLatLng());
+    marker.on('dragend', async function(e) {
+        const ll = e.target.getLatLng();
+        const addr = await reverseGeocode(ll.lat, ll.lng);
+        updateCoordinates(componentName, ll, addr ?? undefined);
     });
 
-    // Update coordinates when map is clicked
-    map.on('click', function(e) {
+    map.on('click', async function(e) {
         marker.setLatLng(e.latlng);
-        updateCoordinates(componentName, e.latlng);
+        const addr = await reverseGeocode(e.latlng.lat, e.latlng.lng);
+        updateCoordinates(componentName, e.latlng, addr ?? undefined);
     });
 
-    // Store map and marker in window object for later access
     window['map_' + componentName] = map;
     window['marker_' + componentName] = marker;
 }
 
-function updateCoordinates(componentName, latlng) {
-    // Update input fields with 6 decimal places
+
+function updateCoordinates(componentName, latlng, addressText = null) {
     document.getElementById('latitude-' + componentName).value = latlng.lat.toFixed(6);
     document.getElementById('longitude-' + componentName).value = latlng.lng.toFixed(6);
-    
-    // Update hidden combined value
+
+    if (addressText !== null) {
+        document.getElementById('search-' + componentName).value = addressText;
+        document.getElementById('address-' + componentName).value = addressText;
+    }
+    const currentAddress = document.getElementById('address-' + componentName).value || null;
+
     document.getElementById('combined-' + componentName).value = JSON.stringify({
-        latitude: latlng.lat,
-        longitude: latlng.lng
+        lat: latlng.lat,
+        lng: latlng.lng,
+        address: currentAddress
     });
 }
 
@@ -191,7 +205,9 @@ async function searchLocation(componentName) {
     const searchInput = document.getElementById('search-' + componentName);
     const searchSelect = document.getElementById('search-select-' + componentName);
     const query = searchInput.value.trim();
-    
+
+    document.getElementById('address-' + componentName).value = query;
+
     if (!query) return;
     
     try {
@@ -243,22 +259,18 @@ async function searchLocation(componentName) {
     }
 }
 
-function getCurrentLocation(componentName) {
+async function getCurrentLocation(componentName) {
     if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            var map = window['map_' + componentName];
-            var marker = window['marker_' + componentName];
-            var latlng = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-            };
+        navigator.geolocation.getCurrentPosition(async function(position) {
+            const map = window['map_' + componentName];
+            const marker = window['marker_' + componentName];
+            const latlng = { lat: position.coords.latitude, lng: position.coords.longitude };
 
-            // Update marker and map view
             marker.setLatLng(latlng);
             map.setView(latlng, 13);
 
-            // Update input fields
-            updateCoordinates(componentName, latlng);
+            const addr = await reverseGeocode(latlng.lat, latlng.lng);
+            updateCoordinates(componentName, latlng, addr ?? undefined);
         }, function(error) {
             console.error("Error getting location:", error);
             alert("Could not get your current location. Please check your browser permissions.");
@@ -266,4 +278,5 @@ function getCurrentLocation(componentName) {
     } else {
         alert("Geolocation is not supported by your browser.");
     }
-}</script> 
+}
+</script>
