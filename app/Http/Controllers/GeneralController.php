@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\Supabase\SupabaseService;
 use App\Services\TemplateParserService;
+use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
@@ -35,7 +36,7 @@ class GeneralController extends Controller
     public function index(): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
     {
         $data = [];
-        
+
         try {
             $methodName = $this->props['GET'];
 
@@ -133,7 +134,11 @@ class GeneralController extends Controller
 
         try {
             foreach ($this->props['schema'] as $key => $prop) {
-
+                $skipTemporal = ['start_date','end_date','start_hour','end_hour'];
+                $currentKey   = $prop['key'] ?? $key;
+                if (in_array($currentKey, $skipTemporal, true)) {
+                    continue;
+                }
                 // --- CHECKBOX (categories, accessibility, etc.) ---
                 if (($prop['type'] ?? null) === 'checkbox') {
 
@@ -262,6 +267,34 @@ class GeneralController extends Controller
                         }
                     }
                 }
+
+                // --- Combine start_date/start_hour and end_date/end_hour into TIMESTAMPTZ ---
+                $tz = config('app.timezone', 'Europe/Bucharest');
+
+                $combine = static function (?string $date, ?string $time) use ($tz): ?Carbon {
+                    if (!$date || !$time) return null;
+                    $date = trim($date); $time = trim($time);
+
+                    foreach (['Y-m-d H:i', 'd-m-Y H:i', 'm/d/Y H:i'] as $fmt) {
+                        try {
+                            $dt = Carbon::createFromFormat($fmt, "$date $time", $tz);
+                            if ($dt !== false) return $dt;
+                        } catch (\Throwable $e) {}
+                    }
+                    try { return Carbon::parse("$date $time", $tz); } catch (\Throwable $e) { return null; }
+                };
+
+                $startDT = $combine($request->get('start_date'), $request->get('start_hour'));
+                $endDT   = $combine($request->get('end_date'),   $request->get('end_hour'));
+
+                if ($startDT && $endDT && $endDT->lt($startDT)) {
+                    return back()->withErrors(['msg' => 'End must be after Start.']);
+                }
+
+                $data['start'] = $startDT?->toIso8601String();
+                $data['end']   = $endDT?->toIso8601String();
+
+                unset($data['start_date'], $data['end_date'], $data['start_hour'], $data['end_hour']);
             }
 
             // Debug (optional)
@@ -1081,6 +1114,7 @@ class GeneralController extends Controller
      */
     public function getCalendarEvents(Request $request)
     {
+
         try {
             // Get events from Supabase
             $result = $this->supabase->read_edge('events');
