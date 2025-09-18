@@ -10,6 +10,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Services\OpenAIService;
+use App\Support\DateTime as DT;
 
 class GeneralController extends Controller
 {
@@ -130,7 +131,7 @@ class GeneralController extends Controller
 
     public function store(Request $request)
     {
-        $data = null;
+        $data = [];
 
         try {
             foreach ($this->props['schema'] as $key => $prop) {
@@ -139,23 +140,19 @@ class GeneralController extends Controller
                 if (in_array($currentKey, $skipTemporal, true)) {
                     continue;
                 }
-                // --- CHECKBOX (categories, accessibility, etc.) ---
+
                 if (($prop['type'] ?? null) === 'checkbox') {
-
-                    $field = $prop['key'] ?? $key; // e.g., 'venue_category_id' / 'attribute_ids'
+                    $field = $prop['key'] ?? $key;
                     $raw = $request->input($field, []);
-
                     if (is_string($raw)) {
                         $decoded = json_decode($raw, true);
                         $raw = (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) ? $decoded : [];
                     }
                     if (!is_array($raw)) $raw = [];
-
                     $data[$field] = array_values(array_filter(array_map(fn($x) => (string)$x, $raw)));
                     continue;
                 }
 
-                // --- IMAGE ---
                 if (($prop['type'] ?? null) === 'image') {
                     if ($request->hasFile($prop['key'] ?? $key) && $request->file($prop['key'] ?? $key)->isValid()) {
                         $file = $request->file($prop['key'] ?? $key);
@@ -166,15 +163,14 @@ class GeneralController extends Controller
                     continue;
                 }
 
-                // --- LOCATION: lat/lng + address ---
                 if (($prop['type'] ?? null) === 'location') {
-                    $fieldName  = $prop['key'] ?? $key;        // 'location'
-                    $latField   = $fieldName . '_latitude';    // 'location_latitude'
-                    $lngField   = $fieldName . '_longitude';   // 'location_longitude'
+                    $fieldName  = $prop['key'] ?? $key;
+                    $latField   = $fieldName . '_latitude';
+                    $lngField   = $fieldName . '_longitude';
 
                     $lat = $request->get($latField);
                     $lng = $request->get($lngField);
-                    // Combined hidden JSON (recommended: {"lat":..,"lng":..,"address":"..."})
+
                     $combinedRaw = $request->get($fieldName);
                     if ($combinedRaw) {
                         $decoded = is_string($combinedRaw) ? json_decode($combinedRaw, true) : (is_array($combinedRaw) ? $combinedRaw : null);
@@ -187,7 +183,6 @@ class GeneralController extends Controller
                         }
                     }
 
-                    // Optional explicit hidden input name="address" (takes precedence if present)
                     $addressInput = $request->get('address');
                     if (!empty($addressInput)) {
                         $data['address'] = html_entity_decode($addressInput, ENT_QUOTES | ENT_HTML5 | ENT_XML1, 'UTF-8');
@@ -196,11 +191,10 @@ class GeneralController extends Controller
                     if ($lat !== null) $data[$latField] = (string)$lat;
                     if ($lng !== null) $data[$lngField] = (string)$lng;
 
-                    unset($data[$fieldName]); // don't send raw 'location'
+                    unset($data[$fieldName]);
                     continue;
                 }
 
-                // --- SCHEDULE: JSON string ---
                 if (($prop['type'] ?? null) === 'schedule') {
                     $field = $prop['key'] ?? $key;
                     $scheduleData = $request->get($field);
@@ -217,7 +211,6 @@ class GeneralController extends Controller
                     continue;
                 }
 
-                // --- GALLERY: pass-through JSON ---
                 if (($prop['type'] ?? null) === 'gallery') {
                     $field = $prop['key'] ?? $key;
                     $galleryData = $request->get($field);
@@ -228,14 +221,12 @@ class GeneralController extends Controller
                     continue;
                 }
 
-                // --- NUMERIC ---
                 if (($prop['type'] ?? null) === 'numeric') {
                     $field = $prop['key'] ?? $key;
                     $data[$field] = (float)($request->get($field) ?? 0);
                     continue;
                 }
 
-                // --- SWITCH (bool) ---
                 if (($prop['type'] ?? null) === 'switch') {
                     $field = $prop['key'] ?? $key;
                     $v = $request->get($field, false);
@@ -243,7 +234,6 @@ class GeneralController extends Controller
                     continue;
                 }
 
-                // --- LEVEL (int) ---
                 if (($prop['key'] ?? $key) === 'level') {
                     $field = $prop['key'] ?? $key;
                     $v = $request->get($field);
@@ -251,7 +241,6 @@ class GeneralController extends Controller
                     continue;
                 }
 
-                // --- DEFAULT (non-readonly) ---
                 if (!isset($prop['readonly']) || !$prop['readonly']) {
                     $field = $prop['key'] ?? $key;
                     if ($request->get($field) !== null) {
@@ -267,37 +256,32 @@ class GeneralController extends Controller
                         }
                     }
                 }
+            }
 
-                // --- Combine start_date/start_hour and end_date/end_hour into TIMESTAMPTZ ---
+            $startDate = trim((string) $request->input('start_date', ''));
+            $startHour = trim((string) $request->input('start_hour', ''));
+            $endDate   = trim((string) $request->input('end_date', ''));
+            $endHour   = trim((string) $request->input('end_hour', ''));
+
+            $allProvided  = ($startDate !== '' && $startHour !== '' && $endDate !== '' && $endHour !== '');
+
+            if ($allProvided) {
                 $tz = config('app.timezone', 'Europe/Bucharest');
 
-                $combine = static function (?string $date, ?string $time) use ($tz): ?Carbon {
-                    if (!$date || !$time) return null;
-                    $date = trim($date); $time = trim($time);
+                $startDT = DT::combine($startDate, $startHour, $tz);
+                $endDT   = DT::combine($endDate,   $endHour,   $tz);
 
-                    foreach (['Y-m-d H:i', 'd-m-Y H:i', 'm/d/Y H:i'] as $fmt) {
-                        try {
-                            $dt = Carbon::createFromFormat($fmt, "$date $time", $tz);
-                            if ($dt !== false) return $dt;
-                        } catch (\Throwable $e) {}
-                    }
-                    try { return Carbon::parse("$date $time", $tz); } catch (\Throwable $e) { return null; }
-                };
-
-                $startDT = $combine($request->get('start_date'), $request->get('start_hour'));
-                $endDT   = $combine($request->get('end_date'),   $request->get('end_hour'));
-
-                if ($startDT && $endDT && $endDT->lt($startDT)) {
+                if (!$startDT || !$endDT) {
+                    return back()->withErrors(['msg' => 'Invalid start/end date or time format.']);
+                }
+                if ($endDT->lt($startDT)) {
                     return back()->withErrors(['msg' => 'End must be after Start.']);
                 }
 
-                $data['start'] = $startDT?->toIso8601String();
-                $data['end']   = $endDT?->toIso8601String();
-
-                unset($data['start_date'], $data['end_date'], $data['start_hour'], $data['end_hour']);
+                $data['start'] = $startDT->toIso8601String();
+                $data['end']   = $endDT->toIso8601String();
             }
 
-            // Debug (optional)
             if (isset($this->props['debug']) && in_array('POST', $this->props['debug'])) {
                 dump('=== RAW REQUEST DATA ===', $request->all());
                 dump('=== PROCESSED DATA FOR SUPABASE ===', $data);
@@ -306,7 +290,7 @@ class GeneralController extends Controller
             $methodName = $this->props['INSERT'];
             if ($methodName === 'edge') $methodName = "create_edge";
 
-            if (method_exists($this->supabase, $methodName) && $data !== null) {
+            if (method_exists($this->supabase, $methodName)) {
                 try {
                     $debugEnabled = isset($this->props['debug']) && in_array('POST', $this->props['debug']);
                     $this->supabase->$methodName($data, $this->props['name']['plural'], $debugEnabled);

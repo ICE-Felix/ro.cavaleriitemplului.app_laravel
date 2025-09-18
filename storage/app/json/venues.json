@@ -83,6 +83,12 @@
         "name": "{type} - {value}"
       }
     },
+    "card_details": {
+      "type": "text",
+      "label": "Card details",
+      "placeholder": "Intrare 65 RON",
+      "required": false
+    },
     "attribute_names": {
       "type": "text",
       "label": "Attributes",
