@@ -27,8 +27,7 @@
         ],
         "value": "id",
         "name": "name"
-      },
-      "required": true
+      }
     },
 
     "name": {
@@ -40,17 +39,24 @@
 
     "type": {
       "type": "select",
-      "label": "Type",
-      "key": "type",
-      "options": [
-        { "value": "bookable", "label": "Bookable" },
-        { "value": "simple",   "label": "Simple"   }
-      ],
+      "label": "Product type",
+      "data": {
+        "source": {
+          "simple": {
+            "value": "simple",
+            "name": "Simple Product"
+          },
+            "bookable": {
+              "value": "bookable",
+              "name": "Bookable Product"
+            }
+        }
+      },
       "required": true
     },
 
     "price": {
-      "type": "number",
+      "type": "numeric",
       "label": "Price",
       "placeholder": "0.00",
       "step": "0.01",

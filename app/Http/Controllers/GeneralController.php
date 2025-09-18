@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\Supabase\SupabaseService;
 use App\Services\TemplateParserService;
+use App\Support\SchemaUtils;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -48,23 +49,26 @@ class GeneralController extends Controller
             }
 
             if (method_exists($this->supabase, $methodName)) {
-                // DEBUG: Check if GET debugging is enabled
                 if (isset($this->props['debug']) && in_array('GET', $this->props['debug'])) {
                     dump('=== GET OPERATION ===');
                     dump([
                         'method' => $methodName,
-                        'table' => $this->props['name']['plural']
+                        'table'  => $this->props['name']['plural']
                     ]);
                 }
-                
-                // Pass debug flag to SupabaseService
+
                 $debugEnabled = isset($this->props['debug']) && in_array('GET', $this->props['debug']);
                 $data = $this->supabase->$methodName($this->props['name']['plural'], $debugEnabled);
+
+                if (is_array($data)) {
+                    $data = DT::normalizeTemporalCollection($data, $this->props);
+                }
+
             } else {
                 dd("Method $methodName does not exist on the object.");
             }
 
-            // Sorting logic
+            // Sorting (runs after normalization)
             if (isset($this->props['order_by']) && is_array($this->props['order_by'])) {
                 [$field, $direction] = $this->props['order_by'];
                 $direction = strtolower($direction) === 'desc' ? SORT_DESC : SORT_ASC;
@@ -78,20 +82,18 @@ class GeneralController extends Controller
 
             $props = $this->props;
 
-            // DEBUG: Final data being sent to view
             if (isset($this->props['debug']) && in_array('GET', $this->props['debug'])) {
                 dd('=== FINAL DATA TO VIEW ===', [
                     'data' => $data,
                     'props' => $props
                 ]);
             }
-
             return view('data.index', compact('data', 'props'));
-        } catch (GuzzleException $e) {
+        } catch (\GuzzleHttp\Exception\GuzzleException $e) {
             if ($e->getCode() == 403) {
                 return back()->withErrors(['general' => 'You don\'t have permissions to access this resource']);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             dd($e);
         }
     }
@@ -103,8 +105,6 @@ class GeneralController extends Controller
     public function create()
     {
         try {
-            $props = $this->props;
-
             $data = [];
 
             $data = $this->getData($data);
@@ -129,18 +129,47 @@ class GeneralController extends Controller
         }
     }
 
+
     public function store(Request $request)
     {
         $data = [];
 
         try {
+            // --- Configure per schema ---
+            $plural = strtolower($this->props['name']['plural'] ?? '');
+            $dtCfg  = $this->props['datetime'] ?? [];
+
+            // Whether to combine raw date/time inputs into timestamptz
+            $combineTemporal = (bool)($dtCfg['combine'] ?? false);
+
+            // Where to put the combined values
+            $startOutKey = (string)($dtCfg['output']['start'] ?? 'start');
+            $endOutKey   = (string)($dtCfg['output']['end']   ?? 'end');
+
+            // Sensible fallback if no datetime config was provided:
+            if (!isset($this->props['datetime'])) {
+                if (str_contains($plural, 'event')) {
+                    $combineTemporal = true;
+                    $startOutKey = 'start';
+                    $endOutKey   = 'end';
+                } elseif (str_contains($plural, 'venue_product')) {
+                    $combineTemporal = true;
+                    $startOutKey = 'start_date';
+                    $endOutKey   = 'end_date';
+                }
+            }
+
+            $temporalKeys = ['start_date', 'start_hour', 'end_date', 'end_hour'];
+
             foreach ($this->props['schema'] as $key => $prop) {
-                $skipTemporal = ['start_date','end_date','start_hour','end_hour'];
-                $currentKey   = $prop['key'] ?? $key;
-                if (in_array($currentKey, $skipTemporal, true)) {
+                $currentKey = $prop['key'] ?? $key;
+
+                // Skip the raw temporal fields only when combining; we'll set output keys later
+                if ($combineTemporal && in_array($currentKey, $temporalKeys, true)) {
                     continue;
                 }
 
+                // --- CHECKBOX ---
                 if (($prop['type'] ?? null) === 'checkbox') {
                     $field = $prop['key'] ?? $key;
                     $raw = $request->input($field, []);
@@ -153,27 +182,30 @@ class GeneralController extends Controller
                     continue;
                 }
 
+                // --- IMAGE ---
                 if (($prop['type'] ?? null) === 'image') {
-                    if ($request->hasFile($prop['key'] ?? $key) && $request->file($prop['key'] ?? $key)->isValid()) {
-                        $file = $request->file($prop['key'] ?? $key);
+                    $field = $prop['key'] ?? $key;
+                    if ($request->hasFile($field) && $request->file($field)->isValid()) {
+                        $file = $request->file($field);
                         $fileContents = file_get_contents($file->getPathname());
-                        $base64 = base64_encode($fileContents);
-                        $data[$prop['upload_key'] ?? ($prop['key'] ?? $key)] = $base64;
+                        $data[$prop['upload_key'] ?? $field] = base64_encode($fileContents);
                     }
                     continue;
                 }
 
+                // --- LOCATION ---
                 if (($prop['type'] ?? null) === 'location') {
-                    $fieldName  = $prop['key'] ?? $key;
-                    $latField   = $fieldName . '_latitude';
-                    $lngField   = $fieldName . '_longitude';
+                    $fieldName  = $prop['key'] ?? $key;        // 'location'
+                    $latField   = $fieldName . '_latitude';    // 'location_latitude'
+                    $lngField   = $fieldName . '_longitude';   // 'location_longitude'
 
                     $lat = $request->get($latField);
                     $lng = $request->get($lngField);
 
                     $combinedRaw = $request->get($fieldName);
                     if ($combinedRaw) {
-                        $decoded = is_string($combinedRaw) ? json_decode($combinedRaw, true) : (is_array($combinedRaw) ? $combinedRaw : null);
+                        $decoded = is_string($combinedRaw) ? json_decode($combinedRaw, true)
+                            : (is_array($combinedRaw) ? $combinedRaw : null);
                         if (is_array($decoded)) {
                             $lat = $lat ?? ($decoded['lat'] ?? $decoded['latitude'] ?? null);
                             $lng = $lng ?? ($decoded['lng'] ?? $decoded['longitude'] ?? null);
@@ -191,10 +223,11 @@ class GeneralController extends Controller
                     if ($lat !== null) $data[$latField] = (string)$lat;
                     if ($lng !== null) $data[$lngField] = (string)$lng;
 
-                    unset($data[$fieldName]);
+                    unset($data[$fieldName]); // don’t send raw 'location'
                     continue;
                 }
 
+                // --- SCHEDULE ---
                 if (($prop['type'] ?? null) === 'schedule') {
                     $field = $prop['key'] ?? $key;
                     $scheduleData = $request->get($field);
@@ -211,6 +244,7 @@ class GeneralController extends Controller
                     continue;
                 }
 
+                // --- GALLERY ---
                 if (($prop['type'] ?? null) === 'gallery') {
                     $field = $prop['key'] ?? $key;
                     $galleryData = $request->get($field);
@@ -221,12 +255,15 @@ class GeneralController extends Controller
                     continue;
                 }
 
-                if (($prop['type'] ?? null) === 'numeric') {
+                // --- NUMERIC / NUMBER ---
+                if (in_array(($prop['type'] ?? null), ['numeric', 'number'], true)) {
                     $field = $prop['key'] ?? $key;
-                    $data[$field] = (float)($request->get($field) ?? 0);
+                    $v = $request->get($field);
+                    $data[$field] = $v !== null && $v !== '' ? (float)$v : null;
                     continue;
                 }
 
+                // --- SWITCH (bool) ---
                 if (($prop['type'] ?? null) === 'switch') {
                     $field = $prop['key'] ?? $key;
                     $v = $request->get($field, false);
@@ -234,16 +271,18 @@ class GeneralController extends Controller
                     continue;
                 }
 
+                // --- LEVEL (int) ---
                 if (($prop['key'] ?? $key) === 'level') {
                     $field = $prop['key'] ?? $key;
                     $v = $request->get($field);
-                    $data[$field] = $v !== null ? (int)$v : null;
+                    $data[$field] = $v !== null && $v !== '' ? (int)$v : null;
                     continue;
                 }
 
+                // --- DEFAULT (non-readonly) ---
                 if (!isset($prop['readonly']) || !$prop['readonly']) {
                     $field = $prop['key'] ?? $key;
-                    if ($request->get($field) !== null) {
+                    if ($request->has($field)) {
                         $value = $request->get($field);
                         if (is_array($value)) {
                             $data[$field] = array_map(function ($item) {
@@ -252,41 +291,51 @@ class GeneralController extends Controller
                                     : $item;
                             }, $value);
                         } else {
-                            $data[$field] = html_entity_decode($value, ENT_QUOTES | ENT_HTML5 | ENT_XML1, 'UTF-8');
+                            $data[$field] = is_string($value)
+                                ? html_entity_decode($value, ENT_QUOTES | ENT_HTML5 | ENT_XML1, 'UTF-8')
+                                : $value;
                         }
                     }
                 }
             }
 
-            $startDate = trim((string) $request->input('start_date', ''));
-            $startHour = trim((string) $request->input('start_hour', ''));
-            $endDate   = trim((string) $request->input('end_date', ''));
-            $endHour   = trim((string) $request->input('end_hour', ''));
+            // --- Combine to timestamptz only if enabled for this schema ---
+            if ($combineTemporal) {
+                $startDate = trim((string) $request->input('start_date', ''));
+                $startHour = trim((string) $request->input('start_hour', ''));
+                $endDate   = trim((string) $request->input('end_date', ''));
+                $endHour   = trim((string) $request->input('end_hour', ''));
 
-            $allProvided  = ($startDate !== '' && $startHour !== '' && $endDate !== '' && $endHour !== '');
+                $allProvided = ($startDate !== '' && $startHour !== '' && $endDate !== '' && $endHour !== '');
 
-            if ($allProvided) {
-                $tz = config('app.timezone', 'Europe/Bucharest');
+                if ($allProvided) {
+                    $tz = config('app.timezone', 'Europe/Bucharest');
 
-                $startDT = DT::combine($startDate, $startHour, $tz);
-                $endDT   = DT::combine($endDate,   $endHour,   $tz);
+                    $startDT = DT::combine($startDate, $startHour, $tz);
+                    $endDT   = DT::combine($endDate,   $endHour,   $tz);
 
-                if (!$startDT || !$endDT) {
-                    return back()->withErrors(['msg' => 'Invalid start/end date or time format.']);
+                    if (!$startDT || !$endDT) {
+                        return back()->withErrors(['msg' => 'Invalid start/end date or time format.']);
+                    }
+                    if ($endDT->lt($startDT)) {
+                        return back()->withErrors(['msg' => 'End must be after Start.']);
+                    }
+
+                    // Write into whatever keys the schema asked for
+                    $data[$startOutKey] = $startDT->toIso8601String();
+                    $data[$endOutKey]   = $endDT->toIso8601String();
                 }
-                if ($endDT->lt($startDT)) {
-                    return back()->withErrors(['msg' => 'End must be after Start.']);
-                }
-
-                $data['start'] = $startDT->toIso8601String();
-                $data['end']   = $endDT->toIso8601String();
+                // raw inputs were intentionally skipped above
             }
+            // else: no combination; raw fields already in $data (if present)
 
+            // --- DEBUG ---
             if (isset($this->props['debug']) && in_array('POST', $this->props['debug'])) {
                 dump('=== RAW REQUEST DATA ===', $request->all());
                 dump('=== PROCESSED DATA FOR SUPABASE ===', $data);
             }
 
+            // --- SAVE ---
             $methodName = $this->props['INSERT'];
             if ($methodName === 'edge') $methodName = "create_edge";
 
@@ -309,10 +358,10 @@ class GeneralController extends Controller
 
             if (isset($this->props['debug']) && in_array('POST', $this->props['debug'])) {
                 dd('=== FINAL STATE BEFORE REDIRECT (POST) ===', [
-                    'operation' => 'CREATE',
-                    'table' => $this->props['name']['plural'],
-                    'processed_data' => $data,
-                    'redirect_route' => $this->props['name']['plural'],
+                    'operation'       => 'CREATE',
+                    'table'           => $this->props['name']['plural'],
+                    'processed_data'  => $data,
+                    'redirect_route'  => $this->props['name']['plural'],
                     'success_message' => (isset($this->props['name']['label_singular'])
                             ? ucfirst($this->props['name']['label_singular'])
                             : ucfirst($this->props['name']['singular'])) . ' has been created successfully!'
@@ -326,7 +375,7 @@ class GeneralController extends Controller
             );
 
         } catch (\Exception $e) {
-            Log::error('Error creating ' . $this->props['name']['singular'] . ': ' . $e->getMessage());
+            Log::error('Error creating ' . ($this->props['name']['singular'] ?? 'entity') . ': ' . $e->getMessage());
             return back()->withErrors(['msg' => $e->getMessage()]);
         }
     }
@@ -345,7 +394,6 @@ class GeneralController extends Controller
     {
         try {
             $data = [];
-
             $methodName = $this->props['GET'];
 
             switch ($methodName) {
@@ -372,6 +420,12 @@ class GeneralController extends Controller
             }
 
             $data = $this->getData($data);
+
+            if (is_array($data)) {
+                $data = DT::normalizeTemporalCollection($data, $this->props);
+
+            }
+
             $result = [];
 
             foreach ($data as $elem) {
@@ -417,35 +471,61 @@ class GeneralController extends Controller
 
         $data = [];
         try {
-            foreach ($this->props['schema'] as $key => $prop) {
+            // --- Per-schema datetime behavior (same as store) ---
+            $plural = strtolower($this->props['name']['plural'] ?? '');
+            $dtCfg  = $this->props['datetime'] ?? [];
 
-                // --- CHECKBOX (categories, accessibility, etc.) ---
+            $combineTemporal = (bool)($dtCfg['combine'] ?? false);
+            $startOutKey     = (string)($dtCfg['output']['start'] ?? 'start');
+            $endOutKey       = (string)($dtCfg['output']['end']   ?? 'end');
+
+            if (!isset($this->props['datetime'])) {
+                if (str_contains($plural, 'event')) {
+                    $combineTemporal = true;
+                    $startOutKey = 'start';
+                    $endOutKey   = 'end';
+                } elseif (str_contains($plural, 'venue_product')) {
+                    $combineTemporal = true;
+                    $startOutKey = 'start_date';
+                    $endOutKey   = 'end_date';
+                }
+            }
+
+            $temporalKeys = ['start_date','start_hour','end_date','end_hour'];
+
+            foreach ($this->props['schema'] as $key => $prop) {
+                $currentKey = $prop['key'] ?? $key;
+
+                // Skip raw temporal fields only if we’ll combine them later
+                if ($combineTemporal && in_array($currentKey, $temporalKeys, true)) {
+                    continue;
+                }
+
+                // --- CHECKBOX ---
                 if (($prop['type'] ?? null) === 'checkbox') {
                     $field = $prop['key'] ?? $key;
                     $raw = $request->input($field, []);
-
                     if (is_string($raw)) {
                         $decoded = json_decode($raw, true);
                         $raw = (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) ? $decoded : [];
                     }
                     if (!is_array($raw)) $raw = [];
-
                     $data[$field] = array_values(array_filter(array_map(fn($x) => (string)$x, $raw)));
                     continue;
                 }
 
                 // --- IMAGE ---
                 if (($prop['type'] ?? null) === 'image') {
-                    if ($request->hasFile($prop['key'] ?? $key) && $request->file($prop['key'] ?? $key)->isValid()) {
-                        $file = $request->file($prop['key'] ?? $key);
+                    $field = $prop['key'] ?? $key;
+                    if ($request->hasFile($field) && $request->file($field)->isValid()) {
+                        $file = $request->file($field);
                         $fileContents = file_get_contents($file->getPathname());
-                        $base64 = base64_encode($fileContents);
-                        $data[$prop['upload_key'] ?? ($prop['key'] ?? $key)] = $base64;
+                        $data[$prop['upload_key'] ?? $field] = base64_encode($fileContents);
                     }
                     continue;
                 }
 
-                // --- LOCATION: lat/lng + address ---
+                // --- LOCATION ---
                 if (($prop['type'] ?? null) === 'location') {
                     $fieldName  = $prop['key'] ?? $key;
                     $latField   = $fieldName . '_latitude';
@@ -456,7 +536,8 @@ class GeneralController extends Controller
 
                     $combinedRaw = $request->get($fieldName);
                     if ($combinedRaw) {
-                        $decoded = is_string($combinedRaw) ? json_decode($combinedRaw, true) : (is_array($combinedRaw) ? $combinedRaw : null);
+                        $decoded = is_string($combinedRaw) ? json_decode($combinedRaw, true)
+                            : (is_array($combinedRaw) ? $combinedRaw : null);
                         if (is_array($decoded)) {
                             $lat = $lat ?? ($decoded['lat'] ?? $decoded['latitude'] ?? null);
                             $lng = $lng ?? ($decoded['lng'] ?? $decoded['longitude'] ?? null);
@@ -515,10 +596,11 @@ class GeneralController extends Controller
                     continue;
                 }
 
-                // --- NUMERIC ---
-                if (($prop['type'] ?? null) === 'numeric') {
+                // --- NUMERIC / NUMBER ---
+                if (in_array(($prop['type'] ?? null), ['numeric', 'number'], true)) {
                     $field = $prop['key'] ?? $key;
-                    $data[$field] = (float)($request->get($field) ?? 0);
+                    $v = $request->get($field);
+                    $data[$field] = $v !== null && $v !== '' ? (float)$v : null;
                     continue;
                 }
 
@@ -541,8 +623,7 @@ class GeneralController extends Controller
                 // --- DEFAULT (non-readonly) ---
                 if (!isset($prop['readonly']) || !$prop['readonly']) {
                     $field = $prop['key'] ?? $key;
-                    $value = $request->get($field);
-
+                    $value = $request->get($field); // keep your current update semantics
                     if (is_array($value)) {
                         $data[$field] = array_map(function ($item) {
                             return is_string($item)
@@ -550,9 +631,40 @@ class GeneralController extends Controller
                                 : $item;
                         }, $value);
                     } else {
-                        $data[$field] = html_entity_decode($value, ENT_QUOTES | ENT_HTML5 | ENT_XML1, 'UTF-8');
+                        $data[$field] = is_string($value)
+                            ? html_entity_decode($value, ENT_QUOTES | ENT_HTML5 | ENT_XML1, 'UTF-8')
+                            : $value;
                     }
                 }
+            }
+
+            // --- Combine to timestamptz only if enabled for this schema ---
+            if ($combineTemporal) {
+                $startDate = trim((string) $request->input('start_date', ''));
+                $startHour = trim((string) $request->input('start_hour', ''));
+                $endDate   = trim((string) $request->input('end_date', ''));
+                $endHour   = trim((string) $request->input('end_hour', ''));
+
+                $allProvided = ($startDate !== '' && $startHour !== '' && $endDate !== '' && $endHour !== '');
+
+                if ($allProvided) {
+                    $tz = config('app.timezone', 'Europe/Bucharest');
+
+                    $startDT = DT::combine($startDate, $startHour, $tz);
+                    $endDT   = DT::combine($endDate,   $endHour,   $tz);
+
+                    if (!$startDT || !$endDT) {
+                        return back()->withErrors(['msg' => 'Invalid start/end date or time format.']);
+                    }
+                    if ($endDT->lt($startDT)) {
+                        return back()->withErrors(['msg' => 'End must be after Start.']);
+                    }
+
+                    // Write into schema-requested fields (events: start/end; venue_products: start_date/end_date)
+                    $data[$startOutKey] = $startDT->toIso8601String();
+                    $data[$endOutKey]   = $endDT->toIso8601String();
+                }
+                // If not all provided: we skipped raw fields above, so no change to temporal fields on update
             }
 
             $methodName = $this->props['UPDATE'];
@@ -586,7 +698,7 @@ class GeneralController extends Controller
             return back()->withErrors(['msg' => $e->getMessage()]);
         } catch (\GuzzleHttp\Exception\GuzzleException $e) {
             \Log::error('Update HTTP exception: ' . $e->getMessage());
-            return back()->withErrors(['msg' => $e->getMessage()]);
+            return back()->withErrors(['msg' => $e->message()]);
         }
     }
 
