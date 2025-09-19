@@ -197,10 +197,7 @@
                                                                     $formattedTime = '--:--';
                                                                 }
                                                             @endphp
-                                                            <span class="badge bg-light text-dark">
-                                                                <i class="fas fa-clock me-1"></i>
                                                                 {{ $formattedTime }}
-                                                            </span>
                                                         @break
                                                         @case('trix')
                                                             {!! \Illuminate\Support\Str::limit(strip_tags(html_entity_decode($elem[$key] ?? '')), 100) !!}

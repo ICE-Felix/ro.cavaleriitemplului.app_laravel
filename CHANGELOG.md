@@ -568,3 +568,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Introduced hidden address input synchronized with user actions (typing, choosing a search result, dragging marker, map click, and “Get Current Location”).
   - Combined hidden field now includes lat, lng, and address, enabling backend to store a complete location object.
   - Reverse-geocoding via Nominatim on marker drag, map click, and geolocation to auto-populate human-readable address.
+
+### Added
+- **Venue Products module (CRUD)**
+- **JSON schema (venue_products.json) with:** venue selector, name, product type (Simple/Bookable), price, start/end date & time.
+- **Datetime utilities**
+- **App\Support\DateTime:** combine(), splitIso(), normalizeTemporalRow(), normalizeTemporalCollection().
+- **Used across list/edit** to convert ISO timestamps ↔ form fields (start_date, start_hour, end_date, end_hour).
+
+### Fixed
+- **Time fields on edit:** Start/End time inputs were empty; normalization is now applied in edit() so they show correctly.
+- **Null datetime noise:** store()/update() no longer send start/end (or timestamptz) when the four inputs aren’t all provided.
+
+### Changed
+- **Per-resource datetime behavior**
+- **Venue products:** combine start_date + start_hour and end_date + end_hour into timestamptz saved back to start_date / end_date.
+- **Controller only combines when all 4 inputs are present; raw fields are preserved otherwise.**
+- After fetch, rows are normalized so tables and forms receive start_hour/end_hour (HH:mm).
+- Edit form time pickers are now pre-populated.
+- **Venues:** added card_details field to the schema (stored and listed).

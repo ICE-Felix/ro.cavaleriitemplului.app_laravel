@@ -1,0 +1,111 @@
+{
+  "name": {
+    "singular": "venue_product",
+    "plural": "venue_products",
+    "label_singular": "Venue Product",
+    "label_plural": "Venue Products"
+  },
+  "debug": [],
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+
+    "venue_name": {
+      "type": "select",
+      "label": "Venue",
+      "key": "venue_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "venues"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    },
+
+    "name": {
+      "type": "text",
+      "label": "Name",
+      "placeholder": "Product name",
+      "required": true
+    },
+
+    "type": {
+      "type": "select",
+      "label": "Product type",
+      "data": {
+        "source": {
+          "simple": {
+            "value": "simple",
+            "name": "Simple Product"
+          },
+            "bookable": {
+              "value": "bookable",
+              "name": "Bookable Product"
+            }
+        }
+      },
+      "required": true
+    },
+
+    "price": {
+      "type": "numeric",
+      "label": "Price",
+      "placeholder": "0.00",
+      "step": "0.01",
+      "min": "0"
+    },
+
+    "start_date": {
+      "type": "date",
+      "label": "Start date",
+      "placeholder": "YYYY-MM-DD"
+    },
+    "start_hour": {
+      "type": "time",
+      "label": "Start time",
+      "placeholder": "HH:mm"
+    },
+
+    "end_date": {
+      "type": "date",
+      "label": "End date",
+      "placeholder": "YYYY-MM-DD"
+    },
+    "end_hour": {
+      "type": "time",
+      "label": "End time",
+      "placeholder": "HH:mm"
+    },
+
+    "created_at": {
+      "type": "text",
+      "label": "Created at",
+      "readonly": true,
+      "visible": false
+    },
+    "updated_at": {
+      "type": "text",
+      "label": "Updated at",
+      "readonly": true,
+      "visible": false
+    },
+    "deleted_at": {
+      "type": "text",
+      "label": "Deleted at",
+      "readonly": true,
+      "visible": false
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}
