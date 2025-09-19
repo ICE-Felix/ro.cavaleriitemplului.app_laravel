@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProfileController;
 use App\Services\Supabase\SupabaseService;
@@ -48,8 +49,7 @@ Route::middleware(['supabase.auth', 'supabase.permissions'])->group(function () 
     Route::get('/api/gallery/{galleryId}/images', [\App\Http\Controllers\GeneralController::class, 'listGalleryImages'])->name('api.gallery.list');
     
     // Calendar routes
-    Route::get('/calendar', [\App\Http\Controllers\GeneralController::class, 'calendar'])->name('calendar');
-    Route::get('/api/calendar/events', [\App\Http\Controllers\GeneralController::class, 'getCalendarEvents'])->name('api.calendar.events');
+    Route::get('/calendar', [CalendarController::class, 'index'])->name('calendar');
 });
 
 
