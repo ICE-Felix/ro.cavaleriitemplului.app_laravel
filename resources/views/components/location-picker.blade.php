@@ -1,5 +1,5 @@
 <div class="mt-5">
-    <label class="label block mb-2" for="{{ $name }}">{{ $label }}</label>
+    <label class="label block mb-2" for="{{ $name }}">{!! $label !!}</label>
 
     <!-- Search Box -->
     <div class="mb-4">
