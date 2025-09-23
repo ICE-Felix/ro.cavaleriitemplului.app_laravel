@@ -67,6 +67,11 @@
             "label": "Email comenzi",
             "placeholder": ""
         },
+        "phone_number": {
+            "type": "text",
+            "label": "Phone",
+            "placeholder": "+40 7xx xxx xxx"
+         },
         "administrator_name": {
             "type": "select",
             "label": "Administrator contact",
