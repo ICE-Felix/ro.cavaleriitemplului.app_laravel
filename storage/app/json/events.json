@@ -64,6 +64,19 @@
         "name": "name"
       }
     },
+    "location": {
+      "type": "location",
+      "key": "location",
+      "label": "Address location",
+      "placeholder": "Address location",
+      "visible": false
+    },
+    "address": {
+      "type": "text",
+      "label": "Address",
+      "placeholder": "Enter address",
+      "readonly": true
+    },
     "start_date": {
       "type": "date",
       "label": "Start Date",

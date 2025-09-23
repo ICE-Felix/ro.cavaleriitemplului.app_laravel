@@ -185,13 +185,22 @@
                                                             {{$elem[$key] ?? ''}}
                                                         @break
                                                         @case('date')
-                                                            {{ parseTemplate($field['format'] ?? $key, $elem) }}
-                                                        @break
+                                                            @php
+                                                                $raw = data_get($elem, $field['source'] ?? $key);
+                                                            @endphp
+
+                                                            @if($raw)
+                                                                @if(preg_match('/^\d{4}-\d{2}-\d{2}T/', $raw))
+                                                                    {{ Carbon\Carbon::parse($raw)->timezone('Europe/Bucharest')->format('d-m-Y') }}
+                                                                @else
+                                                                    {{ Carbon\Carbon::createFromFormat('Y-m-d', $raw)->format('d-m-Y') }}
+                                                                @endif
+                                                            @endif
+                                                            @break
                                                         @case('time')
                                                             @php
                                                                 $timeValue = $elem[$key] ?? '';
                                                                 if ($timeValue && $timeValue !== '00:00:00') {
-                                                                    // Convert 24-hour format to 12-hour format if needed
                                                                     $formattedTime = date('H:i', strtotime($timeValue));
                                                                 } else {
                                                                     $formattedTime = '--:--';

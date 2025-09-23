@@ -192,6 +192,16 @@
                                         @break
                                         
                                         @case('location')
+                                        @if($props['name']['plural'] === 'events')
+                                            <x-location-picker
+                                                    name="location"
+                                                    label='Location <span style="color: red;">(only if no venue is selected!)</span>'
+                                                    :error="$errors->first('location')"
+                                                    :success="session('location')"
+                                                    :latitude="$result['location_latitude'] ?? 44.4268"
+                                                    :longitude="$result['location_longitude'] ?? 26.1025"
+                                            />
+                                        @else
                                         <x-location-picker
                                             name="location"
                                             label="Location"
@@ -200,6 +210,7 @@
                                             :latitude="$result['location_latitude'] ?? 44.4268"
                                             :longitude="$result['location_longitude'] ?? 26.1025"
                                         />
+                                        @endif
                                         @break
                                         
                                         @case('date')
