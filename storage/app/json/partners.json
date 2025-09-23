@@ -70,7 +70,7 @@
         "phone_number": {
             "type": "text",
             "label": "Phone",
-            "placeholder": "+40 7xx xxx xxx"
+            "placeholder": "+40700000000 or 0720000000"
          },
         "administrator_name": {
             "type": "select",
