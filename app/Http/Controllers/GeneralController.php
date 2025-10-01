@@ -62,6 +62,11 @@ class GeneralController extends Controller
 
                 if (is_array($data)) {
                     $data = DT::normalizeTemporalCollection($data, $this->props);
+
+                    // ADD THIS: Transform each product's WooCommerce data
+                    $data = array_map(function($item) {
+                        return $this->transformWooCommerceData($item);
+                    }, $data);
                 }
 
             } else {
@@ -342,6 +347,12 @@ class GeneralController extends Controller
             if (method_exists($this->supabase, $methodName)) {
                 try {
                     $debugEnabled = isset($this->props['debug']) && in_array('POST', $this->props['debug']);
+
+                    // Transform for WooCommerce if needed
+                    if ($this->props['name']['plural'] === 'woo_products') {
+                        $data = $this->transformForWooCommerce($data);
+                    }
+
                     $this->supabase->$methodName($data, $this->props['name']['plural'], $debugEnabled);
                 } catch (\Exception $e) {
                     Log::error('Create error: ' . $e->getMessage());
@@ -401,8 +412,8 @@ class GeneralController extends Controller
                     $methodName = "read_edge";
                     break;
             }
+
             if (method_exists($this->supabase, $methodName)) {
-                // DEBUG: Check if GET debugging is enabled
                 if (isset($this->props['debug']) && in_array('GET', $this->props['debug'])) {
                     dump('=== GET OPERATION FOR EDIT ===');
                     dump([
@@ -412,7 +423,6 @@ class GeneralController extends Controller
                     ]);
                 }
 
-                // Pass debug flag to SupabaseService
                 $debugEnabled = isset($this->props['debug']) && in_array('GET', $this->props['debug']);
                 $data = $this->supabase->$methodName($this->props['name']['plural'], $debugEnabled);
             } else {
@@ -423,7 +433,6 @@ class GeneralController extends Controller
 
             if (is_array($data)) {
                 $data = DT::normalizeTemporalCollection($data, $this->props);
-
             }
 
             $result = [];
@@ -434,9 +443,11 @@ class GeneralController extends Controller
                 }
             }
 
+            // ADD THIS: Transform WooCommerce format to checkbox format
+            $result = $this->transformWooCommerceData($result);
+
             $props = $this->props;
 
-            // DEBUG: Final data being sent to view
             if (isset($this->props['debug']) && in_array('GET', $this->props['debug'])) {
                 dd('=== FINAL DATA TO EDIT VIEW ===', [
                     'data' => $data,
@@ -668,11 +679,22 @@ class GeneralController extends Controller
             }
 
             $methodName = $this->props['UPDATE'];
-            if ($methodName === 'edge') $methodName = 'update_edge';
+            if ($methodName === 'edge') {
+                $methodName = 'update_edge';
+            }
 
+            if ($this->props['name']['plural'] === 'woo_products') {
+                $data = $this->transformForWooCommerce($data);
+            }
             if (method_exists($this->supabase, $methodName) && $data !== null) {
                 try {
                     $debugEnabled = isset($this->props['debug']) && in_array('UPDATE', $this->props['debug']);
+
+                    // Transform for WooCommerce if needed
+                    if ($this->props['name']['plural'] === 'woo_products') {
+                        $data = $this->transformForWooCommerce($data);
+                    }
+
                     if ($debugEnabled) {
                         \Log::info('=== UPDATE OPERATION ===', [
                             'id' => $id,
@@ -1009,18 +1031,13 @@ class GeneralController extends Controller
                     'error' => 'Parent ID is required'
                 ], 400);
             }
-
-            // Build filters based on parent_id and optionally level
-            $filters = [];
             
             if ($level) {
-                // If level is specified, filter by both parent_id and level
                 $filters = [
                     'parent_id' => 'eq.' . $parentId,
                     'level' => 'eq.' . $level
                 ];
             } else {
-                // Original behavior: filter by parent_id only
                 $filters = ['parent_id', 'eq', $parentId];
             }
             
@@ -1070,16 +1087,13 @@ class GeneralController extends Controller
             $file = $request->file('file');
             $galleryId = $request->input('gallery_id');
             $bucket = $request->input('bucket', 'venue-galleries');
-            
-            // Generate unique filename
+
             $filename = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
             $path = $galleryId . '/' . $filename;
-            
-            // Read file content
+
             $fileContent = file_get_contents($file->getPathname());
             $contentType = $file->getMimeType();
-            
-            // Upload to Supabase Storage
+
             $result = $this->supabase->uploadToStorage($bucket, $path, $fileContent, $contentType);
             
             if ($result['success']) {
@@ -1125,8 +1139,7 @@ class GeneralController extends Controller
             $galleryId = $request->input('gallery_id');
             $imagePath = $request->input('image_path');
             $bucket = $request->input('bucket', 'venue-galleries');
-            
-            // Delete from Supabase Storage
+
             $result = $this->supabase->deleteFromStorage($bucket, $imagePath);
             
             if ($result['success']) {
@@ -1157,8 +1170,7 @@ class GeneralController extends Controller
     {
         try {
             $bucket = $request->input('bucket', 'venue-galleries');
-            
-            // List files in gallery folder
+
             $result = $this->supabase->listStorageFiles($bucket, $galleryId);
             
             if ($result['success']) {
@@ -1194,5 +1206,114 @@ class GeneralController extends Controller
         }
     }
 
+    private function transformWooCommerceData(array $data): array
+    {
+        if (!isset($this->props['name']['plural']) || $this->props['name']['plural'] !== 'woo_products') {
+            return $data;
+        }
+
+        if (isset($data['shops']) && is_array($data['shops']) && !empty($data['shops'])) {
+            $lastShop = end($data['shops']);
+
+            if (is_array($lastShop)) {
+                $data['shop_id'] = $lastShop['id'] ?? null;
+                $data['shop'] = $lastShop['id'] ?? null;
+                $data['shop_name'] = $lastShop['name'] ?? 'N/A';
+            } else {
+                $data['shop_id'] = $lastShop;
+                $data['shop'] = $lastShop;
+            }
+        }
+
+        if (isset($data['categories']) && is_array($data['categories'])) {
+            $categoryIds = [];
+            $categoryNames = [];
+
+            foreach ($data['categories'] as $cat) {
+                if (is_array($cat) && isset($cat['id'])) {
+                    $categoryIds[] = (string)$cat['id'];
+                    $categoryNames[] = $cat['name'] ?? "ID: " . $cat['id'];
+                } else {
+                    $categoryIds[] = (string)$cat;
+                }
+            }
+
+            $data['categories'] = $categoryIds;
+            $data['category_names'] = implode(', ', $categoryNames);
+        }
+
+        if (isset($data['tags']) && is_array($data['tags'])) {
+            $tagIds = [];
+            $tagNames = [];
+
+            foreach ($data['tags'] as $tag) {
+                if (is_array($tag) && isset($tag['id'])) {
+                    $tagIds[] = (string)$tag['id'];
+                    $tagNames[] = $tag['name'] ?? "ID: " . $tag['id'];
+                } else {
+                    $tagIds[] = (string)$tag;
+                }
+            }
+
+            $data['tags'] = $tagIds;
+            $data['tag_names'] = implode(', ', $tagNames);
+        }
+
+        if (isset($data['shops']) && is_array($data['shops']) && !empty($data['shops'])) {
+            if (is_array($data['shops'][0])) {
+                $data['shop_id'] = $data['shops'][0]['id'] ?? null;
+                $data['shop_name'] = $data['shops'][0]['name'] ?? 'N/A';
+            } else {
+                $data['shop_id'] = $data['shops'][0];
+            }
+        }
+
+        if (isset($data['images']) && is_array($data['images']) && !empty($data['images'])) {
+            if (isset($data['images'][0]['src'])) {
+                $data['image_url'] = $data['images'][0]['src'];
+            }
+        } else {
+            $data['image_url'] = null;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Transform data from Laravel format to WooCommerce API format
+     */
+    private function transformForWooCommerce(array $data): array
+    {
+        // Transform categories - check if already transformed
+        if (isset($data['categories']) && is_array($data['categories'])) {
+            $transformed = [];
+            foreach ($data['categories'] as $item) {
+                if (is_array($item) && isset($item['id'])) {
+                    $transformed[] = $item;
+                } else {
+                    $transformed[] = ['id' => (int)$item];
+                }
+            }
+            $data['categories'] = $transformed;
+        }
+
+        if (isset($data['tags']) && is_array($data['tags'])) {
+            $transformed = [];
+            foreach ($data['tags'] as $item) {
+                if (is_array($item) && isset($item['id'])) {
+                    $transformed[] = $item;
+                } else {
+                    $transformed[] = ['id' => (int)$item];
+                }
+            }
+            $data['tags'] = $transformed;
+        }
+
+        if (isset($data['shop_id']) && $data['shop_id']) {
+            $data['shop_id'] = (int)$data['shop_id'];
+        }
+
+        return $data;
+    }
 }
 
