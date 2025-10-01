@@ -90,6 +90,20 @@
                                                 :error="$errors->first($field['id'] ?? $key)"
                                         />
                                         @break
+                                        @case('ad_hoc_builder')
+                                        <x-ad-hoc-builder
+                                                name="ad_hoc_windows_json"
+                                                :label="$field['label'] ?? 'Pick Dates & Hours'"
+                                                :value="old('ad_hoc_windows_json', $result['ad_hoc_windows_json'] ?? '[]')"
+                                        />
+                                        @break
+
+                                        @case('periods_builder')
+                                        <x-periods-builder
+                                                name="schedules_json"
+                                                :label="$field['label'] ?? 'Recurring Rules'"
+                                        />
+                                        @break
                                         @case('select')
                                         @php
                                             $values = [];
@@ -174,8 +188,6 @@
                                                 placeholder="{{ $field['placeholder'] ?? null }}"
                                                 :error="$errors->first($field['id'] ?? $key)"
                                                 value="{{ $dateValue }}"
-                                                min="2024-01-01"
-                                                max="2024-12-31"
                                         />
                                         @break
                                         @case('time')

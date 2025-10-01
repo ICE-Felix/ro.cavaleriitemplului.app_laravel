@@ -1,162 +1,84 @@
 {
-  "name": {
-    "singular": "event",
-    "plural": "events",
-    "label_singular": "Event",
-    "label_plural": "Events"
-  },
-  "debug": [],
+  "name": { "singular": "event", "plural": "events", "label_singular": "Event", "label_plural": "Events" },
+  "debug": ["POST"],
   "schema": {
-    "id": {
-      "label": "#",
-      "type": "int",
-      "readonly": true,
-      "visible": false
-    },
-    "image_url": {
-      "key": "image_id",
-      "type": "image",
-      "label": "Event image",
-      "upload_key": "image_base64"
-    },
-    "title": {
-      "type": "text",
-      "label": "Event Title",
-      "placeholder": "Enter event title",
-      "required": true,
-      "visible": true
-    },
-    "description": {
-      "type": "trix",
-      "label": "Description",
-      "placeholder": "Enter event description",
-      "visible": true
-    },
+    "id": { "label": "#", "type": "int", "readonly": true, "visible": false },
+
+    "image_url": { "key": "image_id", "type": "image", "label": "Event image", "upload_key": "image_base64" },
+
+    "title": { "type": "text", "label": "Event Title", "required": true, "visible": true },
+    "description": { "type": "trix", "label": "Description", "visible": true },
+
     "event_type_name": {
-      "type": "select",
-      "label": "Event Type",
-      "key": "event_type_id",
-      "required": true,
-      "data": {
-        "type": "class",
-        "source": [
-          "App\\Services\\Supabase\\SupabaseService",
-          "read_edge",
-          "event_types"
-        ],
-        "value": "id",
-        "name": "name"
-      }
+      "type": "select", "label": "Event Type", "key": "event_type_id", "required": true,
+      "data": { "type": "class", "source": ["App\\Services\\Supabase\\SupabaseService","read_edge","event_types"], "value": "id", "name": "name" }
     },
     "venue_name": {
+      "type": "select", "label": "Venue", "key": "venue_id", "required": true,
+      "data": { "type": "class", "source": ["App\\Services\\Supabase\\SupabaseService","read_edge","venues"], "value": "id", "name": "name" }
+    },
+
+    "location": { "type": "location", "key": "location", "label": "Address location", "visible": false },
+    "address":  { "type": "text", "label": "Address", "readonly": true },
+
+    "event_kind": {
       "type": "select",
-      "label": "Venue",
-      "key": "venue_id",
-      "required": true,
-      "data": {
-        "type": "class",
-        "source": [
-          "App\\Services\\Supabase\\SupabaseService",
-          "read_edge",
-          "venues"
-        ],
-        "value": "id",
-        "name": "name"
-      }
-    },
-    "location": {
-      "type": "location",
-      "key": "location",
-      "label": "Address location",
-      "placeholder": "Address location",
-      "visible": false
-    },
-    "address": {
-      "type": "text",
-      "label": "Address",
-      "placeholder": "Enter address",
-      "readonly": true
-    },
-    "start_date": {
-      "type": "date",
-      "label": "Start Date",
-      "format": "{date:d-m-Y}",
-      "required": true,
-      "visible": true
-    },
-    "end_date": {
-      "type": "date",
-      "label": "End Date",
-      "format": "{date:d-m-Y}",
-      "required": true,
-      "visible": true
-    },
-    "start_hour": {
-      "type": "time",
-      "label": "Start Hour",
-      "required": true,
-      "visible": true
-    },
-    "end_hour": {
-      "type": "time",
-      "label": "End Hour",
-      "required": true,
-      "visible": true
-    },
-    "schedule_type": {
-      "type": "select",
-      "label": "Schedule Type",
+      "label": "Event Kind",
       "data": {
         "type": "static",
         "options": [
-          {"value": "onetime", "name": "Onetime Event"},
-          {"value": "recurring", "name": "Recurring Event"},
-          {"value": "multiday", "name": "Multiday Event"}
+          { "value": "one_off",   "name": "Only once (pick dates)" },
+          { "value": "recurring", "name": "Recurring (rules)" }
         ]
       }
     },
-    "theme": {
-      "type": "text",
-      "label": "Event Theme",
-      "placeholder": "Enter event theme",
-      "visible": true
+
+    "one_off_pattern": {
+      "type": "select",
+      "label": "One-time Pattern",
+      "data": {
+        "type": "static",
+        "options": [
+          { "value": "single_day",     "name": "Single day" },
+          { "value": "multi_day",      "name": "Multiple days (calendar)" },
+          { "value": "weekly_select",  "name": "Weekly pick (calendar)" },
+          { "value": "monthly_select", "name": "Monthly pick (calendar)" }
+        ]
+      }
     },
-    "agenda": {
-      "type": "textarea",
-      "label": "Agenda",
-      "placeholder": "Enter event agenda",
-      "visible": true
+
+    "start_date": { "type": "date", "label": "Start Date", "format": "{date:d-m-Y}", "required": true, "visible": true },
+    "end_date":   { "type": "date", "label": "End Date",   "format": "{date:d-m-Y}", "required": true, "visible": true },
+
+    "start_hour": { "type": "time", "label": "Start Hour", "visible": true },
+    "end_hour":   { "type": "time", "label": "End Hour",   "visible": true },
+
+    "schedule_type": {
+      "type": "select",
+      "label": "Recurring Type",
+      "data": {
+        "type": "static",
+        "options": [
+          { "value": "daily",   "name": "Daily" },
+          { "value": "weekly",  "name": "Weekly" },
+          { "value": "monthly", "name": "Monthly" }
+        ]
+      }
     },
-    "price": {
-      "type": "text",
-      "label": "Price",
-      "placeholder": "Enter event price (e.g., Free, $50, €25)",
-      "visible": true
-    },
-    "contact_person": {
-      "type": "text",
-      "label": "Contact Person",
-      "placeholder": "Enter contact person name",
-      "visible": true
-    },
-    "phone_no": {
-      "type": "text",
-      "label": "Phone Number",
-      "placeholder": "Enter phone number",
-      "visible": true
-    },
-    "email": {
-      "type": "text",
-      "label": "Contact Email",
-      "placeholder": "Enter contact email",
-      "visible": true
-    },
-    "capacity": {
-      "type": "text",
-      "label": "Event Capacity",
-      "placeholder": "Enter maximum capacity",
-      "visible": true
-    }
+
+    "ad_hoc_windows_json": { "type": "hidden", "label": "Ad-hoc Windows JSON", "visible": false },
+    "schedules_json":      { "type": "hidden", "label": "Schedules JSON", "visible": false },
+
+    "ad_hoc_builder":    { "type": "ad_hoc_builder",  "label": "Pick Dates & Hours", "visible": true },
+    "recurring_builder": { "type": "periods_builder", "label": "Recurring Rules",    "visible": true },
+
+    "theme": { "type": "text", "label": "Event Theme", "visible": true },
+    "agenda": { "type": "textarea", "label": "Agenda", "visible": true },
+    "price":  { "type": "text", "label": "Price", "visible": true },
+    "contact_person": { "type": "text", "label": "Contact Person", "visible": true },
+    "phone_no": { "type": "text", "label": "Phone Number", "visible": true },
+    "email": { "type": "text", "label": "Contact Email", "visible": true },
+    "capacity": { "type": "text", "label": "Event Capacity", "visible": true }
   },
   "GET": "edge",
   "INSERT": "edge",
