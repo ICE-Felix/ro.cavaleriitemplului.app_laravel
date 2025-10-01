@@ -63,7 +63,7 @@ class GeneralController extends Controller
                 if (is_array($data)) {
                     $data = DT::normalizeTemporalCollection($data, $this->props);
 
-                    // ADD THIS: Transform each product's WooCommerce data
+
                     $data = array_map(function($item) {
                         return $this->transformWooCommerceData($item);
                     }, $data);
@@ -442,8 +442,7 @@ class GeneralController extends Controller
                     $result = $elem;
                 }
             }
-
-            // ADD THIS: Transform WooCommerce format to checkbox format
+            
             $result = $this->transformWooCommerceData($result);
 
             $props = $this->props;
