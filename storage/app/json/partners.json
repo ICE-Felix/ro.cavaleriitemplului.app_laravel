@@ -67,6 +67,11 @@
             "label": "Email comenzi",
             "placeholder": ""
         },
+        "phone_number": {
+            "type": "text",
+            "label": "Phone",
+            "placeholder": "+40700000000 or 0720000000"
+         },
         "administrator_name": {
             "type": "select",
             "label": "Administrator contact",
