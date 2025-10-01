@@ -1,0 +1,245 @@
+{
+  "name": {
+    "singular": "woo_product",
+    "plural": "woo_products",
+    "label_singular": "Product",
+    "label_plural": "Products"
+  },
+  "debug": [],
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+    "image_url": {
+      "key": "image_id",
+      "type": "image",
+      "label": "Featured image",
+      "upload_key": "image_base64"
+    },
+    "name": {
+      "type": "text",
+      "label": "Name",
+      "placeholder": "Enter product name",
+      "required": true,
+      "visible": true
+    },
+    "description": {
+      "type": "trix",
+      "label": "Description",
+      "placeholder": "Long description",
+      "visible": true
+    },
+    "short_description": {
+      "type": "textarea",
+      "label": "Short Description",
+      "placeholder": "Short description",
+      "visible": true
+    },
+    "type": {
+      "type": "select",
+      "label": "Type",
+      "visible": true,
+      "value": "simple",
+      "data": {
+        "type": "static",
+        "options": [
+          { "value": "simple", "name": "Simple" },
+          { "value": "grouped", "name": "Grouped" },
+          { "value": "external", "name": "External" },
+          { "value": "variable", "name": "Variable" }
+        ]
+      }
+    },
+    "status": {
+      "type": "select",
+      "label": "Status",
+      "visible": true,
+      "value": "draft",
+      "data": {
+        "type": "static",
+        "options": [
+          { "value": "draft", "name": "Draft" },
+          { "value": "pending", "name": "Pending" },
+          { "value": "private", "name": "Private" },
+          { "value": "publish", "name": "Publish" }
+        ]
+      }
+    },
+    "featured": {
+      "type": "switch",
+      "label": "Featured",
+      "key": "featured",
+      "value": false,
+      "on_label": "Yes",
+      "off_label": "No",
+      "visible": true
+    },
+    "catalog_visibility": {
+      "type": "select",
+      "label": "Catalog Visibility",
+      "visible": true,
+      "value": "visible",
+      "data": {
+        "type": "static",
+        "options": [
+          { "value": "visible", "name": "Shop and search" },
+          { "value": "catalog", "name": "Shop only" },
+          { "value": "search", "name": "Search only" },
+          { "value": "hidden", "name": "Hidden" }
+        ]
+      }
+    },
+    "categories": {
+      "type": "checkbox",
+      "label": "Categories",
+      "key": "categories",
+      "value": [],
+      "visible": false,
+      "required": false,
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "woo_product_categories"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    },
+    "category_names": {
+      "type": "text",
+      "label": "Categories",
+      "key": "category_names",
+      "readonly": true,
+      "visible": true
+    },
+    "tags": {
+      "type": "checkbox",
+      "label": "Tags",
+      "key": "tags",
+      "value": [],
+      "visible": false,
+      "required": false,
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "woo_product_tags"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    },
+    "tag_names": {
+      "type": "text",
+      "label": "Tags",
+      "key": "tag_names",
+      "readonly": true,
+      "visible": true
+    },
+    "shop": {
+      "type": "select",
+      "label": "Shop",
+      "key": "shop_id",
+      "required": true,
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "woo_shops"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    },
+    "shop_name": {
+      "type": "text",
+      "label": "Shop Name",
+      "key": "shop_name",
+      "readonly": true,
+      "visible": true
+    },
+    "sku": {
+      "type": "text",
+      "label": "SKU",
+      "placeholder": "Unique SKU",
+      "visible": true
+    },
+    "price": {
+      "type": "text",
+      "label": "Price",
+      "placeholder": "e.g., 29.90",
+      "visible": true
+    },
+    "regular_price": {
+      "type": "text",
+      "label": "Regular Price",
+      "placeholder": "e.g., 39.90",
+      "visible": true
+    },
+    "sale_price": {
+      "type": "text",
+      "label": "Sale Price",
+      "placeholder": "e.g., 29.90",
+      "visible": true
+    },
+    "virtual": {
+      "type": "switch",
+      "label": "Virtual Product",
+      "key": "virtual",
+      "value": false,
+      "on_label": "Yes",
+      "off_label": "No",
+      "visible": true
+    },
+    "downloadable": {
+      "type": "switch",
+      "label": "Downloadable",
+      "key": "downloadable",
+      "value": false,
+      "on_label": "Yes",
+      "off_label": "No",
+      "visible": true
+    },
+    "manage_stock": {
+      "type": "switch",
+      "label": "Manage Stock",
+      "key": "manage_stock",
+      "value": false,
+      "on_label": "Yes",
+      "off_label": "No",
+      "visible": true
+    },
+    "stock_quantity": {
+      "type": "numeric",
+      "label": "Stock Quantity",
+      "placeholder": "e.g., 100",
+      "visible": true
+    },
+    "weight": {
+      "type": "text",
+      "label": "Weight (kg)",
+      "placeholder": "e.g., 0.45",
+      "visible": true
+    },
+    "reviews_allowed": {
+      "type": "switch",
+      "label": "Allow Reviews",
+      "key": "reviews_allowed",
+      "value": true,
+      "on_label": "Yes",
+      "off_label": "No",
+      "visible": true
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}

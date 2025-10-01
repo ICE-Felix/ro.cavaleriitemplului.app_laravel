@@ -1,7 +1,7 @@
 @php
     use App\Services\Supabase\SupabaseService;
     $label = $props['name']['label_singular'] ?? $props['name']['singular'];
- @endphp
+@endphp
 @section('page_title', "Listing {$label}")
 
 @section('header')
@@ -71,6 +71,7 @@
                             <tr>
                                 @foreach($props['schema'] as $key => $field)
                                     @if(!isset($field['visible']) || $field['visible'] !== false)
+                                        @if($key === 'shop') @continue @endif
                                         <td>
                                             <label class="label block mb-2" for="{{$key}}">{{$field['label'] ?? ucfirst($key)}}</label>
                                             <input type="text" class="form-control" placeholder="{{$field['label'] ?? ucfirst($key)}}" name="{{$key}}">
@@ -89,6 +90,7 @@
                             <tr>
                                 @foreach($props['schema'] as $key => $field)
                                     @if(!isset($field['visible']) || $field['visible'] !== false)
+                                        @if($key === 'shop') @continue @endif
                                         <th class="">{{$field['label'] ?? ucfirst($key)}}</th>
                                     @endif
                                 @endforeach
@@ -103,6 +105,7 @@
                                 <tr>
                                     @foreach($props['schema'] as $key => $field)
                                         @if(!isset($field['visible']) || $field['visible'] !== false)
+                                            @if($key === 'shop') @continue @endif
                                             @isset($field['type'])
                                                 <td>
                                                     @switch($field['type'] )
@@ -118,10 +121,10 @@
                                                         @case('image')
                                                             @isset($elem[$key])
                                                                 <img style="height: 50px"
-                                                                         src="{{$elem[$key]}}"
+                                                                     src="{{$elem[$key]}}"
                                                                      alt="{{$elem[$key] ?? ''}}">
-                                                                @else
-                                                                    <span>N/A</span>
+                                                            @else
+                                                                <span>N/A</span>
                                                             @endisset
                                                             @break
                                                         @case('file-browser')
@@ -148,7 +151,7 @@
                                                                 @switch($field["cast"])
                                                                     @case('bool')
                                                                         {{isset($elem[$key]) ? ($elem[$key] ? "True": "False"): "False"}}
-                                                                    @break
+                                                                        @break
                                                                     @default
                                                                         {{ucfirst($elem[$key] ?? '')}}
                                                                         @break
@@ -183,7 +186,7 @@
                                                             @break
                                                         @case('email')
                                                             {{$elem[$key] ?? ''}}
-                                                        @break
+                                                            @break
                                                         @case('date')
                                                             @php
                                                                 $raw = data_get($elem, $field['source'] ?? $key);
@@ -206,11 +209,11 @@
                                                                     $formattedTime = '--:--';
                                                                 }
                                                             @endphp
-                                                                {{ $formattedTime }}
-                                                        @break
+                                                            {{ $formattedTime }}
+                                                            @break
                                                         @case('trix')
                                                             {!! \Illuminate\Support\Str::limit(strip_tags(html_entity_decode($elem[$key] ?? '')), 100) !!}
-                                                        @break
+                                                            @break
                                                         @case('switch')
                                                             @php
                                                                 $value = $elem[$key] ?? '';
@@ -225,32 +228,32 @@
                                                                 }
                                                             @endphp
                                                             {{ $displayText }}
-                                                        @break
+                                                            @break
                                                         @case('schedule')
                                                             @php
                                                                 $scheduleValue = $elem[$key] ?? '';
                                                                 $scheduleData = null;
-                                                                
+
                                                                 // Handle both string and array inputs
                                                                 if (is_string($scheduleValue)) {
                                                                     $scheduleData = json_decode($scheduleValue, true);
                                                                 } elseif (is_array($scheduleValue)) {
                                                                     $scheduleData = $scheduleValue;
                                                                 }
-                                                                
+
                                                                 $displayText = '';
-                                                                
+
                                                                 if ($scheduleData) {
                                                                     $dayLabels = [
                                                                         'monday' => 'Mon',
-                                                                        'tuesday' => 'Tue', 
+                                                                        'tuesday' => 'Tue',
                                                                         'wednesday' => 'Wed',
                                                                         'thursday' => 'Thu',
                                                                         'friday' => 'Fri',
                                                                         'saturday' => 'Sat',
                                                                         'sunday' => 'Sun'
                                                                     ];
-                                                                    
+
                                                                     $openDays = [];
                                                                     foreach ($dayLabels as $dayKey => $dayLabel) {
                                                                         if (isset($scheduleData[$dayKey]) && $scheduleData[$dayKey]['enabled']) {
@@ -260,7 +263,7 @@
                                                                             $openDays[] = "{$dayLabel}: {$openTime}-{$closeTime}";
                                                                         }
                                                                     }
-                                                                    
+
                                                                     if (empty($openDays)) {
                                                                         $displayText = '<span class="text-red-600">Closed all days</span>';
                                                                     } else {
@@ -271,7 +274,7 @@
                                                                 }
                                                             @endphp
                                                             {!! $displayText !!}
-                                                        @break
+                                                            @break
                                                         @default
                                                             @php
                                                                 $value = $elem[$key] ?? '';
@@ -301,8 +304,8 @@
                                             @endif
                                             @if($canDelete && isset($elem['id']))
                                                 <form
-                                                    action="{{ route($props['name']['plural'] . '.destroy', [$elem['id']]) }}"
-                                                    method="POST" style="display: inline;">
+                                                        action="{{ route($props['name']['plural'] . '.destroy', [$elem['id']]) }}"
+                                                        method="POST" style="display: inline;">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn_danger uppercase"
