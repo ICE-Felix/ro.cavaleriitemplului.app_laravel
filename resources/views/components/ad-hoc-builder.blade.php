@@ -76,12 +76,12 @@
 
         <!-- Per-date windows -->
         <div class="lg:col-span-2">
-            <template x-if="orderedDates.length === 0">
+            <template x-if="((orderedDates || []).length === 0)">
                 <p class="text-gray-500">No dates selected yet.</p>
             </template>
 
             <div class="space-y-3 max-h-[28rem] overflow-auto pr-1">
-                <template x-for="d in orderedDates" :key="'row-'+d">
+                <template x-for="d in (orderedDates || [])" :key="'row-'+d">
                     <div class="border rounded p-3">
                         <div class="flex items-center justify-between">
                             <div class="font-semibold">
@@ -160,13 +160,21 @@
                 dateWindows: {},
                 common: { start: '', end: '' },
 
-                // computed
                 get orderedDates(){
                     try {
-                        if (!this.selected || typeof this.selected !== 'object') return [];
-                        return Object.keys(this.selected).filter(k => this.selected[k]).sort();
+                        // Extra defensive - handle edge cases
+                        if (!this.selected) {
+                            this.selected = {};
+                            return [];
+                        }
+                        if (typeof this.selected !== 'object') {
+                            this.selected = {};
+                            return [];
+                        }
+                        return Object.keys(this.selected).filter(k => this.selected[k] === true).sort();
                     } catch(e) {
                         console.error('orderedDates error:', e);
+                        this.selected = {};
                         return [];
                     }
                 },
@@ -328,7 +336,7 @@
                     this.buildMonth();
                 },
 
-                // ===== selection & windows =====
+
                 ensureDate(ymd){
                     if (!Array.isArray(this.dateWindows[ymd])) {
                         this.dateWindows[ymd] = [{ uid: crypto.randomUUID(), start_time:'', end_time:'' }];
@@ -350,33 +358,50 @@
                 },
 
                 removeDate(ymd){
-                    delete this.selected[ymd];
-                    delete this.dateWindows[ymd];
-                    this.selected = Object.assign({}, this.selected);
-                    this.dateWindows = Object.assign({}, this.dateWindows);
+                    if (!this.selected) this.selected = {};
+                    if (!this.dateWindows) this.dateWindows = {};
+
+                    const newSelected = this.safeAssign(this.selected);
+                    const newWindows = this.safeAssign(this.dateWindows);
+                    delete newSelected[ymd];
+                    delete newWindows[ymd];
+                    this.selected = newSelected;
+                    this.dateWindows = newWindows;
                     this.syncPayload();
                 },
-
+                safeAssign(target) {
+                    if (!target || typeof target !== 'object') {
+                        return {};
+                    }
+                    return Object.assign({}, target);
+                },
                 toggleDay(cell){
                     if (!cell || !cell.inFence || !this._initialized) return;
                     const ymd = cell.ymd;
 
                     if (this.isSelected(ymd)) {
-                        // Deselect
+
                         this.$nextTick(() => {
+                            // DEFENSIVE: ensure objects exist before assigning
+                            if (!this.selected) this.selected = {};
+                            if (!this.dateWindows) this.dateWindows = {};
+
                             delete this.selected[ymd];
                             delete this.dateWindows[ymd];
-                            this.selected = Object.assign({}, this.selected);
-                            this.dateWindows = Object.assign({}, this.dateWindows);
+                            this.selected = this.safeAssign(this.selected);
+                            this.dateWindows = this.safeAssign(this.dateWindows);
                             this.syncPayload();
                         });
                     } else {
-                        // Select
+
                         this.$nextTick(() => {
+                            if (!this.selected) this.selected = {};
+                            if (!this.dateWindows) this.dateWindows = {};
+
                             this.selected[ymd] = true;
                             this.dateWindows[ymd] = [{ uid: crypto.randomUUID(), start_time:'', end_time:'' }];
-                            this.selected = Object.assign({}, this.selected);
-                            this.dateWindows = Object.assign({}, this.dateWindows);
+                            this.selected = this.safeAssign(this.selected);
+                            this.dateWindows = this.safeAssign(this.dateWindows);
                             this.syncPayload();
                         });
                     }
@@ -406,18 +431,24 @@
                     return (g.getDay()+6)%7; // Mon=0..Sun=6
                 },
                 selectAll(){
+                    if (!this.selected) this.selected = {};
+                    if (!this.dateWindows) this.dateWindows = {};
+
                     for (const ymd of this.rangeDays()){
                         this.selected[ymd] = true;
                         if (!Array.isArray(this.dateWindows[ymd])) {
                             this.dateWindows[ymd] = [{ uid: crypto.randomUUID(), start_time:'', end_time:'' }];
                         }
                     }
-                    this.selected = Object.assign({}, this.selected);
-                    this.dateWindows = Object.assign({}, this.dateWindows);
+                    this.selected = this.safeAssign(this.selected);
+                    this.dateWindows = this.safeAssign(this.dateWindows);
                     this.syncPayload();
                 },
 
                 selectWeekdays(){
+                    if (!this.selected) this.selected = {};
+                    if (!this.dateWindows) this.dateWindows = {};
+
                     for (const ymd of this.rangeDays()){
                         if (this.dow0Mon(ymd) < 5){
                             this.selected[ymd] = true;
@@ -426,12 +457,15 @@
                             }
                         }
                     }
-                    this.selected = Object.assign({}, this.selected);
-                    this.dateWindows = Object.assign({}, this.dateWindows);
+                    this.selected = this.safeAssign(this.selected);
+                    this.dateWindows = this.safeAssign(this.dateWindows);
                     this.syncPayload();
                 },
 
                 selectWeekends(){
+                    if (!this.selected) this.selected = {};
+                    if (!this.dateWindows) this.dateWindows = {};
+
                     for (const ymd of this.rangeDays()){
                         if (this.dow0Mon(ymd) >= 5){
                             this.selected[ymd] = true;
@@ -440,16 +474,14 @@
                             }
                         }
                     }
-                    this.selected = Object.assign({}, this.selected);
-                    this.dateWindows = Object.assign({}, this.dateWindows);
+                    this.selected = this.safeAssign(this.selected);
+                    this.dateWindows = this.safeAssign(this.dateWindows);
                     this.syncPayload();
                 },
                 clearAll(){
                     this.selected = {};
                     this.dateWindows = {};
-                    this.$nextTick(() => {
-                        this.syncPayload();
-                    });
+                    this.syncPayload();
                 },
 
                 addWindow(ymd){
