@@ -174,7 +174,15 @@
                                             :longitude="old('location_longitude', 26.1025)"
                                         />
                                         @break
-                                        @case('date')
+                                        @case('tickets')
+                                        <x-ticket-builder
+                                                name="{{ $field['key'] ?? $key }}"
+                                                label="{{ $field['label'] ?? ucfirst($key) }}"
+                                                :value="old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? $field['value'] ?? null)"
+                                        />
+                                        @break
+
+                                       @case('date')
                                         @php
                                             // Handle pre-filled date from calendar
                                             $dateValue = $field['value'] ?? null;

@@ -326,13 +326,11 @@ class GeneralController extends Controller
                         return back()->withErrors(['msg' => 'End must be after Start.']);
                     }
 
-                    // Write into whatever keys the schema asked for
                     $data[$startOutKey] = $startDT->toIso8601String();
                     $data[$endOutKey]   = $endDT->toIso8601String();
                 }
-                // raw inputs were intentionally skipped above
             }
-            // else: no combination; raw fields already in $data (if present)
+
 
             // --- DEBUG ---
             if (isset($this->props['debug']) && in_array('POST', $this->props['debug'])) {

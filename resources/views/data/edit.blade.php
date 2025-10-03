@@ -101,6 +101,13 @@
                                             :required="$field['required'] ?? false"
                                         />
                                         @break
+                                    @case('tickets')
+                                        <x-ticket-builder
+                                                name="{{ $field['key'] ?? $key }}"
+                                                label="{{ $field['label'] ?? ucfirst($key) }}"
+                                                :value="old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? $field['value'] ?? null)"
+                                        />
+                                        @break
 
                                     @case('select')
                                         @php

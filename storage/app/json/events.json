@@ -72,6 +72,20 @@
     "ad_hoc_builder":    { "type": "ad_hoc_builder",  "label": "Pick Dates & Hours", "visible": true },
     "recurring_builder": { "type": "periods_builder", "label": "Recurring Rules",    "visible": true },
 
+   "tickets": {
+    "type": "tickets",
+    "label": "Ticket Types",
+    "key": "tickets",
+    "value": []
+   },
+  "ticket_pool": {
+    "type": "numeric",
+    "label": "Total Ticket Pool",
+    "placeholder": "e.g., 100",
+    "key": "ticket_pool",
+    "value": 0,
+    "visible": true
+  },
     "theme": { "type": "text", "label": "Event Theme", "visible": true },
     "agenda": { "type": "textarea", "label": "Agenda", "visible": true },
     "price":  { "type": "text", "label": "Price", "visible": true },
