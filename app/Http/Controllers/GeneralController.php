@@ -859,6 +859,19 @@ class GeneralController extends Controller
                         );
                 }
             }
+
+            // ADD THIS: Handle tickets component with ticket_types
+            if (isset($prop['type']) && $prop['type'] === 'tickets' && isset($prop['ticket_types'])) {
+                $data[$key . '_ticket_types'] =
+                    $this->getSourceData(
+                        $prop['ticket_types']['source'],
+                        $prop['ticket_types']['value'] ?? 'id',
+                        $prop['ticket_types']['name'] ?? 'type',
+                        $prop['ticket_types']['type'] ?? 'class',
+                        $prop['ticket_types']['name'] ?? ($prop['ticket_types']['value'] ?? null),
+                        $prop['filters'] ?? []
+                    );
+            }
         }
         return $data;
     }

@@ -102,10 +102,16 @@
                                         />
                                         @break
                                     @case('tickets')
+                                        @php
+                                            // Get ticket types data - already formatted by getSourceData()
+                                            $ticketTypesData = $data[$key . '_ticket_types'] ?? [];
+                                        @endphp
+
                                         <x-ticket-builder
                                                 name="{{ $field['key'] ?? $key }}"
                                                 label="{{ $field['label'] ?? ucfirst($key) }}"
-                                                :value="old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? $field['value'] ?? null)"
+                                                :value="old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? $field['value'] ?? '[]')"
+                                                :ticketTypes="$ticketTypesData"
                                         />
                                         @break
 
