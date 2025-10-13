@@ -20,7 +20,7 @@
     <div class="space-y-4">
         <template x-for="(ticket, index) in tickets" :key="ticket.uid">
             <div class="border rounded p-4 bg-gray-50">
-                <!-- Row 1: Name, Scope, Price -->
+                <!-- Row 1: Name, Type, Price -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
                         <label class="label block mb-2">Name</label>
@@ -32,11 +32,11 @@
                     </div>
 
                     <div>
-                        <label class="label block mb-2">Scope</label>
+                        <label class="label block mb-2">Type</label>
                         <select class="form-control"
-                                x-model="ticket.scope"
+                                x-model="ticket.type"
                                 @change="syncPayload()">
-                            <option value="">Select scope</option>
+                            <option value="">Select type</option>
                             <option value="1-day-pass">1-Day Pass</option>
                             <option value="weekly-pass">Weekly Pass</option>
                             <option value="monthly-pass">Monthly Pass</option>
@@ -186,7 +186,7 @@
                                 this.tickets = data.map(t => ({
                                     uid: crypto.randomUUID(),
                                     name: t.name || '',
-                                    scope: t.scope || '',
+                                    type: t.type || '',
                                     price: t.price || '',
                                     age_category: t.age_category || '',
                                     is_active: t.is_active ?? true,
@@ -208,7 +208,7 @@
                     this.tickets.push({
                         uid: crypto.randomUUID(),
                         name: '',
-                        scope: '',
+                        type: '',
                         price: '',
                         age_category: '',
                         is_active: true,
@@ -232,7 +232,7 @@
                     const clone = {
                         uid: crypto.randomUUID(),
                         name: original.name,
-                        scope: original.scope,
+                        type: original.type,
                         price: original.price,
                         age_category: original.age_category,
                         is_active: original.is_active,
@@ -289,7 +289,7 @@
                         this.tickets.map(t => {
                             const base = {
                                 name: t.name || '',
-                                scope: t.scope || '',
+                                type: t.type || '',
                                 price: parseFloat(t.price) || 0,
                                 age_category: t.age_category || '',
                                 is_active: !!t.is_active,
