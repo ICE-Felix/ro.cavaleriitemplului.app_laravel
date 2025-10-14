@@ -102,7 +102,7 @@
     "required": false,
     "visible": true,
     "min_images": 0,
-    "max_images": 12,
+    "max_images": 5,
     "bucket": "events-images",
     "upload_key": "gallery_image_base64"
   },
