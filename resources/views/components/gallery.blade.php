@@ -1,4 +1,3 @@
-{{-- resources/views/components/gallery.blade.php --}}
 @props([
     'name' => 'gallery',
     'label' => 'Product Gallery',
@@ -11,7 +10,7 @@
 ])
 
 @php
-    // Normalize existing images
+
     $images = [];
     if ($value) {
         if (is_string($value)) {
@@ -22,7 +21,6 @@
         }
     }
 
-    // Unique, JS/HTML-safe id
     try { $galleryId = 'gal_' . bin2hex(random_bytes(5)); }
     catch (\Exception $e) { $galleryId = 'gal_' . preg_replace('/[^A-Za-z0-9_]/', '_', uniqid('', true)); }
 @endphp
@@ -47,20 +45,18 @@
 
     <div class="bg-white border border-gray-200 rounded-xl p-4 mt-2 shadow-sm">
 
-        {{-- Persist helpers --}}
+
         <input type="hidden" name="{{ $name }}_existing" value='@json($images)'>
         <input type="hidden" name="{{ $name }}_bucket" value="{{ $bucket }}">
 
-        {{-- hidden base64 inputs are created for each preview --}}
         <template x-for="p in previews" :key="'h-'+p.id">
             <input type="hidden" name="gallery_image_base64[]" :value="p.url">
         </template>
 
-        {{-- Header --}}
-        <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-3">
+        <div class="gallery-header flex items-center justify-between gap-3 flex-wrap mb-3">
+            <div class="header-actions flex items-center gap-3 flex-wrap">
                 <button type="button"
-                        class="inline-flex items-center gap-2 text-sm px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="gallery-add-btn inline-flex items-center gap-2 text-sm px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap"
                         @click="triggerFileDialog()">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -69,12 +65,12 @@
                 </button>
                 <span class="text-xs text-gray-500">or drag & drop below</span>
             </div>
+
             <div class="text-xs text-gray-500">
                 <span class="font-medium" x-text="totalImages"></span> / {{ $maxImages }}
             </div>
         </div>
 
-        {{-- Dropzone --}}
         <div class="border border-dashed rounded-lg p-4 mb-4 text-center transition"
              :class="isDragging ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-gray-50'"
              @dragover.prevent="onDragOver"
@@ -91,28 +87,26 @@
             </div>
         </div>
 
-        {{-- Grid --}}
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-            {{-- Existing images --}}
+
             @foreach($images as $index => $image)
                 @php $src = $image['url'] ?? $image['src'] ?? $image['path'] ?? null; @endphp
-                <div class="relative rounded-lg overflow-hidden border border-gray-200 bg-white shadow-sm"
+                <div class="gallery-card relative rounded-lg overflow-hidden border border-gray-200 bg-white shadow-sm"
                      x-data="{ deleted:false }">
                     <div class="aspect-square w-full overflow-hidden">
                         <img src="{{ $src }}" class="w-full h-full object-cover" alt="Image {{ $index + 1 }}">
                     </div>
 
-                    {{-- Always-visible × remove (marks for deletion) --}}
                     <button type="button"
-                            class="absolute top-2 right-2 h-8 w-8 rounded-full bg-gray-900/90 text-white hover:bg-red-600 shadow flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-red-500"
+                            class="gallery-x-btn absolute h-10 w-10 rounded-full bg-white text-black border-2 border-black/70
+                            hover:bg-gray-100 hover:border-blue-400 shadow focus:outline-none focus:ring-2 focus:ring-black/30 z-50"
                             title="Remove"
                             @click="deleted = true; $dispatch('gallery-delete', { index: {{ $index }} })">
-                        <span class="text-sm leading-none">×</span>
+                        <span class="text-lg leading-none">×</span>
                     </button>
 
-                    {{-- “Marked for deletion” overlay + Undo --}}
                     <div x-cloak x-show="deleted"
-                         class="absolute inset-0 z-20 bg-red-600/15 backdrop-blur-[1px] flex flex-col items-center justify-center gap-2">
+                         class="absolute inset-0 z-40 bg-red-600/15 backdrop-blur-[1px] flex flex-col items-center justify-center gap-2">
                         <span class="text-xs font-semibold text-red-700">Marked for deletion</span>
                         <button type="button"
                                 class="text-xs px-2 py-1 rounded border border-red-600 text-red-700 bg-white"
@@ -121,31 +115,28 @@
                         </button>
                     </div>
 
-                    {{-- Hidden input toggled when deleted --}}
                     <input x-cloak x-show="deleted" type="hidden" name="{{ $name }}_delete[]" value="{{ $index }}">
                 </div>
             @endforeach
 
-            {{-- New previews --}}
             <template x-for="(preview, i) in previews" :key="preview.id">
-                <div class="relative rounded-lg overflow-hidden border border-green-300 bg-white shadow-sm">
+                <div class="gallery-card relative rounded-lg overflow-hidden border border-green-300 bg-white shadow-sm">
                     <div class="aspect-square w-full overflow-hidden">
                         <img :src="preview.url" class="w-full h-full object-cover" :alt="`New image ${i+1}`">
                     </div>
 
-                    {{-- Always-visible × remove (removes preview immediately) --}}
                     <button type="button"
-                            class="absolute top-2 right-2 h-8 w-8 rounded-full bg-gray-900/90 text-white hover:bg-red-600 shadow flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-red-500"
+                            class="gallery-x-btn absolute h-10 w-10 rounded-full bg-white text-black border-2 border-black/70
+                            hover:bg-gray-100 hover:border-black shadow focus:outline-none focus:ring-2 focus:ring-black/30 z-50"
                             title="Remove"
                             @click="removePreview(i)">
-                        <span class="text-sm leading-none">×</span>
+                        <span class="text-lg leading-none">×</span>
                     </button>
 
                     <span class="absolute bottom-2 left-2 text-[10px] font-semibold px-2 py-0.5 rounded bg-green-600 text-white">NEW</span>
                 </div>
             </template>
 
-            {{-- Placeholders to keep grid tidy --}}
             <template x-for="i in emptySlots" :key="`empty-${i}`">
                 <button type="button"
                         class="aspect-square rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-blue-50 hover:border-blue-400 flex items-center justify-center text-xs text-gray-500"
@@ -155,7 +146,6 @@
             </template>
         </div>
 
-        {{-- Hidden native file input (moved to the bottom so any injected UI is out of the way) --}}
         <input type="file"
                data-skip-filejs="1"
                id="gallery-input-{{ $galleryId }}"
@@ -171,8 +161,8 @@
     <script>
         function galleryComponent_{{ $galleryId }}() {
             return {
-                previews: [],                 // { id, url(dataURL), file }
-                deletedIndexes: [],           // indexes of existing images marked for deletion
+                previews: [],
+                deletedIndexes: [],
                 existingCount: {{ count($images) }},
                 maxImages: {{ $maxImages }},
                 isDragging: false,
@@ -203,7 +193,7 @@
                 handleFileSelect(e) {
                     const files = Array.from(e.target.files || []);
                     this.processIncomingFiles(files);
-                    e.target.value = ''; // allow selecting the same files again
+                    e.target.value = '';
                 },
 
                 // core
@@ -222,7 +212,7 @@
                         reader.onload = (ev) => {
                             this.previews.push({
                                 id: Date.now() + Math.random(),
-                                url: ev.target.result, // data:image/...;base64,....
+                                url: ev.target.result,
                                 file
                             });
                         };
@@ -252,7 +242,6 @@
                     if (i > -1) this.deletedIndexes.splice(i, 1);
                 },
 
-                // new previews removal
                 removePreview(i) {
                     this.previews.splice(i, 1);
                 }
@@ -265,9 +254,36 @@
     [x-cloak]{display:none!important}
     .aspect-square{aspect-ratio:1/1}
 
-    /* Keep the “×” above images for sure */
-    #{{ $galleryId }}_wrap .gallery-x-btn{z-index:30}
+    #{{ $galleryId }}_wrap .gallery-header{row-gap:.25rem}
 
-    /* If any global file-input script injects a UI right after our hidden input, hide it. */
+    #{{ $galleryId }}_wrap .gallery-card{position:relative}
+    #{{ $galleryId }}_wrap .gallery-x-btn{
+        position: absolute;
+        top: .15rem;
+        right: .15rem;
+        height: 2.25rem;
+        width:  2.25rem;
+        border-radius: 9999px;
+        background: #fff;
+        color: #111;
+        border: 2px solid rgba(0,0,0,.85);
+        box-shadow: 0 2px 8px rgba(0,0,0,.22);
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+    }
+
+    #{{ $galleryId }}_wrap .gallery-x-btn:hover{
+        background: #f3f4f6;     /* subtle hover */
+        border-color: #000;
+    }
+
+    #{{ $galleryId }}_wrap .gallery-x-btn svg,
+    #{{ $galleryId }}_wrap .gallery-x-btn span{
+        pointer-events: none;    /* keep the whole circle clickable */
+    }
     #{{ $galleryId }}_wrap .gallery-hidden-input + *{display:none!important}
+
 </style>

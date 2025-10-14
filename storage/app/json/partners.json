@@ -86,7 +86,19 @@
                 "value": "id",
                 "name": "{first_name} {last_name}"
             }
-        }
+        },
+      "gallery": {
+        "type": "gallery",
+        "label": "Partner Gallery",
+        "key": "gallery",
+        "value": null,
+        "required": false,
+        "visible": true,
+        "min_images": 0,
+        "max_images": 12,
+        "bucket": "woo-images",
+        "upload_key": "gallery_image_base64"
+      }
 
     },
     "GET": "edge",

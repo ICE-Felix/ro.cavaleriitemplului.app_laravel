@@ -254,7 +254,7 @@
       "visible": true,
       "min_images": 0,
       "max_images": 5,
-      "bucket": "woo-product-galleries",
+      "bucket": "woo-images",
       "upload_key": "gallery_image_base64"
     }
   },
