@@ -108,7 +108,14 @@
                                                 :value="old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? $field['value'] ?? null)"
                                         />
                                         @break
-
+                                    @case('info_fields')
+                                        <x-info-fields
+                                                name="{{ $field['key'] ?? $key }}"
+                                                :label="$field['label'] ?? 'Additional Information'"
+                                                :value="old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? $field['value'] ?? '[]')"
+                                                :error="$errors->first($field['key'] ?? $key)"
+                                        />
+                                        @break
                                     @case('select')
                                         @php
                                             $value = '';

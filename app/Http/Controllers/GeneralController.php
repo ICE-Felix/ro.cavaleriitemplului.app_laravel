@@ -174,6 +174,61 @@ class GeneralController extends Controller
                     continue;
                 }
 
+                // --- GALLERY ---
+                if (($prop['type'] ?? null) === 'gallery') {
+                    $field        = $prop['key'] ?? $key;                 // "gallery"
+                    $max          = (int)($prop['max_images'] ?? 5);
+                    $bucket       = $request->input($field . '_bucket', 'default-galleries');
+
+                    // Existing (for storage mode / keep compatibility)
+                    $existingImages = json_decode($request->input($field . '_existing', '[]'), true) ?? [];
+
+                    // We will post base64s for gallery via "gallery_image_base64[]" to avoid clashing
+                    // with featured image's "image_base64".
+                    $uploadKeyForGallery = $prop['upload_key'] ?? 'gallery_image_base64';
+
+                    // 1) Prefer client-provided base64 list from hidden inputs
+                    $incoming = $request->input($uploadKeyForGallery, []);
+                    if (!is_array($incoming)) {
+                        $incoming = $incoming ? [$incoming] : [];
+                    }
+
+                    $base64List = [];
+                    foreach ($incoming as $b64) {
+                        if (!is_string($b64)) continue;
+                        $b64 = trim($b64);
+                        if ($b64 === '') continue;
+                        // Accept either full data URLs or raw base64; pass-through to Edge
+                        $base64List[] = $b64;
+                    }
+
+                    // 2) As a fallback only, turn uploaded files into base64
+                    if (empty($base64List) && $request->hasFile($field)) {
+                        $files = $request->file($field);
+                        if ($files instanceof \Illuminate\Http\UploadedFile) {
+                            $files = [$files];
+                        }
+                        if (count($files) > $max) {
+                            $files = array_slice($files, 0, $max);
+                        }
+                        foreach ($files as $file) {
+                            if ($file && $file->isValid()) {
+                                $raw  = file_get_contents($file->getPathname());
+                                $mime = $file->getMimeType() ?: 'application/octet-stream';
+                                $base64List[] = 'data:' . $mime . ';base64,' . base64_encode($raw);
+                            }
+                        }
+                    }
+
+                    // Store base64 array for the Edge function
+                    $data[$uploadKeyForGallery] = !empty($base64List) ? array_slice($base64List, 0, $max) : null;
+
+                    // Do NOT send the storage JSON when using base64 mode
+                    $data[$field] = null;
+
+                    continue;
+                }
+
                 // --- CHECKBOX ---
                 if (($prop['type'] ?? null) === 'checkbox') {
                     $field = $prop['key'] ?? $key;
@@ -198,11 +253,29 @@ class GeneralController extends Controller
                     continue;
                 }
 
+                // --- INFO FIELDS ---
+                if (($prop['type'] ?? null) === 'info_fields') {
+                    $field = $prop['key'] ?? $key;
+                    $infoData = $request->get($field);
+
+                    if ($infoData) {
+                        if (is_string($infoData)) {
+                            $decoded = json_decode($infoData, true);
+                            $data[$field] = $decoded !== null ? json_encode($decoded) : null;
+                        } else {
+                            $data[$field] = json_encode($infoData);
+                        }
+                    } else {
+                        $data[$field] = null;
+                    }
+                    continue;
+                }
+
                 // --- LOCATION ---
                 if (($prop['type'] ?? null) === 'location') {
-                    $fieldName  = $prop['key'] ?? $key;        // 'location'
-                    $latField   = $fieldName . '_latitude';    // 'location_latitude'
-                    $lngField   = $fieldName . '_longitude';   // 'location_longitude'
+                    $fieldName  = $prop['key'] ?? $key;
+                    $latField   = $fieldName . '_latitude';
+                    $lngField   = $fieldName . '_longitude';
 
                     $lat = $request->get($latField);
                     $lng = $request->get($lngField);
@@ -228,7 +301,7 @@ class GeneralController extends Controller
                     if ($lat !== null) $data[$latField] = (string)$lat;
                     if ($lng !== null) $data[$lngField] = (string)$lng;
 
-                    unset($data[$fieldName]); // don’t send raw 'location'
+                    unset($data[$fieldName]);
                     continue;
                 }
 
@@ -246,17 +319,6 @@ class GeneralController extends Controller
                     } else {
                         $data[$field] = null;
                     }
-                    continue;
-                }
-
-                // --- GALLERY ---
-                if (($prop['type'] ?? null) === 'gallery') {
-                    $field = $prop['key'] ?? $key;
-                    $galleryData = $request->get($field);
-                    if ($galleryData && is_string($galleryData)) {
-                        $galleryData = json_decode($galleryData, true);
-                    }
-                    $data[$field] = $galleryData ?: null;
                     continue;
                 }
 
@@ -330,7 +392,6 @@ class GeneralController extends Controller
                     $data[$endOutKey]   = $endDT->toIso8601String();
                 }
             }
-
 
             // --- DEBUG ---
             if (isset($this->props['debug']) && in_array('POST', $this->props['debug'])) {
@@ -472,9 +533,7 @@ class GeneralController extends Controller
         \Log::info('=== UPDATE REQUEST DEBUG ===', [
             'method' => $request->method(),
             'url' => $request->url(),
-            'all' => $request->all(),
-            'business_hours_get' => $request->get('business_hours'),
-            'business_hours_input' => $request->input('business_hours'),
+            'id' => $id
         ]);
 
         $data = [];
@@ -504,11 +563,65 @@ class GeneralController extends Controller
             foreach ($this->props['schema'] as $key => $prop) {
                 $currentKey = $prop['key'] ?? $key;
 
-                // Skip raw temporal fields only if we’ll combine them later
+                // Skip raw temporal fields only if we'll combine them later
                 if ($combineTemporal && in_array($currentKey, $temporalKeys, true)) {
                     continue;
                 }
 
+                // --- GALLERY ---
+                if (($prop['type'] ?? null) === 'gallery') {
+                    $field        = $prop['key'] ?? $key;                 // "gallery"
+                    $max          = (int)($prop['max_images'] ?? 5);
+                    $bucket       = $request->input($field . '_bucket', 'default-galleries');
+
+                    // Existing (for storage mode / keep compatibility)
+                    $existingImages = json_decode($request->input($field . '_existing', '[]'), true) ?? [];
+
+                    // We will post base64s for gallery via "gallery_image_base64[]" to avoid clashing
+                    // with featured image's "image_base64".
+                    $uploadKeyForGallery = $prop['upload_key'] ?? 'gallery_image_base64';
+
+                    // 1) Prefer client-provided base64 list from hidden inputs
+                    $incoming = $request->input($uploadKeyForGallery, []);
+                    if (!is_array($incoming)) {
+                        $incoming = $incoming ? [$incoming] : [];
+                    }
+
+                    $base64List = [];
+                    foreach ($incoming as $b64) {
+                        if (!is_string($b64)) continue;
+                        $b64 = trim($b64);
+                        if ($b64 === '') continue;
+                        // Accept either full data URLs or raw base64; pass-through to Edge
+                        $base64List[] = $b64;
+                    }
+
+                    // 2) As a fallback only, turn uploaded files into base64
+                    if (empty($base64List) && $request->hasFile($field)) {
+                        $files = $request->file($field);
+                        if ($files instanceof \Illuminate\Http\UploadedFile) {
+                            $files = [$files];
+                        }
+                        if (count($files) > $max) {
+                            $files = array_slice($files, 0, $max);
+                        }
+                        foreach ($files as $file) {
+                            if ($file && $file->isValid()) {
+                                $raw  = file_get_contents($file->getPathname());
+                                $mime = $file->getMimeType() ?: 'application/octet-stream';
+                                $base64List[] = 'data:' . $mime . ';base64,' . base64_encode($raw);
+                            }
+                        }
+                    }
+
+                    // Store base64 array for the Edge function
+                    $data[$uploadKeyForGallery] = !empty($base64List) ? array_slice($base64List, 0, $max) : null;
+
+                    // Do NOT send the storage JSON when using base64 mode
+                    $data[$field] = null;
+
+                    continue;
+                }
                 // --- CHECKBOX ---
                 if (($prop['type'] ?? null) === 'checkbox') {
                     $field = $prop['key'] ?? $key;
@@ -529,6 +642,28 @@ class GeneralController extends Controller
                         $file = $request->file($field);
                         $fileContents = file_get_contents($file->getPathname());
                         $data[$prop['upload_key'] ?? $field] = base64_encode($fileContents);
+                    }
+                    continue;
+                }
+
+                // --- INFO FIELDS ---
+                if (($prop['type'] ?? null) === 'info_fields') {
+                    $field = $prop['key'] ?? $key;
+                    $infoData = $request->get($field);
+
+                    if ($infoData) {
+                        if (is_string($infoData)) {
+                            $decoded = json_decode($infoData, true);
+                            if ($decoded !== null) {
+                                $data[$field] = json_encode($decoded);
+                            } else {
+                                $data[$field] = null;
+                            }
+                        } else {
+                            $data[$field] = json_encode($infoData);
+                        }
+                    } else {
+                        $data[$field] = null;
                     }
                     continue;
                 }
@@ -577,30 +712,15 @@ class GeneralController extends Controller
                             $decoded = json_decode($scheduleData, true);
                             if ($decoded !== null) {
                                 $data[$field] = json_encode($decoded);
-                                \Log::info('Schedule processed (string->json)', ['key' => $field]);
                             } else {
                                 $data[$field] = null;
-                                \Log::warning('Invalid schedule JSON on update', ['key' => $field, 'raw' => $scheduleData]);
                             }
                         } else {
                             $data[$field] = json_encode($scheduleData);
-                            \Log::info('Schedule processed (array->json)', ['key' => $field]);
                         }
                     } else {
                         $data[$field] = null;
-                        \Log::info('Schedule set null on update', ['key' => $field]);
                     }
-                    continue;
-                }
-
-                // --- GALLERY ---
-                if (($prop['type'] ?? null) === 'gallery') {
-                    $field = $prop['key'] ?? $key;
-                    $galleryData = $request->get($field);
-                    if ($galleryData && is_string($galleryData)) {
-                        $galleryData = json_decode($galleryData, true);
-                    }
-                    $data[$field] = $galleryData ?: null;
                     continue;
                 }
 
@@ -631,7 +751,7 @@ class GeneralController extends Controller
                 // --- DEFAULT (non-readonly) ---
                 if (!isset($prop['readonly']) || !$prop['readonly']) {
                     $field = $prop['key'] ?? $key;
-                    $value = $request->get($field); // keep your current update semantics
+                    $value = $request->get($field);
                     if (is_array($value)) {
                         $data[$field] = array_map(function ($item) {
                             return is_string($item)
@@ -668,11 +788,9 @@ class GeneralController extends Controller
                         return back()->withErrors(['msg' => 'End must be after Start.']);
                     }
 
-                    // Write into schema-requested fields (events: start/end; venue_products: start_date/end_date)
                     $data[$startOutKey] = $startDT->toIso8601String();
                     $data[$endOutKey]   = $endDT->toIso8601String();
                 }
-                // If not all provided: we skipped raw fields above, so no change to temporal fields on update
             }
 
             $methodName = $this->props['UPDATE'];
@@ -680,9 +798,6 @@ class GeneralController extends Controller
                 $methodName = 'update_edge';
             }
 
-            if ($this->props['name']['plural'] === 'woo_products') {
-                $data = $this->transformForWooCommerce($data);
-            }
             if (method_exists($this->supabase, $methodName) && $data !== null) {
                 try {
                     $debugEnabled = isset($this->props['debug']) && in_array('UPDATE', $this->props['debug']);
@@ -700,6 +815,7 @@ class GeneralController extends Controller
                             'data' => $data
                         ]);
                     }
+
                     $this->supabase->$methodName($id, $data, $this->props['name']['plural'], $debugEnabled);
                 } catch (\Exception $e) {
                     \Log::error('Update error: ' . $e->getMessage());

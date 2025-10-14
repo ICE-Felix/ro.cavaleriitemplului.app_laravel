@@ -211,6 +211,205 @@
                                                             @endphp
                                                             {{ $formattedTime }}
                                                             @break
+                                                        @case('gallery')
+                                                            @php
+                                                                $galleryValue = $elem[$key] ?? null;
+                                                                $galleryData = null;
+
+                                                                if (is_string($galleryValue)) {
+                                                                    $decoded = json_decode($galleryValue, true);
+                                                                    $galleryData = is_array($decoded) ? $decoded : null;
+                                                                } elseif (is_array($galleryValue)) {
+                                                                    $galleryData = $galleryValue;
+                                                                }
+
+                                                                $extractSrc = function ($item) {
+                                                                    if (is_array($item)) {
+                                                                        if (!empty($item['url']))  return (string)$item['url'];
+                                                                        if (!empty($item['src']))  return (string)$item['src'];
+                                                                        if (!empty($item['path'])) return (string)$item['path'];
+                                                                    }
+                                                                    if (is_string($item)) {
+                                                                        $s = trim($item);
+                                                                        if ($s === '') return null;
+                                                                        if (str_starts_with($s, 'data:image/')) return $s;
+                                                                        if (str_starts_with($s, 'http://') || str_starts_with($s, 'https://')) return $s;
+                                                                        return $s;
+                                                                    }
+                                                                    return null;
+                                                                };
+
+                                                                $firstImage = null;
+                                                                $imageCount = 0;
+
+                                                                if (is_array($galleryData) && count($galleryData) > 0) {
+                                                                    $imageCount = count($galleryData);
+                                                                    $firstImage = $extractSrc($galleryData[0]);
+                                                                    if (!$firstImage) {
+                                                                        foreach ($galleryData as $it) {
+                                                                            $firstImage = $extractSrc($it);
+                                                                            if ($firstImage) break;
+                                                                        }
+                                                                    }
+                                                                }
+                                                            @endphp
+
+                                                            @if($imageCount > 0)
+                                                                @if($firstImage)
+                                                                    <div class="flex items-center gap-2">
+                                                                        <img src="{{ e($firstImage) }}"
+                                                                             alt="Gallery preview"
+                                                                             style="height: 40px; width: 40px; object-fit: cover; border-radius: 4px;">
+                                                                        <span class="text-sm text-gray-600">
+                                                                            {{ $imageCount }} image{{ $imageCount > 1 ? 's' : '' }}
+                                                                        </span>
+                                                                    </div>
+                                                                @else
+                                                                    <span class="text-gray-600">
+                                                                        {{ $imageCount }} image{{ $imageCount > 1 ? 's' : '' }}
+                                                                    </span>
+                                                                @endif
+                                                            @else
+                                                                <span class="text-gray-500">No images</span>
+                                                            @endif
+                                                            @break
+                                                        @case('ad_hoc_builder')
+                                                            @php
+                                                                $adHocValue = $elem[$key] ?? '';
+                                                                $adHocData = null;
+
+                                                                if (is_string($adHocValue)) {
+                                                                    $adHocData = json_decode($adHocValue, true);
+                                                                } elseif (is_array($adHocValue)) {
+                                                                    $adHocData = $adHocValue;
+                                                                }
+
+                                                                if ($adHocData && is_array($adHocData) && count($adHocData) > 0) {
+                                                                    $dateCount = count($adHocData);
+                                                                    $dates = array_map(fn($item) => $item['date'] ?? '', $adHocData);
+                                                                    $dates = array_filter($dates);
+
+                                                                    if (count($dates) > 0) {
+                                                                        $preview = count($dates) <= 3
+                                                                            ? implode(', ', $dates)
+                                                                            : implode(', ', array_slice($dates, 0, 2)) . ', +' . (count($dates) - 2) . ' more';
+
+                                                                        echo '<div class="text-sm">';
+                                                                        echo '<strong>' . $dateCount . ' date' . ($dateCount > 1 ? 's' : '') . ':</strong><br>';
+                                                                        echo '<span class="text-gray-600">' . $preview . '</span>';
+                                                                        echo '</div>';
+                                                                    } else {
+                                                                        echo '<span class="text-gray-500">No dates</span>';
+                                                                    }
+                                                                } else {
+                                                                    echo '<span class="text-gray-500">No dates selected</span>';
+                                                                }
+                                                            @endphp
+                                                            @break
+                                                        @case('periods_builder')
+                                                            @php
+                                                                $periodsValue = $elem[$key] ?? '';
+                                                                $periodsData = null;
+
+                                                                if (is_string($periodsValue)) {
+                                                                    $periodsData = json_decode($periodsValue, true);
+                                                                } elseif (is_array($periodsValue)) {
+                                                                    $periodsData = $periodsValue;
+                                                                }
+
+                                                                if ($periodsData && is_array($periodsData)) {
+                                                                    $frequency = $periodsData['frequency'] ?? 'daily';
+                                                                    $startsOn = $periodsData['starts_on'] ?? null;
+                                                                    $endsOn = $periodsData['ends_on'] ?? null;
+                                                                    $windows = $periodsData['windows'] ?? [];
+                                                                    $weeklyDays = $periodsData['weekly_days'] ?? [];
+                                                                    $monthlyDays = $periodsData['monthly_days'] ?? [];
+
+                                                                    $displayParts = [];
+
+                                                                    // Frequency
+                                                                    $displayParts[] = '<strong>' . ucfirst($frequency) . '</strong>';
+
+                                                                    // Date range
+                                                                    if ($startsOn && $endsOn) {
+                                                                        $displayParts[] = Carbon\Carbon::parse($startsOn)->format('M d') . ' - ' . Carbon\Carbon::parse($endsOn)->format('M d, Y');
+                                                                    }
+
+                                                                    // Weekly days
+                                                                    if ($frequency === 'weekly' && !empty($weeklyDays)) {
+                                                                        $dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                                                                        $selectedDays = array_map(fn($d) => $dayNames[$d] ?? $d, $weeklyDays);
+                                                                        $displayParts[] = implode(', ', $selectedDays);
+                                                                    }
+
+                                                                    // Monthly days
+                                                                    if ($frequency === 'monthly' && !empty($monthlyDays)) {
+                                                                        $displayParts[] = 'Days: ' . implode(', ', array_map(fn($d) => $d + 1, $monthlyDays));
+                                                                    }
+
+                                                                    // Windows
+                                                                    if (!empty($windows)) {
+                                                                        $windowCount = count($windows);
+                                                                        $displayParts[] = $windowCount . ' time window' . ($windowCount > 1 ? 's' : '');
+                                                                    }
+
+                                                                    echo '<div class="text-sm">' . implode('<br>', $displayParts) . '</div>';
+                                                                } else {
+                                                                    echo '<span class="text-gray-500">No schedule set</span>';
+                                                                }
+                                                            @endphp
+                                                            @break
+                                                        @case('tickets')
+                                                            @php
+                                                                $ticketsValue = $elem[$key] ?? '';
+                                                                $ticketsData = null;
+
+                                                                if (is_string($ticketsValue)) {
+                                                                    $ticketsData = json_decode($ticketsValue, true);
+                                                                } elseif (is_array($ticketsValue)) {
+                                                                    $ticketsData = $ticketsValue;
+                                                                }
+
+                                                                if ($ticketsData && is_array($ticketsData) && count($ticketsData) > 0) {
+                                                                    $ticketCount = count($ticketsData);
+                                                                    $ticketTypes = array_map(fn($t) => $t['type'] ?? $t['name'] ?? 'Ticket', $ticketsData);
+
+                                                                    $preview = count($ticketTypes) <= 3
+                                                                        ? implode(', ', $ticketTypes)
+                                                                        : implode(', ', array_slice($ticketTypes, 0, 2)) . ', +' . (count($ticketTypes) - 2) . ' more';
+
+                                                                    echo '<div class="text-sm">';
+                                                                    echo '<strong>' . $ticketCount . ' ticket type' . ($ticketCount > 1 ? 's' : '') . '</strong><br>';
+                                                                    echo '<span class="text-gray-600">' . $preview . '</span>';
+                                                                    echo '</div>';
+                                                                } else {
+                                                                    echo '<span class="text-gray-500">No tickets</span>';
+                                                                }
+                                                            @endphp
+                                                            @break
+                                                        @case('info_fields')
+                                                            @php
+                                                                $infoValue = $elem[$key] ?? '';
+                                                                $infoData = null;
+
+                                                                if (is_string($infoValue)) {
+                                                                    $infoData = json_decode($infoValue, true);
+                                                                } elseif (is_array($infoValue)) {
+                                                                    $infoData = $infoValue;
+                                                                }
+
+                                                                $displayText = '';
+                                                                if ($infoData && is_array($infoData)) {
+                                                                    $titles = array_map(fn($item) => $item['title'] ?? '', $infoData);
+                                                                    $displayText = implode(', ', array_filter($titles));
+                                                                }
+
+                                                                if (empty($displayText)) {
+                                                                    $displayText = '<span class="text-gray-500">No fields</span>';
+                                                                }
+                                                            @endphp
+                                                            {!! $displayText !!}
+                                                            @break
                                                         @case('trix')
                                                             {!! \Illuminate\Support\Str::limit(strip_tags(html_entity_decode($elem[$key] ?? '')), 100) !!}
                                                             @break
