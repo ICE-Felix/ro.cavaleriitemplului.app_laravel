@@ -5,7 +5,7 @@
     "label_singular": "Product",
     "label_plural": "Products"
   },
-  "debug": ["POST"],
+  "debug": [],
   "schema": {
     "id": {
       "label": "#",

@@ -53,7 +53,7 @@
             <input type="hidden" name="gallery_image_base64[]" :value="p.url">
         </template>
 
-        <div class="gallery-header flex items-center justify-between gap-3 flex-wrap mb-3">
+        <div class="gallery-header flex items-center justify-between gap-3 flex-wrap mb-4">
             <div class="header-actions flex items-center gap-3 flex-wrap">
                 <button type="button"
                         class="gallery-add-btn inline-flex items-center gap-2 text-sm px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-nowrap"
@@ -254,36 +254,65 @@
     [x-cloak]{display:none!important}
     .aspect-square{aspect-ratio:1/1}
 
-    #{{ $galleryId }}_wrap .gallery-header{row-gap:.25rem}
+    #{{ $galleryId }}_wrap .gallery-header{row-gap:.2rem}
 
     #{{ $galleryId }}_wrap .gallery-card{position:relative}
     #{{ $galleryId }}_wrap .gallery-x-btn{
         position: absolute;
-        top: .15rem;
-        right: .15rem;
-        height: 2.25rem;
-        width:  2.25rem;
+        top: .10rem;
+        right: .10rem;
+        height: 1.75rem;
+        width:  1.75rem;
         border-radius: 9999px;
         background: #fff;
         color: #111;
-        border: 2px solid rgba(0,0,0,.85);
-        box-shadow: 0 2px 8px rgba(0,0,0,.22);
+        border: 1.5px solid rgba(0,0,0,.85);
+        box-shadow: 0 2px 8px rgba(0,0,0,.18);
         z-index: 50;
         display: flex;
         align-items: center;
         justify-content: center;
         pointer-events: auto;
     }
-
     #{{ $galleryId }}_wrap .gallery-x-btn:hover{
-        background: #f3f4f6;     /* subtle hover */
-        border-color: #000;
+        background:#f3f4f6;
+        border-color:#000;
+    }
+    #{{ $galleryId }}_wrap .gallery-x-btn svg,
+    #{{ $galleryId }}_wrap .gallery-x-btn span{pointer-events:none}
+
+    #{{ $galleryId }}_wrap .gallery-hidden-input + *{display:none!important}
+
+    #{{ $galleryId }}_wrap .form-label{font-size:.875rem}
+
+    #{{ $galleryId }}_wrap .bg-white.border{padding:.75rem;border-radius:.75rem}
+
+    #{{ $galleryId }}_wrap .gallery-add-btn{
+        font-size:.75rem;
+        padding:.4rem .6rem;
+        border-radius:9999px;
+    }
+    #{{ $galleryId }}_wrap .gallery-add-btn svg{width:.95rem;height:.95rem}
+
+    #{{ $galleryId }}_wrap .border-dashed{padding:.75rem}
+    #{{ $galleryId }}_wrap .border-dashed svg{width:1.1rem;height:1.1rem}
+    #{{ $galleryId }}_wrap .border-dashed .text-xs{font-size:.7rem}
+
+    #{{ $galleryId }}_wrap .grid{gap:.5rem}
+
+    @media (min-width:768px){
+        #{{ $galleryId }}_wrap .grid{grid-template-columns:repeat(6,minmax(0,1fr))}
+    }
+    @media (min-width:1024px){
+        #{{ $galleryId }}_wrap .grid{grid-template-columns:repeat(8,minmax(0,1fr))}
     }
 
-    #{{ $galleryId }}_wrap .gallery-x-btn svg,
-    #{{ $galleryId }}_wrap .gallery-x-btn span{
-        pointer-events: none;    /* keep the whole circle clickable */
+    #{{ $galleryId }}_wrap .gallery-card{border-radius:.5rem}
+
+    #{{ $galleryId }}_wrap .gallery-card .absolute.bottom-2.left-2{
+        font-size:.55rem;
+        padding:.1rem .3rem;
+        border-radius:.25rem;
     }
-    #{{ $galleryId }}_wrap .gallery-hidden-input + *{display:none!important}
 
 </style>

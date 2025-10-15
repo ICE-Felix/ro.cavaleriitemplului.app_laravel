@@ -1,6 +1,6 @@
 {
   "name": { "singular": "event", "plural": "events", "label_singular": "Event", "label_plural": "Events" },
-  "debug": ["POST"],
+  "debug": [],
   "schema": {
     "id": { "label": "#", "type": "int", "readonly": true, "visible": false },
 
