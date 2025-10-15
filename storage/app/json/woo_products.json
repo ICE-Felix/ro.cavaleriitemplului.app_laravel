@@ -171,12 +171,6 @@
       "placeholder": "Unique SKU",
       "visible": true
     },
-    "price": {
-      "type": "text",
-      "label": "Price",
-      "placeholder": "e.g., 29.90",
-      "visible": true
-    },
     "regular_price": {
       "type": "text",
       "label": "Regular Price",
@@ -240,7 +234,7 @@
     "info_fields": {
       "type": "info_fields",
       "label": "Additional Product Information",
-      "key": "info_fields",
+      "key": "meta_data",
       "value": null,
       "required": false,
       "visible": false

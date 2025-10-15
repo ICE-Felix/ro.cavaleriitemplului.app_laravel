@@ -130,8 +130,8 @@
                             if (Array.isArray(data)) {
                                 this.fields = data.map(item => ({
                                     uid: crypto.randomUUID(),
-                                    title: item.title || '',
-                                    description: item.description || ''
+                                    key: item.title || '',
+                                    value: item.description || ''
                                 }));
                             }
                         }
@@ -147,8 +147,8 @@
                 addField() {
                     this.fields.push({
                         uid: crypto.randomUUID(),
-                        title: '',
-                        description: ''
+                        key: '',
+                        value: ''
                     });
                     this.syncPayload();
                 },
@@ -165,8 +165,8 @@
 
                     try {
                         const payload = this.fields.map(field => ({
-                            title: field.title || '',
-                            description: field.description || ''
+                            key: field.title || '',
+                            value: field.description || ''
                         }));
 
                         this.hiddenValue = JSON.stringify(payload);

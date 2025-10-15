@@ -92,19 +92,19 @@
     "contact_person": { "type": "text", "label": "Contact Person", "visible": true },
     "phone_no": { "type": "text", "label": "Phone Number", "visible": true },
     "email": { "type": "text", "label": "Contact Email", "visible": true },
-    "capacity": { "type": "text", "label": "Event Capacity", "visible": true }
-  },
-  "gallery": {
-    "type": "gallery",
-    "label": "Event Gallery",
-    "key": "gallery",
-    "value": null,
-    "required": false,
-    "visible": true,
-    "min_images": 0,
-    "max_images": 5,
-    "bucket": "events-images",
-    "upload_key": "gallery_image_base64"
+    "capacity": { "type": "text", "label": "Event Capacity", "visible": true },
+    "gallery": {
+      "type": "gallery",
+      "label": "Event Gallery",
+      "key": "gallery",
+      "value": null,
+      "required": false,
+      "visible": true,
+      "min_images": 0,
+      "max_images": 5,
+      "bucket": "events-images",
+      "upload_key": "gallery_image_base64"
+    }
   },
   "GET": "edge",
   "INSERT": "edge",
