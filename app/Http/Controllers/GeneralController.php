@@ -200,9 +200,9 @@ class GeneralController extends Controller
 
                 // --- LOCATION ---
                 if (($prop['type'] ?? null) === 'location') {
-                    $fieldName  = $prop['key'] ?? $key;        // 'location'
-                    $latField   = $fieldName . '_latitude';    // 'location_latitude'
-                    $lngField   = $fieldName . '_longitude';   // 'location_longitude'
+                    $fieldName  = $prop['key'] ?? $key;
+                    $latField   = $fieldName . '_latitude';
+                    $lngField   = $fieldName . '_longitude';
 
                     $lat = $request->get($latField);
                     $lng = $request->get($lngField);
@@ -228,7 +228,7 @@ class GeneralController extends Controller
                     if ($lat !== null) $data[$latField] = (string)$lat;
                     if ($lng !== null) $data[$lngField] = (string)$lng;
 
-                    unset($data[$fieldName]); // don’t send raw 'location'
+                    unset($data[$fieldName]);
                     continue;
                 }
 
@@ -326,13 +326,51 @@ class GeneralController extends Controller
                         return back()->withErrors(['msg' => 'End must be after Start.']);
                     }
 
-                    // Write into whatever keys the schema asked for
                     $data[$startOutKey] = $startDT->toIso8601String();
                     $data[$endOutKey]   = $endDT->toIso8601String();
                 }
-                // raw inputs were intentionally skipped above
             }
-            // else: no combination; raw fields already in $data (if present)
+
+            // === Handle event scheduling patterns ===
+            if ($this->props['name']['plural'] === 'events') {
+                $eventKind = $request->input('event_kind');
+                $oneOffPattern = $request->input('one_off_pattern');
+
+                // For single day events, use the simple hour fields
+                if ($eventKind === 'one_off' && $oneOffPattern === 'single_day') {
+                    $startDate = trim((string) $request->input('start_date', ''));
+                    $startHour = trim((string) $request->input('start_hour', ''));
+                    $endDate   = trim((string) $request->input('end_date', ''));
+                    $endHour   = trim((string) $request->input('end_hour', ''));
+
+                    // Build schedules_json for single day
+                    $schedules = [
+                        'frequency' => 'daily',
+                        'starts_on' => $startDate ?: null,
+                        'ends_on' => $endDate ?: $startDate ?: null,
+                        'windows' => [[
+                            'start_time' => $startHour ?: '',
+                            'end_time' => $endHour ?: ''
+                        ]]
+                    ];
+
+                    $data['schedules_json'] = json_encode($schedules);
+                    // Clear ad_hoc_windows_json for single day
+                    $data['ad_hoc_windows_json'] = json_encode([]);
+                }
+
+                // For multi-day/weekly/monthly one-off events, use ad_hoc_windows_json
+                if ($eventKind === 'one_off' && in_array($oneOffPattern, ['multi_day', 'weekly_select', 'monthly_select'])) {
+                    // Clear schedules_json for calendar-based events
+                    $data['schedules_json'] = null;
+                }
+
+                // For recurring events, schedules_json comes from periods_builder component
+                // Clear ad_hoc_windows_json for recurring
+                if ($eventKind === 'recurring') {
+                    $data['ad_hoc_windows_json'] = json_encode([]);
+                }
+            }
 
             // --- DEBUG ---
             if (isset($this->props['debug']) && in_array('POST', $this->props['debug'])) {
@@ -390,6 +428,7 @@ class GeneralController extends Controller
             return back()->withErrors(['msg' => $e->getMessage()]);
         }
     }
+
 
     /**
      * Display the specified resource.
@@ -506,7 +545,7 @@ class GeneralController extends Controller
             foreach ($this->props['schema'] as $key => $prop) {
                 $currentKey = $prop['key'] ?? $key;
 
-                // Skip raw temporal fields only if we’ll combine them later
+                // Skip raw temporal fields only if we'll combine them later
                 if ($combineTemporal && in_array($currentKey, $temporalKeys, true)) {
                     continue;
                 }
@@ -633,7 +672,7 @@ class GeneralController extends Controller
                 // --- DEFAULT (non-readonly) ---
                 if (!isset($prop['readonly']) || !$prop['readonly']) {
                     $field = $prop['key'] ?? $key;
-                    $value = $request->get($field); // keep your current update semantics
+                    $value = $request->get($field);
                     if (is_array($value)) {
                         $data[$field] = array_map(function ($item) {
                             return is_string($item)
@@ -670,11 +709,50 @@ class GeneralController extends Controller
                         return back()->withErrors(['msg' => 'End must be after Start.']);
                     }
 
-                    // Write into schema-requested fields (events: start/end; venue_products: start_date/end_date)
                     $data[$startOutKey] = $startDT->toIso8601String();
                     $data[$endOutKey]   = $endDT->toIso8601String();
                 }
-                // If not all provided: we skipped raw fields above, so no change to temporal fields on update
+            }
+
+            // === Handle event scheduling patterns ===
+            if ($this->props['name']['plural'] === 'events') {
+                $eventKind = $request->input('event_kind');
+                $oneOffPattern = $request->input('one_off_pattern');
+
+                // For single day events, use the simple hour fields
+                if ($eventKind === 'one_off' && $oneOffPattern === 'single_day') {
+                    $startDate = trim((string) $request->input('start_date', ''));
+                    $startHour = trim((string) $request->input('start_hour', ''));
+                    $endDate   = trim((string) $request->input('end_date', ''));
+                    $endHour   = trim((string) $request->input('end_hour', ''));
+
+                    // Build schedules_json for single day
+                    $schedules = [
+                        'frequency' => 'daily',
+                        'starts_on' => $startDate ?: null,
+                        'ends_on' => $endDate ?: $startDate ?: null,
+                        'windows' => [[
+                            'start_time' => $startHour ?: '',
+                            'end_time' => $endHour ?: ''
+                        ]]
+                    ];
+
+                    $data['schedules_json'] = json_encode($schedules);
+                    // Clear ad_hoc_windows_json for single day
+                    $data['ad_hoc_windows_json'] = json_encode([]);
+                }
+
+                // For multi-day/weekly/monthly one-off events, use ad_hoc_windows_json
+                if ($eventKind === 'one_off' && in_array($oneOffPattern, ['multi_day', 'weekly_select', 'monthly_select'])) {
+                    // Clear schedules_json for calendar-based events
+                    $data['schedules_json'] = null;
+                }
+
+                // For recurring events, schedules_json comes from periods_builder component
+                // Clear ad_hoc_windows_json for recurring
+                if ($eventKind === 'recurring') {
+                    $data['ad_hoc_windows_json'] = json_encode([]);
+                }
             }
 
             $methodName = $this->props['UPDATE'];
@@ -685,6 +763,7 @@ class GeneralController extends Controller
             if ($this->props['name']['plural'] === 'woo_products') {
                 $data = $this->transformForWooCommerce($data);
             }
+
             if (method_exists($this->supabase, $methodName) && $data !== null) {
                 try {
                     $debugEnabled = isset($this->props['debug']) && in_array('UPDATE', $this->props['debug']);
@@ -722,7 +801,6 @@ class GeneralController extends Controller
             return back()->withErrors(['msg' => $e->message()]);
         }
     }
-
 
     /**
      * Remove the specified resource from storage.
@@ -860,6 +938,19 @@ class GeneralController extends Controller
                             $prop['filters'] ?? []
                         );
                 }
+            }
+
+            // ADD THIS: Handle tickets component with ticket_types
+            if (isset($prop['type']) && $prop['type'] === 'tickets' && isset($prop['ticket_types'])) {
+                $data[$key . '_ticket_types'] =
+                    $this->getSourceData(
+                        $prop['ticket_types']['source'],
+                        $prop['ticket_types']['value'] ?? 'id',
+                        $prop['ticket_types']['name'] ?? 'type',
+                        $prop['ticket_types']['type'] ?? 'class',
+                        $prop['ticket_types']['name'] ?? ($prop['ticket_types']['value'] ?? null),
+                        $prop['filters'] ?? []
+                    );
             }
         }
         return $data;

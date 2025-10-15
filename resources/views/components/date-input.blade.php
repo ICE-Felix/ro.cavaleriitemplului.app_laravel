@@ -1,4 +1,4 @@
-<div class="form-group">
+<div class="form-group" data-field="{{ $name }}">
     @if($label)
         <label for="{{ $name }}">{{ $label }}</label>
     @endif
@@ -10,10 +10,7 @@
            value="{{ old($name, $value) }}"
            @if($min) min="{{ $min }}" @endif
            onclick="this.showPicker()">
-
     @if($error)
-        <div class="invalid-feedback">
-            {{ $error }}
-        </div>
+        <div class="invalid-feedback">{{ $error }}</div>
     @endif
 </div>

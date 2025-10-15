@@ -31,6 +31,7 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/trix@2.1.15/dist/trix.umd.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/trix@2.1.15/dist/trix.min.css" rel="stylesheet">
+
     <link href="/assets/css/trix.css" rel="stylesheet">
 
     <title>{{env('APP_NAME')}}</title>
@@ -112,6 +113,49 @@
         }
     }
 </script>
+<script>
+    (function(){
+        function wrap(id){ const el=document.getElementById(id); return el ? (el.closest('[data-field]')||el.closest('div')) : null; }
+        function sync(){
+            const kind    = document.getElementById('event_kind')?.value || 'one_off';
+            const pattern = document.getElementById('one_off_pattern')?.value || 'single_day';
+
+            const isOneOff = (kind === 'one_off');
+            const isSingle = (pattern === 'single_day');
+
+            const startH = wrap('start_hour'), endH = wrap('end_hour');
+            const sched  = wrap('schedule_type');
+            const oopSel = wrap('one_off_pattern');
+            const adHoc  = document.getElementById('ad_hoc_builder')?.closest('div');
+            const recur  = document.getElementById('periods_builder')?.closest('div') || document.getElementById('recurring_builder')?.closest('div');
+
+            if (startH) startH.style.display = (isOneOff && isSingle) ? '' : 'none';
+            if (endH)   endH.style.display   = (isOneOff && isSingle) ? '' : 'none';
+            if (sched)  sched.style.display  = (!isOneOff) ? '' : 'none';
+            if (oopSel) oopSel.style.display = (isOneOff) ? '' : 'none';
+            if (adHoc)  adHoc.style.display  = (isOneOff && !isSingle) ? '' : 'none';
+            if (recur)  recur.style.display  = (!isOneOff) ? '' : 'none';
+
+            const sd = document.getElementById('start_date');
+            const ed = document.getElementById('end_date');
+            if (sd && ed){
+                if (isOneOff && isSingle){ ed.value = sd.value || ed.value; ed.readOnly = true; }
+                else { ed.readOnly = false; }
+            }
+
+            const ev = new CustomEvent('oneoff:pattern', { detail: { pattern }});
+            document.getElementById('ad_hoc_builder')?.dispatchEvent(ev);
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            ['event_kind','one_off_pattern','start_date'].forEach(id => {
+                const el = document.getElementById(id);
+                el && el.addEventListener('change', sync);
+            });
+            sync();
+        });
+    })();
+</script>
+
 @yield('footer')
 @stack('scripts')
 

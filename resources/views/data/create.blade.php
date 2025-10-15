@@ -90,6 +90,20 @@
                                                 :error="$errors->first($field['id'] ?? $key)"
                                         />
                                         @break
+                                        @case('ad_hoc_builder')
+                                        <x-ad-hoc-builder
+                                                name="ad_hoc_windows_json"
+                                                :label="$field['label'] ?? 'Pick Dates & Hours'"
+                                                :value="old('ad_hoc_windows_json', $result['ad_hoc_windows_json'] ?? '[]')"
+                                        />
+                                        @break
+
+                                        @case('periods_builder')
+                                        <x-periods-builder
+                                                name="schedules_json"
+                                                :label="$field['label'] ?? 'Recurring Rules'"
+                                        />
+                                        @break
                                         @case('select')
                                         @php
                                             $values = [];
@@ -160,7 +174,20 @@
                                             :longitude="old('location_longitude', 26.1025)"
                                         />
                                         @break
-                                        @case('date')
+                                    @case('tickets')
+                                        @php
+                                            // Get ticket types data - already formatted by getSourceData()
+                                            $ticketTypesData = $data[$key . '_ticket_types'] ?? [];
+                                        @endphp
+
+                                        <x-ticket-builder
+                                                name="{{ $field['key'] ?? $key }}"
+                                                label="{{ $field['label'] ?? ucfirst($key) }}"
+                                                :value="old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? $field['value'] ?? '[]')"
+                                                :ticketTypes="$ticketTypesData"
+                                        />
+                                        @break
+                                       @case('date')
                                         @php
                                             // Handle pre-filled date from calendar
                                             $dateValue = $field['value'] ?? null;
@@ -174,8 +201,6 @@
                                                 placeholder="{{ $field['placeholder'] ?? null }}"
                                                 :error="$errors->first($field['id'] ?? $key)"
                                                 value="{{ $dateValue }}"
-                                                min="2024-01-01"
-                                                max="2024-12-31"
                                         />
                                         @break
                                         @case('time')
