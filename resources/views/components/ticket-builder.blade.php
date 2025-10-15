@@ -2,16 +2,23 @@
      x-data="ticketBuilder()"
      x-init="init()"
      x-cloak
+     data-ticket-types="{{ base64_encode(json_encode($ticketTypes ?? [])) }}"
      class="card p-4 rounded-xl shadow-sm border border-gray-200">
 
     <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-semibold">{{ $label ?? 'Ticket Types' }}</h3>
+        <h3 class="text-lg font-semibold">{{ $label ?? 'Tickets' }}</h3>
         <button type="button"
                 class="btn btn_primary btn_sm"
-                @click.prevent="addTicket()">
+                @click="addTicket()">
             Add Ticket
         </button>
     </div>
+
+    <template x-if="ticketTypes.length === 0">
+        <p class="text-amber-600 text-sm mb-2">
+            ⚠️ No ticket types found. Please check your Supabase <code>ticket_type</code> data before adding tickets.
+        </p>
+    </template>
 
     <template x-if="tickets.length === 0">
         <p class="text-gray-500">No tickets added yet. Click "Add Ticket" to create one.</p>
@@ -20,7 +27,7 @@
     <div class="space-y-4">
         <template x-for="(ticket, index) in tickets" :key="ticket.uid">
             <div class="border rounded p-4 bg-gray-50">
-                <!-- Row 1: Name, Scope, Price -->
+                <!-- Row 1: Name, Type, Price -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div>
                         <label class="label block mb-2">Name</label>
@@ -32,15 +39,14 @@
                     </div>
 
                     <div>
-                        <label class="label block mb-2">Scope</label>
+                        <label class="label block mb-2">Type</label>
                         <select class="form-control"
-                                x-model="ticket.scope"
+                                x-model="ticket.type"
                                 @change="syncPayload()">
-                            <option value="">Select scope</option>
-                            <option value="1-day-pass">1-Day Pass</option>
-                            <option value="weekly-pass">Weekly Pass</option>
-                            <option value="monthly-pass">Monthly Pass</option>
-                            <option value="season-pass">Season Pass</option>
+                            <option value="">Select type</option>
+                            <template x-for="ticketType in ticketTypes" :key="ticketType.value">
+                                <option :value="ticketType.value" x-text="ticketType.name"></option>
+                            </template>
                         </select>
                     </div>
 
@@ -140,12 +146,12 @@
                 <div class="flex gap-2 pt-3 border-t">
                     <button type="button"
                             class="btn btn_secondary btn_sm"
-                            @click.prevent="duplicateTicket(index)">
+                            @click="duplicateTicket(index)">
                         Duplicate
                     </button>
                     <button type="button"
                             class="btn btn_danger btn_sm"
-                            @click.prevent="removeTicket(index)">
+                            @click="removeTicket(index)">
                         Remove
                     </button>
                 </div>
@@ -173,27 +179,39 @@
         function ticketBuilder() {
             return {
                 tickets: [],
+                ticketTypes: [],
                 _initialized: false,
                 weekDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
 
                 init() {
-                    // Restore from hidden payload if exists
+                    // Load ticket types from data attribute
+                    try {
+                        const container = document.getElementById('ticket_builder');
+                        const ticketTypesData = container.getAttribute('data-ticket-types');
+                        if (ticketTypesData) {
+                            this.ticketTypes = JSON.parse(atob(ticketTypesData));
+                        }
+                    } catch(e) {
+                        console.error('Error loading ticket types:', e);
+                    }
+
+                    // Restore tickets from hidden payload if exists
                     try {
                         const hidden = document.getElementById('tickets_json');
-                        if (hidden && hidden.value) {
+                        if (hidden && hidden.value && hidden.value !== '[]') {
                             const data = JSON.parse(hidden.value);
                             if (Array.isArray(data) && data.length > 0) {
                                 this.tickets = data.map(t => ({
                                     uid: crypto.randomUUID(),
                                     name: t.name || '',
-                                    scope: t.scope || '',
+                                    type: t.type || '',
                                     price: t.price || '',
                                     age_category: t.age_category || '',
                                     is_active: t.is_active ?? true,
                                     max_per_order: t.max_per_order || '',
                                     frequency: t.frequency || '',
-                                    weekly_days: t.weekly_days || [],
-                                    monthly_days: t.monthly_days || []
+                                    weekly_days: Array.isArray(t.weekly_days) ? t.weekly_days : [],
+                                    monthly_days: Array.isArray(t.monthly_days) ? t.monthly_days : []
                                 }));
                             }
                         }
@@ -205,10 +223,10 @@
                 },
 
                 addTicket() {
-                    this.tickets.push({
+                    const newTicket = {
                         uid: crypto.randomUUID(),
                         name: '',
-                        scope: '',
+                        type: '',
                         price: '',
                         age_category: '',
                         is_active: true,
@@ -216,13 +234,16 @@
                         frequency: '',
                         weekly_days: [],
                         monthly_days: []
-                    });
-                    this.syncPayload();
+                    };
+
+                    this.tickets = [...this.tickets, newTicket];
+                    this.$nextTick(() => this.syncPayload());
                 },
 
                 removeTicket(index) {
                     this.tickets.splice(index, 1);
-                    this.syncPayload();
+                    this.tickets = [...this.tickets];
+                    this.$nextTick(() => this.syncPayload());
                 },
 
                 duplicateTicket(index) {
@@ -232,7 +253,7 @@
                     const clone = {
                         uid: crypto.randomUUID(),
                         name: original.name,
-                        scope: original.scope,
+                        type: original.type,
                         price: original.price,
                         age_category: original.age_category,
                         is_active: original.is_active,
@@ -243,11 +264,11 @@
                     };
 
                     this.tickets.splice(index + 1, 0, clone);
-                    this.syncPayload();
+                    this.tickets = [...this.tickets];
+                    this.$nextTick(() => this.syncPayload());
                 },
 
                 onFrequencyChange(ticket) {
-                    // Clear conditional fields when frequency changes
                     if (ticket.frequency !== 'weekly') {
                         ticket.weekly_days = [];
                     }
@@ -271,16 +292,16 @@
                 },
 
                 toggleWeekDay(ticket, dayIndex) {
-                    const idx = ticket.weekly_days.indexOf(dayIndex);
+                    const currentDays = [...ticket.weekly_days];
+                    const idx = currentDays.indexOf(dayIndex);
+
                     if (idx > -1) {
-                        ticket.weekly_days.splice(idx, 1);
+                        currentDays.splice(idx, 1);
                     } else {
-                        ticket.weekly_days.push(dayIndex);
+                        currentDays.push(dayIndex);
                     }
-                    ticket.weekly_days.sort((a, b) => a - b);
 
-                    ticket.weekly_days = [...ticket.weekly_days];
-
+                    ticket.weekly_days = currentDays.sort((a, b) => a - b);
                     this.syncPayload();
                 },
 
@@ -289,7 +310,7 @@
                         this.tickets.map(t => {
                             const base = {
                                 name: t.name || '',
-                                scope: t.scope || '',
+                                type: t.type || null,
                                 price: parseFloat(t.price) || 0,
                                 age_category: t.age_category || '',
                                 is_active: !!t.is_active,
@@ -312,7 +333,6 @@
 
                 syncPayload() {
                     if (!this._initialized) return;
-                    // Alpine will handle this via x-bind:value on the hidden input
                 }
             };
         }

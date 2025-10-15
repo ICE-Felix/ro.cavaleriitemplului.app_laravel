@@ -180,7 +180,7 @@
                     this.windows.splice(i, 1);
                     if (this.windows.length === 0) this.windows = [ this.newWindow() ];
                     this.syncPayload();
-                }, // <-- IMPORTANT COMMA HERE
+                },
 
                 dupWindow(i) {
                     const c = JSON.parse(JSON.stringify(this.windows[i]));
