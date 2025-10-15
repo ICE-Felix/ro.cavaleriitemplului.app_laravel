@@ -5,7 +5,7 @@
     "label_singular": "Venue",
     "label_plural": "Venues"
   },
-  "debug": [],
+  "debug": ["POST"],
   "schema": {
     "id": {
       "label": "#",
@@ -145,6 +145,18 @@
       "key": "business_hours",
       "value": null,
       "required": false
+    },
+    "gallery": {
+      "type": "gallery",
+      "label": "Venue Gallery",
+      "key": "gallery",
+      "value": null,
+      "required": false,
+      "visible": true,
+      "min_images": 0,
+      "max_images": 5,
+      "bucket": "venue-galleries",
+      "upload_key": "gallery_image_base64"
     }
   },
   "GET": "edge",

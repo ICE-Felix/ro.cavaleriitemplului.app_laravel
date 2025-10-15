@@ -5,7 +5,7 @@
         "label_singular": "Contract",
         "label_plural": "Contracts"
     },
-    "debug": ["POST","INSERT","UPDATE","PUT"],
+    "debug": [],
     "schema": {
         "id": {
             "label": "#",

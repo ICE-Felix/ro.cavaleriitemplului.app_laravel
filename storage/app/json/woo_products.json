@@ -171,12 +171,6 @@
       "placeholder": "Unique SKU",
       "visible": true
     },
-    "price": {
-      "type": "text",
-      "label": "Price",
-      "placeholder": "e.g., 29.90",
-      "visible": true
-    },
     "regular_price": {
       "type": "text",
       "label": "Regular Price",
@@ -236,6 +230,26 @@
       "on_label": "Yes",
       "off_label": "No",
       "visible": true
+    },
+    "info_fields": {
+      "type": "info_fields",
+      "label": "Additional Product Information",
+      "key": "meta_data",
+      "value": null,
+      "required": false,
+      "visible": false
+    },
+    "gallery": {
+      "type": "gallery",
+      "label": "Product Gallery",
+      "key": "gallery",
+      "value": null,
+      "required": false,
+      "visible": true,
+      "min_images": 0,
+      "max_images": 5,
+      "bucket": "woo-images",
+      "upload_key": "gallery_image_base64"
     }
   },
   "GET": "edge",

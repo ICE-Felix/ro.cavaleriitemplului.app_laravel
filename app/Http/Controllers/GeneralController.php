@@ -174,6 +174,61 @@ class GeneralController extends Controller
                     continue;
                 }
 
+                // --- GALLERY ---
+                if (($prop['type'] ?? null) === 'gallery') {
+                    $field        = $prop['key'] ?? $key;                 // "gallery"
+                    $max          = (int)($prop['max_images'] ?? 5);
+                    $bucket       = $request->input($field . '_bucket', 'default-galleries');
+
+                    // Existing (for storage mode / keep compatibility)
+                    $existingImages = json_decode($request->input($field . '_existing', '[]'), true) ?? [];
+
+                    // We will post base64s for gallery via "gallery_image_base64[]" to avoid clashing
+                    // with featured image's "image_base64".
+                    $uploadKeyForGallery = $prop['upload_key'] ?? 'gallery_image_base64';
+
+                    // 1) Prefer client-provided base64 list from hidden inputs
+                    $incoming = $request->input($uploadKeyForGallery, []);
+                    if (!is_array($incoming)) {
+                        $incoming = $incoming ? [$incoming] : [];
+                    }
+
+                    $base64List = [];
+                    foreach ($incoming as $b64) {
+                        if (!is_string($b64)) continue;
+                        $b64 = trim($b64);
+                        if ($b64 === '') continue;
+                        // Accept either full data URLs or raw base64; pass-through to Edge
+                        $base64List[] = $b64;
+                    }
+
+                    // 2) As a fallback only, turn uploaded files into base64
+                    if (empty($base64List) && $request->hasFile($field)) {
+                        $files = $request->file($field);
+                        if ($files instanceof \Illuminate\Http\UploadedFile) {
+                            $files = [$files];
+                        }
+                        if (count($files) > $max) {
+                            $files = array_slice($files, 0, $max);
+                        }
+                        foreach ($files as $file) {
+                            if ($file && $file->isValid()) {
+                                $raw  = file_get_contents($file->getPathname());
+                                $mime = $file->getMimeType() ?: 'application/octet-stream';
+                                $base64List[] = 'data:' . $mime . ';base64,' . base64_encode($raw);
+                            }
+                        }
+                    }
+
+                    // Store base64 array for the Edge function
+                    $data[$uploadKeyForGallery] = !empty($base64List) ? array_slice($base64List, 0, $max) : null;
+
+                    // Do NOT send the storage JSON when using base64 mode
+                    $data[$field] = null;
+
+                    continue;
+                }
+
                 // --- CHECKBOX ---
                 if (($prop['type'] ?? null) === 'checkbox') {
                     $field = $prop['key'] ?? $key;
@@ -194,6 +249,24 @@ class GeneralController extends Controller
                         $file = $request->file($field);
                         $fileContents = file_get_contents($file->getPathname());
                         $data[$prop['upload_key'] ?? $field] = base64_encode($fileContents);
+                    }
+                    continue;
+                }
+
+                // --- INFO FIELDS ---
+                if (($prop['type'] ?? null) === 'info_fields') {
+                    $field = $prop['key'] ?? $key;
+                    $infoData = $request->get($field);
+
+                    if ($infoData) {
+                        if (is_string($infoData)) {
+                            $decoded = json_decode($infoData, true);
+                            $data[$field] = $decoded !== null ? json_encode($decoded) : null;
+                        } else {
+                            $data[$field] = json_encode($infoData);
+                        }
+                    } else {
+                        $data[$field] = null;
                     }
                     continue;
                 }
@@ -246,17 +319,6 @@ class GeneralController extends Controller
                     } else {
                         $data[$field] = null;
                     }
-                    continue;
-                }
-
-                // --- GALLERY ---
-                if (($prop['type'] ?? null) === 'gallery') {
-                    $field = $prop['key'] ?? $key;
-                    $galleryData = $request->get($field);
-                    if ($galleryData && is_string($galleryData)) {
-                        $galleryData = json_decode($galleryData, true);
-                    }
-                    $data[$field] = $galleryData ?: null;
                     continue;
                 }
 
@@ -331,47 +393,6 @@ class GeneralController extends Controller
                 }
             }
 
-            // === Handle event scheduling patterns ===
-            if ($this->props['name']['plural'] === 'events') {
-                $eventKind = $request->input('event_kind');
-                $oneOffPattern = $request->input('one_off_pattern');
-
-                // For single day events, use the simple hour fields
-                if ($eventKind === 'one_off' && $oneOffPattern === 'single_day') {
-                    $startDate = trim((string) $request->input('start_date', ''));
-                    $startHour = trim((string) $request->input('start_hour', ''));
-                    $endDate   = trim((string) $request->input('end_date', ''));
-                    $endHour   = trim((string) $request->input('end_hour', ''));
-
-                    // Build schedules_json for single day
-                    $schedules = [
-                        'frequency' => 'daily',
-                        'starts_on' => $startDate ?: null,
-                        'ends_on' => $endDate ?: $startDate ?: null,
-                        'windows' => [[
-                            'start_time' => $startHour ?: '',
-                            'end_time' => $endHour ?: ''
-                        ]]
-                    ];
-
-                    $data['schedules_json'] = json_encode($schedules);
-                    // Clear ad_hoc_windows_json for single day
-                    $data['ad_hoc_windows_json'] = json_encode([]);
-                }
-
-                // For multi-day/weekly/monthly one-off events, use ad_hoc_windows_json
-                if ($eventKind === 'one_off' && in_array($oneOffPattern, ['multi_day', 'weekly_select', 'monthly_select'])) {
-                    // Clear schedules_json for calendar-based events
-                    $data['schedules_json'] = null;
-                }
-
-                // For recurring events, schedules_json comes from periods_builder component
-                // Clear ad_hoc_windows_json for recurring
-                if ($eventKind === 'recurring') {
-                    $data['ad_hoc_windows_json'] = json_encode([]);
-                }
-            }
-
             // --- DEBUG ---
             if (isset($this->props['debug']) && in_array('POST', $this->props['debug'])) {
                 dump('=== RAW REQUEST DATA ===', $request->all());
@@ -428,7 +449,6 @@ class GeneralController extends Controller
             return back()->withErrors(['msg' => $e->getMessage()]);
         }
     }
-
 
     /**
      * Display the specified resource.
@@ -513,9 +533,7 @@ class GeneralController extends Controller
         \Log::info('=== UPDATE REQUEST DEBUG ===', [
             'method' => $request->method(),
             'url' => $request->url(),
-            'all' => $request->all(),
-            'business_hours_get' => $request->get('business_hours'),
-            'business_hours_input' => $request->input('business_hours'),
+            'id' => $id
         ]);
 
         $data = [];
@@ -550,6 +568,60 @@ class GeneralController extends Controller
                     continue;
                 }
 
+                // --- GALLERY ---
+                if (($prop['type'] ?? null) === 'gallery') {
+                    $field        = $prop['key'] ?? $key;                 // "gallery"
+                    $max          = (int)($prop['max_images'] ?? 5);
+                    $bucket       = $request->input($field . '_bucket', 'default-galleries');
+
+                    // Existing (for storage mode / keep compatibility)
+                    $existingImages = json_decode($request->input($field . '_existing', '[]'), true) ?? [];
+
+                    // We will post base64s for gallery via "gallery_image_base64[]" to avoid clashing
+                    // with featured image's "image_base64".
+                    $uploadKeyForGallery = $prop['upload_key'] ?? 'gallery_image_base64';
+
+                    // 1) Prefer client-provided base64 list from hidden inputs
+                    $incoming = $request->input($uploadKeyForGallery, []);
+                    if (!is_array($incoming)) {
+                        $incoming = $incoming ? [$incoming] : [];
+                    }
+
+                    $base64List = [];
+                    foreach ($incoming as $b64) {
+                        if (!is_string($b64)) continue;
+                        $b64 = trim($b64);
+                        if ($b64 === '') continue;
+                        // Accept either full data URLs or raw base64; pass-through to Edge
+                        $base64List[] = $b64;
+                    }
+
+                    // 2) As a fallback only, turn uploaded files into base64
+                    if (empty($base64List) && $request->hasFile($field)) {
+                        $files = $request->file($field);
+                        if ($files instanceof \Illuminate\Http\UploadedFile) {
+                            $files = [$files];
+                        }
+                        if (count($files) > $max) {
+                            $files = array_slice($files, 0, $max);
+                        }
+                        foreach ($files as $file) {
+                            if ($file && $file->isValid()) {
+                                $raw  = file_get_contents($file->getPathname());
+                                $mime = $file->getMimeType() ?: 'application/octet-stream';
+                                $base64List[] = 'data:' . $mime . ';base64,' . base64_encode($raw);
+                            }
+                        }
+                    }
+
+                    // Store base64 array for the Edge function
+                    $data[$uploadKeyForGallery] = !empty($base64List) ? array_slice($base64List, 0, $max) : null;
+
+                    // Do NOT send the storage JSON when using base64 mode
+                    $data[$field] = null;
+
+                    continue;
+                }
                 // --- CHECKBOX ---
                 if (($prop['type'] ?? null) === 'checkbox') {
                     $field = $prop['key'] ?? $key;
@@ -570,6 +642,28 @@ class GeneralController extends Controller
                         $file = $request->file($field);
                         $fileContents = file_get_contents($file->getPathname());
                         $data[$prop['upload_key'] ?? $field] = base64_encode($fileContents);
+                    }
+                    continue;
+                }
+
+                // --- INFO FIELDS ---
+                if (($prop['type'] ?? null) === 'info_fields') {
+                    $field = $prop['key'] ?? $key;
+                    $infoData = $request->get($field);
+
+                    if ($infoData) {
+                        if (is_string($infoData)) {
+                            $decoded = json_decode($infoData, true);
+                            if ($decoded !== null) {
+                                $data[$field] = json_encode($decoded);
+                            } else {
+                                $data[$field] = null;
+                            }
+                        } else {
+                            $data[$field] = json_encode($infoData);
+                        }
+                    } else {
+                        $data[$field] = null;
                     }
                     continue;
                 }
@@ -618,30 +712,15 @@ class GeneralController extends Controller
                             $decoded = json_decode($scheduleData, true);
                             if ($decoded !== null) {
                                 $data[$field] = json_encode($decoded);
-                                \Log::info('Schedule processed (string->json)', ['key' => $field]);
                             } else {
                                 $data[$field] = null;
-                                \Log::warning('Invalid schedule JSON on update', ['key' => $field, 'raw' => $scheduleData]);
                             }
                         } else {
                             $data[$field] = json_encode($scheduleData);
-                            \Log::info('Schedule processed (array->json)', ['key' => $field]);
                         }
                     } else {
                         $data[$field] = null;
-                        \Log::info('Schedule set null on update', ['key' => $field]);
                     }
-                    continue;
-                }
-
-                // --- GALLERY ---
-                if (($prop['type'] ?? null) === 'gallery') {
-                    $field = $prop['key'] ?? $key;
-                    $galleryData = $request->get($field);
-                    if ($galleryData && is_string($galleryData)) {
-                        $galleryData = json_decode($galleryData, true);
-                    }
-                    $data[$field] = $galleryData ?: null;
                     continue;
                 }
 
@@ -714,54 +793,9 @@ class GeneralController extends Controller
                 }
             }
 
-            // === Handle event scheduling patterns ===
-            if ($this->props['name']['plural'] === 'events') {
-                $eventKind = $request->input('event_kind');
-                $oneOffPattern = $request->input('one_off_pattern');
-
-                // For single day events, use the simple hour fields
-                if ($eventKind === 'one_off' && $oneOffPattern === 'single_day') {
-                    $startDate = trim((string) $request->input('start_date', ''));
-                    $startHour = trim((string) $request->input('start_hour', ''));
-                    $endDate   = trim((string) $request->input('end_date', ''));
-                    $endHour   = trim((string) $request->input('end_hour', ''));
-
-                    // Build schedules_json for single day
-                    $schedules = [
-                        'frequency' => 'daily',
-                        'starts_on' => $startDate ?: null,
-                        'ends_on' => $endDate ?: $startDate ?: null,
-                        'windows' => [[
-                            'start_time' => $startHour ?: '',
-                            'end_time' => $endHour ?: ''
-                        ]]
-                    ];
-
-                    $data['schedules_json'] = json_encode($schedules);
-                    // Clear ad_hoc_windows_json for single day
-                    $data['ad_hoc_windows_json'] = json_encode([]);
-                }
-
-                // For multi-day/weekly/monthly one-off events, use ad_hoc_windows_json
-                if ($eventKind === 'one_off' && in_array($oneOffPattern, ['multi_day', 'weekly_select', 'monthly_select'])) {
-                    // Clear schedules_json for calendar-based events
-                    $data['schedules_json'] = null;
-                }
-
-                // For recurring events, schedules_json comes from periods_builder component
-                // Clear ad_hoc_windows_json for recurring
-                if ($eventKind === 'recurring') {
-                    $data['ad_hoc_windows_json'] = json_encode([]);
-                }
-            }
-
             $methodName = $this->props['UPDATE'];
             if ($methodName === 'edge') {
                 $methodName = 'update_edge';
-            }
-
-            if ($this->props['name']['plural'] === 'woo_products') {
-                $data = $this->transformForWooCommerce($data);
             }
 
             if (method_exists($this->supabase, $methodName) && $data !== null) {
@@ -781,6 +815,7 @@ class GeneralController extends Controller
                             'data' => $data
                         ]);
                     }
+
                     $this->supabase->$methodName($id, $data, $this->props['name']['plural'], $debugEnabled);
                 } catch (\Exception $e) {
                     \Log::error('Update error: ' . $e->getMessage());
@@ -801,6 +836,7 @@ class GeneralController extends Controller
             return back()->withErrors(['msg' => $e->message()]);
         }
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -938,19 +974,6 @@ class GeneralController extends Controller
                             $prop['filters'] ?? []
                         );
                 }
-            }
-
-            // ADD THIS: Handle tickets component with ticket_types
-            if (isset($prop['type']) && $prop['type'] === 'tickets' && isset($prop['ticket_types'])) {
-                $data[$key . '_ticket_types'] =
-                    $this->getSourceData(
-                        $prop['ticket_types']['source'],
-                        $prop['ticket_types']['value'] ?? 'id',
-                        $prop['ticket_types']['name'] ?? 'type',
-                        $prop['ticket_types']['type'] ?? 'class',
-                        $prop['ticket_types']['name'] ?? ($prop['ticket_types']['value'] ?? null),
-                        $prop['filters'] ?? []
-                    );
             }
         }
         return $data;
