@@ -398,20 +398,15 @@
                                             :required="$field['required'] ?? false"
                                         />
                                         @break
-                                        @case('gallery')
-                                        @php
-                                            $label = $field['label'] ?? ucfirst($key);
-                                            $currentValue = old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? $field['value'] ?? null);
-                                        @endphp
+                                    @case('gallery')
                                         <x-gallery
-                                            name="{{ $field['key'] ?? $key }}"
-                                            label="{{ $label }}"
-                                            :value="$currentValue"
-                                            :error="$errors->first($field['key'] ?? $key)"
-                                            :required="$field['required'] ?? false"
-                                            :minImages="$field['min_images'] ?? 1"
-                                            :maxImages="$field['max_images'] ?? 6"
-                                            :bucket="$field['bucket'] ?? 'venue-galleries'"
+                                                name="gallery"
+                                                label="{{ $props['schema']['gallery']['label'] ?? 'Gallery' }}"
+                                                :value="$result['images'] ?? []"
+                                                :required="$props['schema']['gallery']['required'] ?? false"
+                                                :minImages="$props['schema']['gallery']['min_images'] ?? 0"
+                                                :maxImages="$props['schema']['gallery']['max_images'] ?? 5"
+                                                mode="edit"
                                         />
                                         @break
                                 @endswitch

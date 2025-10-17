@@ -209,11 +209,28 @@ class SupabaseService
     }
 
     /**
+     * Read data from Edge Function with optional query parameters
      * @throws GuzzleException
      */
-    public function read_edge($plural, $debug = false)
+    public function read_edge($plural, $debug = false, $queryParams = [])
     {
         $url = 'functions/v1/' . str_replace('-', '_', $plural);
+
+        // Build query string if query params provided
+        if (!empty($queryParams)) {
+            // Convert boolean values to string 'true'/'false' for proper URL encoding
+            $processedParams = [];
+            foreach ($queryParams as $key => $value) {
+                if (is_bool($value)) {
+                    $processedParams[$key] = $value ? 'true' : 'false';
+                } else {
+                    $processedParams[$key] = $value;
+                }
+            }
+
+            $queryString = http_build_query($processedParams);
+            $url .= '?' . $queryString;
+        }
 
         // DEBUG: Show the URL and payload being sent to Supabase only if debugging is enabled
         if ($debug) {
@@ -221,6 +238,9 @@ class SupabaseService
             dump([
                 'url' => $this->baseUrl . '/' . $url,
                 'method' => 'GET',
+                'query_params' => $queryParams,
+                'processed_query_params' => $processedParams ?? [],
+                'final_url' => $this->baseUrl . '/' . $url,
                 'headers' => [
                     'Authorization' => 'Bearer ' . Session::get('jwt_token'),
                 ],
@@ -239,7 +259,7 @@ class SupabaseService
             }
 
             $body = json_decode((string) $response->getBody(), true);
-            
+
             // DEBUG: Show the response from Supabase only if debugging is enabled
             if ($debug) {
                 dump('=== SUPABASE READ RESPONSE ===');
@@ -249,7 +269,7 @@ class SupabaseService
                     'response_raw' => (string) $response->getBody()
                 ]);
             }
-            
+
             if (isset($body['success']) && $body['success'] === true) {
                 // DEBUG: Success case only if debugging is enabled
                 if ($debug) {
@@ -258,14 +278,14 @@ class SupabaseService
                         'data'   => $body['data'] ?? null,
                     ]);
                 }
-                
+
                 return $body['data'];
             }
 
             // Optionally log the error or throw an exception
             $error = $body['error']['message'] ?? 'Unknown error';
             $code = $body['error']['code'] ?? 'unknown_code';
-            
+
             // DEBUG: Error case only if debugging is enabled
             if ($debug) {
                 dd('=== SUPABASE READ ERROR ===', [
@@ -274,7 +294,7 @@ class SupabaseService
                     'full_error' => $body['error'] ?? null
                 ]);
             }
-            
+
             throw new \Exception("Request failed: $error (Code: $code)");
 
         } catch (\GuzzleHttp\Exception\GuzzleException $e) {
@@ -286,7 +306,7 @@ class SupabaseService
                     'exception_class' => get_class($e)
                 ]);
             }
-            
+
             throw new \Exception("HTTP error while reading $plural: " . $e->getMessage());
         } catch (\Exception $e) {
             // DEBUG: General exception only if debugging is enabled
@@ -297,7 +317,7 @@ class SupabaseService
                     'exception_class' => get_class($e)
                 ]);
             }
-            
+
             throw new \Exception("Failed to read $plural: " . $e->getMessage());
         }
     }

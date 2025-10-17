@@ -88,6 +88,22 @@
 @push('styles')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <style>
+        /* Map container z-index fix */
+        #map-{{ $name }} {
+            position: relative;
+            z-index: 1 !important;
+        }
+
+        /* Leaflet container z-index override */
+        #map-{{ $name }} .leaflet-container {
+            z-index: 1 !important;
+        }
+
+        /* Leaflet pane z-index override */
+        #map-{{ $name }} .leaflet-pane {
+            z-index: auto !important;
+        }
+
         /* Custom styles for the search results */
         #search-select-{{ $name }} {
             max-height: 200px;
@@ -96,6 +112,8 @@
             border: 1px solid #e2e8f0;
             border-radius: 0.375rem;
             margin-top: 0.5rem;
+            position: relative;
+            z-index: 2;
         }
         #search-select-{{ $name }} option {
             padding: 0.5rem;

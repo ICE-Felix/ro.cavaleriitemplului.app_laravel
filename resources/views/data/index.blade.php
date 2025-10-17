@@ -261,18 +261,19 @@
                                                                              alt="Gallery preview"
                                                                              style="height: 40px; width: 40px; object-fit: cover; border-radius: 4px;">
                                                                         <span class="text-sm text-gray-600">
-                                                                            {{ $imageCount }} image{{ $imageCount > 1 ? 's' : '' }}
-                                                                        </span>
+                    {{ $imageCount }} image{{ $imageCount > 1 ? 's' : '' }}
+                </span>
                                                                     </div>
                                                                 @else
                                                                     <span class="text-gray-600">
-                                                                        {{ $imageCount }} image{{ $imageCount > 1 ? 's' : '' }}
-                                                                    </span>
+                {{ $imageCount }} image{{ $imageCount > 1 ? 's' : '' }}
+            </span>
                                                                 @endif
                                                             @else
                                                                 <span class="text-gray-500">No images</span>
                                                             @endif
                                                             @break
+
                                                         @case('ad_hoc_builder')
                                                             @php
                                                                 $adHocValue = $elem[$key] ?? '';

@@ -1,0 +1,125 @@
+{
+  "name": {
+    "singular": "service_provider",
+    "plural": "service_providers",
+    "label_singular": "Service Provider",
+    "label_plural": "Service Providers"
+  },
+  "debug": [],
+  "query_params": {
+    "include_galleries": true
+  },
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+
+    "image_url": {
+      "key": "image_id",
+      "type": "image",
+      "label": "Featured image",
+      "upload_key": "image_base64"
+    },
+
+    "name": {
+      "type": "text",
+      "label": "Name",
+      "placeholder": "Provider name",
+      "required": true
+    },
+    "contact_name": {
+      "type": "select",
+      "label": "Contact",
+      "key": "contact_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "contacts"
+        ],
+        "value": "id",
+        "name": "{first_name} {last_name}"
+      },
+      "required": true
+    },
+    "description": {
+      "type": "trix",
+      "label": "Description",
+      "placeholder": "About this provider"
+    },
+
+    "email": {
+      "type": "text",
+      "label": "Email",
+      "placeholder": "contact@provider.ro"
+    },
+
+    "phone": {
+      "type": "text",
+      "label": "Phone number",
+      "placeholder": "+40720001234"
+    },
+
+    "location": {
+      "type": "location",
+      "key": "location",
+      "label": "Address location",
+      "placeholder": "Pick on map",
+      "visible": false
+    },
+
+    "address": {
+      "type": "text",
+      "key": "address",
+      "label": "Address",
+      "readonly": true,
+      "visible": true
+    },
+
+    "business_hours": {
+      "type": "schedule",
+      "label": "Business Hours",
+      "key": "business_hours",
+      "value": null,
+      "required": false
+    },
+
+    "gallery": {
+      "type": "gallery",
+      "label": "Provider Gallery",
+      "key": "gallery",
+      "value": null,
+      "required": false,
+      "visible": true,
+      "min_images": 0,
+      "max_images": 5
+    },
+
+    "created_at": {
+      "type": "text",
+      "label": "Created at",
+      "readonly": true,
+      "visible": false
+    },
+    "updated_at": {
+      "type": "text",
+      "label": "Updated at",
+      "readonly": true,
+      "visible": false
+    },
+    "deleted_at": {
+      "type": "text",
+      "label": "Deleted at",
+      "readonly": true,
+      "visible": false
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}

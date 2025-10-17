@@ -1,0 +1,43 @@
+{
+  "name": {
+    "singular": "service_category",
+    "plural": "service_categories",
+    "label_singular": "Service category",
+    "label_plural": "Service categories"
+  },
+  "debug": [],
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+
+    "name": {
+      "type": "text",
+      "label": "Name",
+      "placeholder": "e.g., Haircut"
+    },
+
+    "parent_name": {
+      "type": "select",
+      "label": "Primary Category",
+      "key": "parent_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "service_categories"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}
