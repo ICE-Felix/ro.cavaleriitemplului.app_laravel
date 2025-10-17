@@ -6,6 +6,9 @@
     "label_plural": "Service Providers"
   },
   "debug": [],
+  "query_params": {
+    "include_galleries": true
+  },
   "schema": {
     "id": {
       "label": "#",
@@ -92,9 +95,7 @@
       "required": false,
       "visible": true,
       "min_images": 0,
-      "max_images": 5,
-      "bucket": "service-provider-galleries",
-      "upload_key": "gallery_image_base64"
+      "max_images": 5
     },
 
     "created_at": {

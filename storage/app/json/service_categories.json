@@ -5,7 +5,7 @@
     "label_singular": "Service category",
     "label_plural": "Service categories"
   },
-  "debug": [],
+  "debug": ["GET"],
   "schema": {
     "id": {
       "label": "#",

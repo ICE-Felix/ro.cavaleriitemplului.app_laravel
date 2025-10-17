@@ -58,11 +58,26 @@ class GeneralController extends Controller
                 }
 
                 $debugEnabled = isset($this->props['debug']) && in_array('GET', $this->props['debug']);
-                $data = $this->supabase->$methodName($this->props['name']['plural'], $debugEnabled);
+
+                // Get query parameters from props if they exist
+                $queryParams = $this->props['query_params'] ?? [];
+
+                // Call with query parameters
+                if ($methodName === 'read_edge') {
+                    $data = $this->supabase->$methodName(
+                        $this->props['name']['plural'],
+                        $debugEnabled,
+                        $queryParams
+                    );
+                } else {
+                    $data = $this->supabase->$methodName(
+                        $this->props['name']['plural'],
+                        $debugEnabled
+                    );
+                }
 
                 if (is_array($data)) {
                     $data = DT::normalizeTemporalCollection($data, $this->props);
-
 
                     $data = array_map(function($item) {
                         return $this->transformWooCommerceData($item);
@@ -176,55 +191,22 @@ class GeneralController extends Controller
 
                 // --- GALLERY ---
                 if (($prop['type'] ?? null) === 'gallery') {
-                    $field        = $prop['key'] ?? $key;                 // "gallery"
-                    $max          = (int)($prop['max_images'] ?? 5);
-                    $bucket       = $request->input($field . '_bucket', 'default-galleries');
+                    $list = $request->input('gallery_images', []);
+                    if (!is_array($list)) $list = $list ? [$list] : [];
 
-                    // Existing (for storage mode / keep compatibility)
-                    $existingImages = json_decode($request->input($field . '_existing', '[]'), true) ?? [];
-
-                    // We will post base64s for gallery via "gallery_image_base64[]" to avoid clashing
-                    // with featured image's "image_base64".
-                    $uploadKeyForGallery = $prop['upload_key'] ?? 'gallery_image_base64';
-
-                    // 1) Prefer client-provided base64 list from hidden inputs
-                    $incoming = $request->input($uploadKeyForGallery, []);
-                    if (!is_array($incoming)) {
-                        $incoming = $incoming ? [$incoming] : [];
+                    $max = (int)($prop['max_images'] ?? 0);
+                    if ($max > 0 && count($list) > $max) {
+                        $list = array_slice($list, 0, $max);
                     }
 
-                    $base64List = [];
-                    foreach ($incoming as $b64) {
-                        if (!is_string($b64)) continue;
-                        $b64 = trim($b64);
-                        if ($b64 === '') continue;
-                        // Accept either full data URLs or raw base64; pass-through to Edge
-                        $base64List[] = $b64;
+                    // Filter out empty strings and validate base64
+                    $list = array_values(array_filter($list, function ($s) {
+                        return is_string($s) && trim($s) !== '' && str_starts_with($s, 'data:image/');
+                    }));
+
+                    if (count($list) > 0) {
+                        $data['gallery_images'] = $list;
                     }
-
-                    // 2) As a fallback only, turn uploaded files into base64
-                    if (empty($base64List) && $request->hasFile($field)) {
-                        $files = $request->file($field);
-                        if ($files instanceof \Illuminate\Http\UploadedFile) {
-                            $files = [$files];
-                        }
-                        if (count($files) > $max) {
-                            $files = array_slice($files, 0, $max);
-                        }
-                        foreach ($files as $file) {
-                            if ($file && $file->isValid()) {
-                                $raw  = file_get_contents($file->getPathname());
-                                $mime = $file->getMimeType() ?: 'application/octet-stream';
-                                $base64List[] = 'data:' . $mime . ';base64,' . base64_encode($raw);
-                            }
-                        }
-                    }
-
-                    // Store base64 array for the Edge function
-                    $data[$uploadKeyForGallery] = !empty($base64List) ? array_slice($base64List, 0, $max) : null;
-
-                    // Do NOT send the storage JSON when using base64 mode
-                    $data[$field] = null;
 
                     continue;
                 }
@@ -483,7 +465,23 @@ class GeneralController extends Controller
                 }
 
                 $debugEnabled = isset($this->props['debug']) && in_array('GET', $this->props['debug']);
-                $data = $this->supabase->$methodName($this->props['name']['plural'], $debugEnabled);
+
+                // Get query parameters from props if they exist
+                $queryParams = $this->props['query_params'] ?? [];
+
+                // Call with query parameters
+                if ($methodName === 'read_edge') {
+                    $data = $this->supabase->$methodName(
+                        $this->props['name']['plural'],
+                        $debugEnabled,
+                        $queryParams
+                    );
+                } else {
+                    $data = $this->supabase->$methodName(
+                        $this->props['name']['plural'],
+                        $debugEnabled
+                    );
+                }
             } else {
                 dd("Method $methodName does not exist on the object.");
             }
@@ -501,7 +499,7 @@ class GeneralController extends Controller
                     $result = $elem;
                 }
             }
-            
+
             $result = $this->transformWooCommerceData($result);
 
             $props = $this->props;
@@ -570,55 +568,39 @@ class GeneralController extends Controller
 
                 // --- GALLERY ---
                 if (($prop['type'] ?? null) === 'gallery') {
-                    $field        = $prop['key'] ?? $key;                 // "gallery"
-                    $max          = (int)($prop['max_images'] ?? 5);
-                    $bucket       = $request->input($field . '_bucket', 'default-galleries');
+                    $images = $request->input('gallery_images', []);
+                    $deleted = $request->input('deleted_images', []);
 
-                    // Existing (for storage mode / keep compatibility)
-                    $existingImages = json_decode($request->input($field . '_existing', '[]'), true) ?? [];
+                    // Ensure arrays
+                    if (!is_array($images)) $images = [];
+                    if (!is_array($deleted)) $deleted = $deleted ? [$deleted] : [];
 
-                    // We will post base64s for gallery via "gallery_image_base64[]" to avoid clashing
-                    // with featured image's "image_base64".
-                    $uploadKeyForGallery = $prop['upload_key'] ?? 'gallery_image_base64';
-
-                    // 1) Prefer client-provided base64 list from hidden inputs
-                    $incoming = $request->input($uploadKeyForGallery, []);
-                    if (!is_array($incoming)) {
-                        $incoming = $incoming ? [$incoming] : [];
-                    }
-
-                    $base64List = [];
-                    foreach ($incoming as $b64) {
-                        if (!is_string($b64)) continue;
-                        $b64 = trim($b64);
-                        if ($b64 === '') continue;
-                        // Accept either full data URLs or raw base64; pass-through to Edge
-                        $base64List[] = $b64;
-                    }
-
-                    // 2) As a fallback only, turn uploaded files into base64
-                    if (empty($base64List) && $request->hasFile($field)) {
-                        $files = $request->file($field);
-                        if ($files instanceof \Illuminate\Http\UploadedFile) {
-                            $files = [$files];
-                        }
-                        if (count($files) > $max) {
-                            $files = array_slice($files, 0, $max);
-                        }
-                        foreach ($files as $file) {
-                            if ($file && $file->isValid()) {
-                                $raw  = file_get_contents($file->getPathname());
-                                $mime = $file->getMimeType() ?: 'application/octet-stream';
-                                $base64List[] = 'data:' . $mime . ';base64,' . base64_encode($raw);
+                    // Process NEW images ONLY - filter to only valid base64 strings
+                    $newImages = [];
+                    foreach ($images as $img) {
+                        if (is_string($img)) {
+                            $trimmed = trim($img);
+                            // Only keep VALID base64 image strings (new uploads)
+                            if ($trimmed !== '' && str_starts_with($trimmed, 'data:image/')) {
+                                $newImages[] = $trimmed;
                             }
                         }
                     }
 
-                    // Store base64 array for the Edge function
-                    $data[$uploadKeyForGallery] = !empty($base64List) ? array_slice($base64List, 0, $max) : null;
+                    // Process deleted IDs
+                    $deletedIds = array_values(array_filter(
+                        array_map(fn($x) => trim((string)$x), $deleted),
+                        fn($x) => $x !== ''
+                    ));
 
-                    // Do NOT send the storage JSON when using base64 mode
-                    $data[$field] = null;
+                    // CRITICAL: Only include if there are actual changes
+                    if (count($newImages) > 0) {
+                        $data['gallery_images'] = $newImages;
+                    }
+
+                    if (count($deletedIds) > 0) {
+                        $data['deleted_images'] = $deletedIds;
+                    }
 
                     continue;
                 }
@@ -824,7 +806,6 @@ class GeneralController extends Controller
             } else {
                 return back()->withErrors(['msg' => "Method $methodName does not exist."]);
             }
-
             return redirect()->route($this->props['name']['plural'] . '.index')
                 ->with('success', ucfirst($this->props['name']['label_singular'] ?? $this->props['name']['singular']) . " has been updated successfully!");
 
@@ -891,7 +872,7 @@ class GeneralController extends Controller
     {
         if (is_array($source) && isset($source[0])) {
             if ($type === 'class') {
-                $className = $source[0]; // Should be 'App\Http\Controllers\SupabaseService'
+                $className = $source[0];
                 $methodName = 'getInstance';
                 $serviceInstance = call_user_func([$className, $methodName]);
 
@@ -900,16 +881,16 @@ class GeneralController extends Controller
                 }
 
                 if (method_exists($serviceInstance, $source[1])) {
-                    // Pass debug flag to SupabaseService for GET operations
                     $debugEnabled = isset($this->props['debug']) && in_array('GET', $this->props['debug']);
-                        
+
+                    // Get query parameters if specified in source (4th element can be filters, 5th can be query params)
+                    $queryParams = isset($source[4]) && is_array($source[4]) ? $source[4] : [];
+
                     // Handle filtered methods
                     if ($source[1] === 'read_edge_filtered') {
-                        // Extract filters from source array (4th element) if provided
                         $sourceFilters = isset($source[3]) && is_array($source[3]) ? $source[3] : [];
-                        // Merge with any additional filters passed as parameter
                         $allFilters = array_merge($sourceFilters, $filters);
-                        
+
                         if ($debugEnabled) {
                             dump('=== CONTROLLER FILTER DEBUG ===');
                             dump('Source array:', $source);
@@ -917,12 +898,15 @@ class GeneralController extends Controller
                             dump('Additional filters:', $filters);
                             dump('All filters to pass:', $allFilters);
                         }
-                        
+
                         $data = $serviceInstance->{$source[1]}($source[2], $allFilters, $debugEnabled);
+                    } else if ($source[1] === 'read_edge') {
+                        // Pass query params for read_edge
+                        $data = $serviceInstance->{$source[1]}($source[2], $debugEnabled, $queryParams);
                     } else {
                         $data = $serviceInstance->{$source[1]}($source[2], $debugEnabled);
                     }
-                    
+
                     return array_map(function ($item) use ($valueKey, $nameKey, $template) {
                         return [
                             'value' => $item[$valueKey],
@@ -1181,140 +1165,6 @@ class GeneralController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to load subcategories: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-    
-    /**
-     * Upload gallery image to Supabase Storage
-     */
-    public function uploadGalleryImage(Request $request)
-    {
-        try {
-            $request->validate([
-                'file' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
-                'gallery_id' => 'required|string',
-                'bucket' => 'required|string'
-            ]);
-            
-            $file = $request->file('file');
-            $galleryId = $request->input('gallery_id');
-            $bucket = $request->input('bucket', 'venue-galleries');
-
-            $filename = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $path = $galleryId . '/' . $filename;
-
-            $fileContent = file_get_contents($file->getPathname());
-            $contentType = $file->getMimeType();
-
-            $result = $this->supabase->uploadToStorage($bucket, $path, $fileContent, $contentType);
-            
-            if ($result['success']) {
-                return response()->json([
-                    'success' => true,
-                    'image' => [
-                        'id' => uniqid(),
-                        'url' => $result['public_url'],
-                        'path' => $path,
-                        'filename' => $filename,
-                        'size' => $file->getSize(),
-                        'mime_type' => $contentType
-                    ]
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'error' => $result['error']['message'] ?? 'Upload failed'
-                ], 500);
-            }
-            
-        } catch (\Exception $e) {
-            \Log::error('Gallery upload error: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-    
-    /**
-     * Delete gallery image from Supabase Storage
-     */
-    public function deleteGalleryImage(Request $request)
-    {
-        try {
-            $request->validate([
-                'gallery_id' => 'required|string',
-                'image_path' => 'required|string',
-                'bucket' => 'required|string'
-            ]);
-            
-            $galleryId = $request->input('gallery_id');
-            $imagePath = $request->input('image_path');
-            $bucket = $request->input('bucket', 'venue-galleries');
-
-            $result = $this->supabase->deleteFromStorage($bucket, $imagePath);
-            
-            if ($result['success']) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Image deleted successfully'
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'error' => $result['error']['message'] ?? 'Delete failed'
-                ], 500);
-            }
-            
-        } catch (\Exception $e) {
-            \Log::error('Gallery delete error: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-    
-    /**
-     * List gallery images from Supabase Storage
-     */
-    public function listGalleryImages(Request $request, $galleryId)
-    {
-        try {
-            $bucket = $request->input('bucket', 'venue-galleries');
-
-            $result = $this->supabase->listStorageFiles($bucket, $galleryId);
-            
-            if ($result['success']) {
-                $images = array_map(function($file) use ($bucket) {
-                    return [
-                        'id' => $file['id'] ?? uniqid(),
-                        'name' => $file['name'],
-                        'url' => $this->supabase->getStoragePublicUrl($bucket, $file['name']),
-                        'path' => $file['name'],
-                        'size' => $file['metadata']['size'] ?? 0,
-                        'created_at' => $file['created_at'] ?? null,
-                        'updated_at' => $file['updated_at'] ?? null
-                    ];
-                }, $result['data']);
-                
-                return response()->json([
-                    'success' => true,
-                    'images' => $images
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'error' => $result['error']['message'] ?? 'Failed to list images'
-                ], 500);
-            }
-            
-        } catch (\Exception $e) {
-            \Log::error('Gallery list error: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage()
             ], 500);
         }
     }
