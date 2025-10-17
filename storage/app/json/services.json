@@ -5,7 +5,7 @@
     "label_singular": "Service",
     "label_plural": "Services"
   },
-  "debug": ["POST"],
+  "debug": [],
   "query_params": {
     "include_galleries": true
   },
@@ -47,6 +47,24 @@
       },
       "required": true
     },
+    "categories": {
+      "type": "checkbox",
+      "label": "Categories",
+      "key": "service_category_id",
+      "value": [],
+      "visible": false,
+      "required": true,
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "service_categories"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    },
 
     "price": {
       "type": "numeric",
@@ -71,25 +89,6 @@
       "visible": true,
       "min_images": 0,
       "max_images": 5
-    },
-
-    "created_at": {
-      "type": "text",
-      "label": "Created at",
-      "readonly": true,
-      "visible": false
-    },
-    "updated_at": {
-      "type": "text",
-      "label": "Updated at",
-      "readonly": true,
-      "visible": false
-    },
-    "deleted_at": {
-      "type": "text",
-      "label": "Deleted at",
-      "readonly": true,
-      "visible": false
     }
   },
   "GET": "edge",

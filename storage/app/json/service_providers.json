@@ -30,7 +30,22 @@
       "placeholder": "Provider name",
       "required": true
     },
-
+    "contact_name": {
+      "type": "select",
+      "label": "Contact",
+      "key": "contact_id",
+      "data": {
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "contacts"
+        ],
+        "value": "id",
+        "name": "{first_name} {last_name}"
+      },
+      "required": true
+    },
     "description": {
       "type": "trix",
       "label": "Description",
@@ -43,7 +58,7 @@
       "placeholder": "contact@provider.ro"
     },
 
-    "phone_no": {
+    "phone": {
       "type": "text",
       "label": "Phone number",
       "placeholder": "+40720001234"
@@ -63,20 +78,6 @@
       "label": "Address",
       "readonly": true,
       "visible": true
-    },
-
-    "latitude": {
-      "type": "numeric",
-      "label": "Latitude",
-      "placeholder": "44.4268",
-      "step": "0.000001"
-    },
-
-    "longitude": {
-      "type": "numeric",
-      "label": "Longitude",
-      "placeholder": "26.1025",
-      "step": "0.000001"
     },
 
     "business_hours": {
