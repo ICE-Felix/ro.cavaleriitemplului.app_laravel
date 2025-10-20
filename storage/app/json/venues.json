@@ -45,7 +45,7 @@
       "required": true
     },
     "categories": {
-      "type": "checkbox",
+      "type": "hierarchical_category",
       "label": "Categories",
       "key": "venue_category_id",
       "value": [],

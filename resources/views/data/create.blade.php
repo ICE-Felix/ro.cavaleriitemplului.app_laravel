@@ -262,28 +262,31 @@
                                                 :error="$errors->first($field['key'] ?? $key)"
                                         />
                                         @break
-                                        @case('hierarchical_checkbox')
+                                    @case('hierarchical_category')
                                         @php
                                             $label = $field['label'] ?? ucfirst($key);
                                             $values = [];
-                                            
-                                            // Get top-level categories
-                                            if(isset($data[$key])) {
-                                                foreach ($data[$key] as $elem) {
-                                                    $values[] = [
-                                                        'value' => $elem['value'],
-                                                        'name' => ucfirst($elem['name'])
-                                                    ];
-                                                }
+
+                                            // Data now comes with parent_id already preserved!
+                                            if(isset($data[$key]) && is_array($data[$key])) {
+                                                $values = $data[$key]; // Already has id, name, parent_id
+                                            }
+
+                                            // Debug in development
+                                            if (app()->environment('local')) {
+                                                \Log::info('Hierarchical Category - Create', [
+                                                    'field' => $field['key'] ?? $key,
+                                                    'count' => count($values),
+                                                    'sample' => array_slice($values, 0, 3)
+                                                ]);
                                             }
                                         @endphp
-                                        <x-hierarchical-checkbox
-                                            name="{{ $field['key'] ?? $key }}"
-                                            label="{{ $label }}"
-                                            :options="$values"
-                                            :value="old($field['key'] ?? $key, $field['value'] ?? [])"
-                                            :subcategorySource="$field['subcategory_source'] ?? null"
-                                            componentName="create_{{ $field['key'] ?? $key }}"
+                                        <x-hierarchical-category-checkbox
+                                                name="{{ $field['key'] ?? $key }}"
+                                                label="{{ $label }}"
+                                                :data="$values"
+                                                :value="old($field['key'] ?? $key, $field['value'] ?? [])"
+                                                :required="$field['required'] ?? false"
                                         />
                                         @break
                                         @case('three_level_hierarchical_checkbox')

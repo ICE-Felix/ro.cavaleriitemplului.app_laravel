@@ -212,7 +212,7 @@ class GeneralController extends Controller
                 }
 
                 // --- CHECKBOX ---
-                if (($prop['type'] ?? null) === 'checkbox') {
+                if (($prop['type'] ?? null) === 'checkbox' || ($prop['type'] ?? null) === 'hierarchical_category') {
                     $field = $prop['key'] ?? $key;
                     $raw = $request->input($field, []);
                     if (is_string($raw)) {
@@ -605,7 +605,7 @@ class GeneralController extends Controller
                     continue;
                 }
                 // --- CHECKBOX ---
-                if (($prop['type'] ?? null) === 'checkbox') {
+                if (($prop['type'] ?? null) === 'checkbox' || ($prop['type'] ?? null) === 'hierarchical_category') {
                     $field = $prop['key'] ?? $key;
                     $raw = $request->input($field, []);
                     if (is_string($raw)) {
@@ -864,7 +864,6 @@ class GeneralController extends Controller
         
         return redirect($this->props['name']['plural'])->with('success', (isset($this->props['name']['label_singular']) ? ucfirst($this->props['name']['label_singular']) : ucfirst($this->props['name']['singular'])) . ' has been deleted successfully!');
     }
-
     /**
      * @throws Exception
      */
@@ -883,7 +882,7 @@ class GeneralController extends Controller
                 if (method_exists($serviceInstance, $source[1])) {
                     $debugEnabled = isset($this->props['debug']) && in_array('GET', $this->props['debug']);
 
-                    // Get query parameters if specified in source (4th element can be filters, 5th can be query params)
+                    // Get query parameters if specified
                     $queryParams = isset($source[4]) && is_array($source[4]) ? $source[4] : [];
 
                     // Handle filtered methods
@@ -907,11 +906,24 @@ class GeneralController extends Controller
                         $data = $serviceInstance->{$source[1]}($source[2], $debugEnabled);
                     }
 
+                    // Transform data - PRESERVE ALL FIELDS including parent_id
                     return array_map(function ($item) use ($valueKey, $nameKey, $template) {
-                        return [
-                            'value' => $item[$valueKey],
-                            'name' => ($template !== null) ? (!empty($this->templateParser->parseTemplate($template, $item)) ? $this->templateParser->parseTemplate($template, $item) : $item[$valueKey]) : $item[$valueKey]
+                        $transformed = [
+                            'id' => $item['id'] ?? $item[$valueKey] ?? null,
+                            'value' => $item[$valueKey] ?? $item['id'] ?? null,
+                            'name' => ($template !== null)
+                                ? (!empty($this->templateParser->parseTemplate($template, $item))
+                                    ? $this->templateParser->parseTemplate($template, $item)
+                                    : $item[$valueKey])
+                                : ($item[$nameKey] ?? $item[$valueKey] ?? 'Unknown')
                         ];
+
+                        // Preserve parent_id if it exists
+                        if (isset($item['parent_id'])) {
+                            $transformed['parent_id'] = $item['parent_id'];
+                        }
+
+                        return $transformed;
                     }, $data);
                 } else {
                     throw new Exception("Method does not exist.");
@@ -921,7 +933,7 @@ class GeneralController extends Controller
             return array_map(function ($key, $item) use ($valueKey, $nameKey) {
                 return [
                     'value' => $item[$valueKey] ?? $key,
-                    'name' => $item[$nameKey] ?? $item ,
+                    'name' => $item[$nameKey] ?? $item,
                 ];
             }, array_keys($source), $source);
         }
@@ -936,9 +948,17 @@ class GeneralController extends Controller
     public function getData(array $data): array
     {
         foreach ($this->props['schema'] as $key => $prop) {
-            if (isset($prop['type']) && ($prop['type'] === 'select' || $prop['type'] === 'checkbox') && isset($prop['data'])) {
+            if (isset($prop['type']) &&
+                ($prop['type'] === 'select' ||
+                    $prop['type'] === 'checkbox' ||
+                    $prop['type'] === 'hierarchical_category') &&
+                isset($prop['data'])) {
+
                 // Check for static options first
-                if (isset($prop['data']['type']) && $prop['data']['type'] === 'static' && isset($prop['data']['options'])) {
+                if (isset($prop['data']['type']) &&
+                    $prop['data']['type'] === 'static' &&
+                    isset($prop['data']['options'])) {
+
                     // Handle static options
                     $data[$key] = array_map(function ($option) {
                         return [
@@ -949,14 +969,28 @@ class GeneralController extends Controller
                 }
                 // Check if data property has source (for dynamic data)
                 elseif (isset($prop['data']['source'])) {
-                    $data[$key] =
-                        $this->getSourceData($prop['data']['source'],
-                            $prop['data']['value'] ?? 'value',
-                            $prop['data']['name'] ?? 'name',
-                            $prop['data']['type'] ?? null,
-                            $prop['data']['name'] ?? ($prop['data']['value'] ?? null),
-                            $prop['filters'] ?? []
-                        );
+                    $sourceData = $this->getSourceData(
+                        $prop['data']['source'],
+                        $prop['data']['value'] ?? 'value',
+                        $prop['data']['name'] ?? 'name',
+                        $prop['data']['type'] ?? null,
+                        $prop['data']['name'] ?? ($prop['data']['value'] ?? null),
+                        $prop['filters'] ?? []
+                    );
+
+                    // CRITICAL: Preserve parent_id for hierarchical components
+                    if ($prop['type'] === 'hierarchical_category') {
+                        $data[$key] = array_map(function ($item) {
+                            return [
+                                'id' => $item['id'] ?? $item['value'],
+                                'value' => $item['id'] ?? $item['value'],
+                                'name' => $item['name'],
+                                'parent_id' => $item['parent_id'] ?? null
+                            ];
+                        }, $sourceData);
+                    } else {
+                        $data[$key] = $sourceData;
+                    }
                 }
             }
         }

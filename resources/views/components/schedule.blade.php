@@ -139,14 +139,10 @@
 </div>
 
 <script>
-    // Global schedule data
+
     let scheduleData = @json($schedule);
     const scheduleName = '{{ $name }}';
-    
-    console.log('Schedule component initialized with name:', scheduleName);
-    console.log('Initial schedule data:', scheduleData);
-    
-    // Initialize schedule preview
+
     document.addEventListener('DOMContentLoaded', function() {
         console.log('DOM loaded, checking hidden input...');
         const hiddenInput = document.getElementById(scheduleName);
@@ -157,20 +153,12 @@
             console.error('Hidden input NOT found with ID:', scheduleName);
         }
         updateSchedulePreview();
-        
-        // Add form submission debugging
+
         const form = hiddenInput ? hiddenInput.closest('form') : null;
         if (form) {
-            console.log('Form found for schedule component');
             form.addEventListener('submit', function(e) {
-                console.log('Form submission detected!');
                 const currentHiddenInput = document.getElementById(scheduleName);
                 if (currentHiddenInput) {
-                    console.log('Hidden input value at form submission:', currentHiddenInput.value);
-                    console.log('Hidden input name:', currentHiddenInput.name);
-                    console.log('Current scheduleData:', scheduleData);
-                    
-                    // Force update the hidden input one more time before submission
                     currentHiddenInput.value = JSON.stringify(scheduleData);
                     console.log('Force updated hidden input value:', currentHiddenInput.value);
                 } else {
