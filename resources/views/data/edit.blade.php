@@ -400,6 +400,94 @@
                                             :required="$field['required'] ?? false"
                                         />
                                         @break
+                                    @case('component')
+                                        @php
+                                            $componentName = $field['component'] ?? '';
+                                            $fieldName = $field['key'] ?? $key;
+                                            $label = $field['label'] ?? ucfirst($key);
+                                            $currentValue = old($fieldName, $result[$fieldName] ?? $field['value'] ?? '[]');
+
+                                            // Check for conditional visibility
+                                            $isConditional = isset($field['visible_if']);
+                                            $initiallyVisible = $field['visible'] ?? true;
+                                            if ($isConditional) {
+                                                $dependsOnField = $field['visible_if']['field'] ?? null;
+                                                if ($dependsOnField && isset($result[$dependsOnField])) {
+                                                    $dependentValue = $result[$dependsOnField];
+                                                    $showWhenValue = $field['visible_if']['value'] ?? null;
+                                                    $initiallyVisible = ($dependentValue == $showWhenValue);
+                                                }
+                                            }
+                                        @endphp
+
+                                        <div class="form-group {{ $isConditional ? 'conditional-field' : '' }}"
+                                             data-field-name="{{ $fieldName }}"
+                                             @if($isConditional)
+                                                 data-depends-on="{{ $field['visible_if']['field'] }}"
+                                             data-show-when="{{ json_encode([$field['visible_if']['value']]) }}"
+                                             @endif
+                                             style="{{ $initiallyVisible ? '' : 'display: none;' }}">
+
+                                            @switch($componentName)
+                                                @case('venue-product-calendar')
+                                                    <x-venue-product-calendar
+                                                            name="{{ $fieldName }}"
+                                                            label="{{ $label }}"
+                                                            :value="$currentValue"
+                                                            :error="$errors->first($fieldName)"
+                                                    />
+                                                    @break
+
+                                                @case('date-picker-multi')
+                                                    <x-date-picker-multi
+                                                            name="{{ $fieldName }}"
+                                                            label="{{ $label }}"
+                                                            :value="$currentValue"
+                                                            :error="$errors->first($fieldName)"
+                                                    />
+                                                    @break
+
+                                                @case('business-hours')
+                                                @case('recurring-schedule')
+                                                    <x-schedule
+                                                            name="{{ $fieldName }}"
+                                                            label="{{ $label }}"
+                                                            :value="$currentValue"
+                                                            :error="$errors->first($fieldName)"
+                                                            :required="$field['required'] ?? false"
+                                                    />
+                                                    @break
+
+                                                @case('key-value-builder')
+                                                @case('product-attributes')
+                                                    <x-info-fields
+                                                            name="{{ $fieldName }}"
+                                                            :label="$label"
+                                                            :value="$currentValue"
+                                                            :error="$errors->first($fieldName)"
+                                                    />
+                                                    @break
+
+                                                @case('gallery-uploader')
+                                                    <x-gallery
+                                                            name="{{ $fieldName }}"
+                                                            label="{{ $label }}"
+                                                            :value="$currentValue"
+                                                            :error="$errors->first($fieldName)"
+                                                            :required="$field['required'] ?? false"
+                                                            :minImages="$field['min_images'] ?? 0"
+                                                            :maxImages="$field['max_images'] ?? 5"
+                                                            mode="edit"
+                                                    />
+                                                    @break
+
+                                                @default
+                                                    <div class="alert alert_danger">
+                                                        <strong>Error:</strong> Unknown component type: {{ $componentName }}
+                                                    </div>
+                                            @endswitch
+                                        </div>
+                                        @break
                                     @case('gallery')
                                         <x-gallery
                                                 name="gallery"

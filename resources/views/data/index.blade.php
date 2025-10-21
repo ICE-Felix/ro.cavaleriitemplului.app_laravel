@@ -429,6 +429,132 @@
                                                             @endphp
                                                             {{ $displayText }}
                                                             @break
+                                                        @case('component')
+                                                            @php
+                                                                $componentName = $field['component'] ?? '';
+                                                                $componentValue = $elem[$key] ?? '';
+                                                                $componentData = null;
+
+                                                                if (is_string($componentValue)) {
+                                                                    $componentData = json_decode($componentValue, true);
+                                                                } elseif (is_array($componentValue)) {
+                                                                    $componentData = $componentValue;
+                                                                }
+                                                            @endphp
+
+                                                            @switch($componentName)
+                                                                @case('venue-product-calendar')
+                                                                    @php
+                                                                        if ($componentData && is_array($componentData) && count($componentData) > 0) {
+                                                                            $dateCount = count($componentData);
+                                                                            $dates = array_map(fn($item) => $item['date'] ?? '', $componentData);
+                                                                            $dates = array_filter($dates);
+
+                                                                            if (count($dates) > 0) {
+                                                                                $preview = count($dates) <= 3
+                                                                                    ? implode(', ', $dates)
+                                                                                    : implode(', ', array_slice($dates, 0, 2)) . ', +' . (count($dates) - 2) . ' more';
+
+                                                                                echo '<div class="text-sm">';
+                                                                                echo '<strong>' . $dateCount . ' date' . ($dateCount > 1 ? 's' : '') . ':</strong><br>';
+                                                                                echo '<span class="text-gray-600">' . htmlspecialchars($preview) . '</span>';
+                                                                                echo '</div>';
+                                                                            } else {
+                                                                                echo '<span class="text-gray-500">No dates</span>';
+                                                                            }
+                                                                        } else {
+                                                                            echo '<span class="text-gray-500">No availability set</span>';
+                                                                        }
+                                                                    @endphp
+                                                                    @break
+
+                                                                @case('date-picker-multi')
+                                                                    @php
+                                                                        if ($componentData && is_array($componentData) && count($componentData) > 0) {
+                                                                            $count = count($componentData);
+                                                                            $preview = count($componentData) <= 3
+                                                                                ? implode(', ', $componentData)
+                                                                                : implode(', ', array_slice($componentData, 0, 2)) . ', +' . ($count - 2) . ' more';
+                                                                            echo '<div class="text-sm">' . $count . ' date' . ($count > 1 ? 's' : '') . ': ' . htmlspecialchars($preview) . '</div>';
+                                                                        } else {
+                                                                            echo '<span class="text-gray-500">No dates</span>';
+                                                                        }
+                                                                    @endphp
+                                                                    @break
+
+                                                                @case('business-hours')
+                                                                @case('recurring-schedule')
+                                                                    @php
+                                                                        if ($componentData) {
+                                                                            $dayLabels = ['monday' => 'Mon', 'tuesday' => 'Tue', 'wednesday' => 'Wed',
+                                                                                          'thursday' => 'Thu', 'friday' => 'Fri', 'saturday' => 'Sat', 'sunday' => 'Sun'];
+                                                                            $openDays = [];
+                                                                            foreach ($dayLabels as $dayKey => $dayLabel) {
+                                                                                if (isset($componentData[$dayKey]) && $componentData[$dayKey]['enabled']) {
+                                                                                    $openDays[] = $dayLabel;
+                                                                                }
+                                                                            }
+                                                                            if (empty($openDays)) {
+                                                                                echo '<span class="text-red-600">Closed</span>';
+                                                                            } else {
+                                                                                echo '<div class="text-sm">' . implode(', ', $openDays) . '</div>';
+                                                                            }
+                                                                        } else {
+                                                                            echo '<span class="text-gray-500">No schedule</span>';
+                                                                        }
+                                                                    @endphp
+                                                                    @break
+
+                                                                @case('key-value-builder')
+                                                                @case('product-attributes')
+                                                                    @php
+                                                                        if ($componentData && is_array($componentData)) {
+                                                                            $titles = array_map(fn($item) => $item['key'] ?? $item['title'] ?? '', $componentData);
+                                                                            $displayText = implode(', ', array_filter($titles));
+                                                                            echo $displayText ?: '<span class="text-gray-500">No attributes</span>';
+                                                                        } else {
+                                                                            echo '<span class="text-gray-500">No attributes</span>';
+                                                                        }
+                                                                    @endphp
+                                                                    @break
+
+                                                                @case('gallery-uploader')
+                                                                    @php
+                                                                        $galleryValue = $componentData;
+                                                                        $firstImage = null;
+                                                                        $imageCount = 0;
+
+                                                                        if (is_array($galleryValue) && count($galleryValue) > 0) {
+                                                                            $imageCount = count($galleryValue);
+                                                                            $firstImage = is_string($galleryValue[0]) ? $galleryValue[0] :
+                                                                                          ($galleryValue[0]['url'] ?? $galleryValue[0]['src'] ?? null);
+                                                                        }
+                                                                    @endphp
+
+                                                                    @if($imageCount > 0)
+                                                                        @if($firstImage)
+                                                                            <div class="flex items-center gap-2">
+                                                                                <img src="{{ e($firstImage) }}"
+                                                                                     alt="Gallery preview"
+                                                                                     style="height: 40px; width: 40px; object-fit: cover; border-radius: 4px;">
+                                                                                <span class="text-sm text-gray-600">
+                            {{ $imageCount }} image{{ $imageCount > 1 ? 's' : '' }}
+                        </span>
+                                                                            </div>
+                                                                        @else
+                                                                            <span class="text-gray-600">
+                        {{ $imageCount }} image{{ $imageCount > 1 ? 's' : '' }}
+                    </span>
+                                                                        @endif
+                                                                    @else
+                                                                        <span class="text-gray-500">No images</span>
+                                                                    @endif
+                                                                    @break
+
+                                                                @default
+                                                                    <span class="text-gray-500">Unknown component</span>
+                                                            @endswitch
+                                                            @break
                                                         @case('schedule')
                                                             @php
                                                                 $scheduleValue = $elem[$key] ?? '';

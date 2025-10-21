@@ -223,7 +223,52 @@ class GeneralController extends Controller
                     $data[$field] = array_values(array_filter(array_map(fn($x) => (string)$x, $raw)));
                     continue;
                 }
+// --- COMPONENT TYPES ---
+                if (($prop['type'] ?? null) === 'component') {
+                    $componentType = $prop['component'] ?? '';
+                    $field = $prop['key'] ?? $key;
 
+                    switch ($componentType) {
+                        case 'venue-product-calendar':
+                        case 'date-picker-multi':
+                        case 'business-hours':
+                        case 'recurring-schedule':
+                        case 'key-value-builder':
+                        case 'product-attributes':
+                            $componentData = $request->get($field);
+                            if ($componentData) {
+                                if (is_string($componentData)) {
+                                    $decoded = json_decode($componentData, true);
+                                    $data[$field] = $decoded !== null ? json_encode($decoded) : null;
+                                } else {
+                                    $data[$field] = json_encode($componentData);
+                                }
+                            } else {
+                                $data[$field] = null;
+                            }
+                            break;
+
+                        case 'gallery-uploader':
+                            // Same as gallery handling
+                            $list = $request->input($field, []);
+                            if (!is_array($list)) $list = $list ? [$list] : [];
+
+                            $max = (int)($prop['max_images'] ?? 0);
+                            if ($max > 0 && count($list) > $max) {
+                                $list = array_slice($list, 0, $max);
+                            }
+
+                            $list = array_values(array_filter($list, function ($s) {
+                                return is_string($s) && trim($s) !== '' && str_starts_with($s, 'data:image/');
+                            }));
+
+                            if (count($list) > 0) {
+                                $data[$field] = $list;
+                            }
+                            break;
+                    }
+                    continue;
+                }
                 // --- IMAGE ---
                 if (($prop['type'] ?? null) === 'image') {
                     $field = $prop['key'] ?? $key;
@@ -649,7 +694,65 @@ class GeneralController extends Controller
                     }
                     continue;
                 }
+// --- COMPONENT TYPES ---
+                if (($prop['type'] ?? null) === 'component') {
+                    $componentType = $prop['component'] ?? '';
+                    $field = $prop['key'] ?? $key;
 
+                    switch ($componentType) {
+                        case 'venue-product-calendar':
+                        case 'date-picker-multi':
+                        case 'business-hours':
+                        case 'recurring-schedule':
+                        case 'key-value-builder':
+                        case 'product-attributes':
+                            $componentData = $request->get($field);
+                            if ($componentData) {
+                                if (is_string($componentData)) {
+                                    $decoded = json_decode($componentData, true);
+                                    $data[$field] = $decoded !== null ? json_encode($decoded) : null;
+                                } else {
+                                    $data[$field] = json_encode($componentData);
+                                }
+                            } else {
+                                $data[$field] = null;
+                            }
+                            break;
+
+                        case 'gallery-uploader':
+                            // For edit mode, handle like gallery with new images and deletions
+                            $images = $request->input($field, []);
+                            $deleted = $request->input('deleted_' . $field, []);
+
+                            if (!is_array($images)) $images = [];
+                            if (!is_array($deleted)) $deleted = $deleted ? [$deleted] : [];
+
+                            $newImages = [];
+                            foreach ($images as $img) {
+                                if (is_string($img)) {
+                                    $trimmed = trim($img);
+                                    if ($trimmed !== '' && str_starts_with($trimmed, 'data:image/')) {
+                                        $newImages[] = $trimmed;
+                                    }
+                                }
+                            }
+
+                            $deletedIds = array_values(array_filter(
+                                array_map(fn($x) => trim((string)$x), $deleted),
+                                fn($x) => $x !== ''
+                            ));
+
+                            if (count($newImages) > 0) {
+                                $data[$field] = $newImages;
+                            }
+
+                            if (count($deletedIds) > 0) {
+                                $data['deleted_' . $field] = $deletedIds;
+                            }
+                            break;
+                    }
+                    continue;
+                }
                 // --- LOCATION ---
                 if (($prop['type'] ?? null) === 'location') {
                     $fieldName  = $prop['key'] ?? $key;

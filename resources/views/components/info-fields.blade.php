@@ -6,6 +6,10 @@
     'error' => null
 ])
 
+@php
+    $encodedValue = is_array($value) ? json_encode($value) : (is_string($value) ? $value : '[]');
+@endphp
+
 <div id="info_fields_component"
      x-data="infoFieldsBuilder()"
      x-init="init()"
@@ -99,7 +103,7 @@
             name="{{ $name }}"
             id="{{ $name }}"
             x-model="hiddenValue"
-            value="{{ $value }}">
+            value="{{ $encodedValue }}">
 
     @if($error)
         <small class="block mt-2 text-red-500">{{ $error }}</small>
@@ -120,7 +124,6 @@
                 fields: [],
                 hiddenValue: '[]',
                 _initialized: false,
-
                 init() {
                     // Restore from hidden input if exists
                     try {
@@ -130,8 +133,8 @@
                             if (Array.isArray(data)) {
                                 this.fields = data.map(item => ({
                                     uid: crypto.randomUUID(),
-                                    key: item.title || '',
-                                    value: item.description || ''
+                                    title: item.key || item.title || '',
+                                    description: item.value || item.description || ''
                                 }));
                             }
                         }
