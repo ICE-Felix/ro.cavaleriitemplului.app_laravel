@@ -262,29 +262,114 @@
                                                 :error="$errors->first($field['key'] ?? $key)"
                                         />
                                         @break
-                                        @case('hierarchical_checkbox')
+                                    @case('hierarchical_category')
                                         @php
                                             $label = $field['label'] ?? ucfirst($key);
                                             $values = [];
-                                            
-                                            // Get top-level categories
-                                            if(isset($data[$key])) {
-                                                foreach ($data[$key] as $elem) {
-                                                    $values[] = [
-                                                        'value' => $elem['value'],
-                                                        'name' => ucfirst($elem['name'])
-                                                    ];
-                                                }
+
+                                            // Data now comes with parent_id already preserved!
+                                            if(isset($data[$key]) && is_array($data[$key])) {
+                                                $values = $data[$key]; // Already has id, name, parent_id
+                                            }
+
+                                            // Debug in development
+                                            if (app()->environment('local')) {
+                                                \Log::info('Hierarchical Category - Create', [
+                                                    'field' => $field['key'] ?? $key,
+                                                    'count' => count($values),
+                                                    'sample' => array_slice($values, 0, 3)
+                                                ]);
                                             }
                                         @endphp
-                                        <x-hierarchical-checkbox
-                                            name="{{ $field['key'] ?? $key }}"
-                                            label="{{ $label }}"
-                                            :options="$values"
-                                            :value="old($field['key'] ?? $key, $field['value'] ?? [])"
-                                            :subcategorySource="$field['subcategory_source'] ?? null"
-                                            componentName="create_{{ $field['key'] ?? $key }}"
+                                        <x-hierarchical-category-checkbox
+                                                name="{{ $field['key'] ?? $key }}"
+                                                label="{{ $label }}"
+                                                :data="$values"
+                                                :value="old($field['key'] ?? $key, $field['value'] ?? [])"
+                                                :required="$field['required'] ?? false"
                                         />
+                                        @break
+                                    @case('component')
+                                        @php
+                                            $componentName = $field['component'] ?? '';
+                                            $fieldName = $field['key'] ?? $key;
+                                            $label = $field['label'] ?? ucfirst($key);
+
+                                            // Check for conditional visibility
+                                            $isConditional = isset($field['visible_if']);
+                                            $initiallyVisible = $field['visible'] ?? true;
+                                            if ($isConditional) {
+                                                $initiallyVisible = false;
+                                            }
+                                        @endphp
+
+                                        <div class="form-group {{ $isConditional ? 'conditional-field' : '' }}"
+                                             data-field-name="{{ $fieldName }}"
+                                             @if($isConditional)
+                                                 data-depends-on="{{ $field['visible_if']['field'] }}"
+                                             data-show-when="{{ json_encode([$field['visible_if']['value']]) }}"
+                                             @endif
+                                             style="{{ $initiallyVisible ? '' : 'display: none;' }}">
+
+                                            @switch($componentName)
+                                                @case('venue-product-calendar')
+                                                    <x-venue-product-calendar
+                                                            name="{{ $fieldName }}"
+                                                            label="{{ $label }}"
+                                                            :value="old($fieldName, $field['value'] ?? '[]')"
+                                                            :error="$errors->first($fieldName)"
+                                                    />
+                                                    @break
+
+                                                @case('date-picker-multi')
+                                                    <x-date-picker-multi
+                                                            name="{{ $fieldName }}"
+                                                            label="{{ $label }}"
+                                                            :value="old($fieldName, $field['value'] ?? '[]')"
+                                                            :error="$errors->first($fieldName)"
+                                                    />
+                                                    @break
+
+                                                @case('business-hours')
+                                                @case('recurring-schedule')
+                                                    <x-schedule
+                                                            name="{{ $fieldName }}"
+                                                            label="{{ $label }}"
+                                                            :value="old($fieldName, $field['value'] ?? null)"
+                                                            :error="$errors->first($fieldName)"
+                                                            :required="$field['required'] ?? false"
+                                                    />
+                                                    @break
+
+                                                @case('key-value-builder')
+                                                @case('product-attributes')
+                                                    <x-info-fields
+                                                            name="{{ $fieldName }}"
+                                                            :label="$label"
+                                                            :value="old($fieldName, $field['value'] ?? '[]')"
+                                                            :error="$errors->first($fieldName)"
+                                                    />
+                                                    @break
+
+                                                @case('gallery-uploader')
+                                                    <x-gallery
+                                                            name="{{ $fieldName }}"
+                                                            label="{{ $label }}"
+                                                            :value="old($fieldName, $field['value'] ?? null)"
+                                                            :error="$errors->first($fieldName)"
+                                                            :required="$field['required'] ?? false"
+                                                            :minImages="$field['min_images'] ?? 0"
+                                                            :maxImages="$field['max_images'] ?? 5"
+                                                            mode="create"
+                                                    />
+                                                    @break
+
+                                                @default
+                                                    <div class="alert alert_danger">
+                                                        <strong>Error:</strong> Unknown component type: {{ $componentName }}
+                                                    </div>
+                                            @endswitch
+                                        </div>
                                         @break
                                         @case('three_level_hierarchical_checkbox')
                                         @php
@@ -371,7 +456,7 @@
                 // Handle conditional field visibility and filtering
                 function handleConditionalFields() {
                     const conditionalFields = document.querySelectorAll('.conditional-field');
-                    
+
                     conditionalFields.forEach(field => {
                         const dependsOn = field.dataset.dependsOn;
                         const showWhen = JSON.parse(field.dataset.showWhen || '[]');

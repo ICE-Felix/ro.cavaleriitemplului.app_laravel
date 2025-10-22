@@ -47,12 +47,12 @@
       },
       "required": true
     },
-    "categories": {
+    "service_category_titles": {
       "type": "checkbox",
       "label": "Categories",
       "key": "service_category_id",
       "value": [],
-      "visible": false,
+      "visible": true,
       "required": true,
       "data": {
         "type": "class",
@@ -86,7 +86,7 @@
       "key": "gallery",
       "value": null,
       "required": false,
-      "visible": true,
+      "visible": false,
       "min_images": 0,
       "max_images": 5
     }
