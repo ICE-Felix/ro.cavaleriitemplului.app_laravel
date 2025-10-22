@@ -5,7 +5,7 @@
     "label_singular": "Venue category",
     "label_plural": "Venue categories"
   },
-  "debug": ["GET"],
+  "debug": [],
   "schema": {
     "id": {
       "label": "#",

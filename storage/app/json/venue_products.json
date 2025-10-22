@@ -5,7 +5,7 @@
     "label_singular": "Venue Product",
     "label_plural": "Venue Products"
   },
-  "debug": ["POST"],
+  "debug": [],
   "schema": {
     "id": {
       "label": "#",
