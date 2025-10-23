@@ -16,9 +16,9 @@
 @endphp
 
 <div class="form-group">
-    <label class="form-label">
+    <label class="form-label ">
         {{ $label }} 
-        @if($required)<span class="text-red-500">*</span>@endif
+        @if($required)<span class="text-red-500 ">*</span>@endif
     </label>
     
     <div class="switch-container">
@@ -139,6 +139,7 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 0.875rem;
     transition: all 0.3s ease;
     min-width: 4rem;
+    font-weight: bold;
 }
 
 .form-group {
@@ -147,9 +148,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .form-label {
     display: block;
-    font-weight: 500;
     color: #374151;
     margin-bottom: 0.5rem;
+    font-weight: bold;
 }
 
 .error-message {

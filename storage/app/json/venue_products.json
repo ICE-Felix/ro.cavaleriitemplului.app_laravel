@@ -5,7 +5,7 @@
     "label_singular": "Venue Product",
     "label_plural": "Venue Products"
   },
-  "debug": [],
+  "debug": ["POST"],
   "schema": {
     "id": {
       "label": "#",
@@ -19,8 +19,7 @@
       "label": "Featured image",
       "upload_key": "image_base64"
     },
-    
-    "name": {
+    "woo_name": {
       "type": "text",
       "label": "Product Name",
       "placeholder": "e.g., Deluxe Double Room, Wedding Package",
@@ -58,29 +57,46 @@
       },
       "required": true
     },
-
-    "description": {
+    "woo_description": {
       "type": "trix",
       "label": "Full Description",
       "placeholder": "Detailed product description...",
       "rows": 5
     },
-
-    "short_description": {
+    "woo_short_description": {
       "type": "textarea",
       "label": "Short Description",
       "placeholder": "Brief overview (shown in listings)",
       "rows": 3
     },
-
-    "base_price": {
+    "woo_regular_price": {
       "type": "numeric",
-      "label": "Base Price (RON)",
+      "label": "Regular Price (RON)",
       "placeholder": "0.00",
       "min": 0,
       "required": true
     },
-
+    "woo_sale_price": {
+      "type": "numeric",
+      "label": "Sale Price (RON)",
+      "placeholder": "0.00",
+      "min": 0,
+      "required": true
+    },
+    "woo_date_on_sale_from": {
+      "type": "date",
+      "label": "Sale Date Start",
+      "key": "date_on_sale_from",
+      "required": false,
+      "placeholder": "YYYY-MM-DD"
+    },
+    "woo_date_on_sale_to": {
+      "type": "date",
+      "label": "Sale Date End",
+      "key": "date_on_sale_to",
+      "required": false,
+      "placeholder": "YYYY-MM-DD"
+    },
     "price_type": {
       "type": "select",
       "label": "Pricing Type",
@@ -95,36 +111,34 @@
       },
       "required": true
     },
-
-    "stock_quantity": {
+    "woo_manage_stock": {
+      "type": "switch",
+      "label": "Manage Stock",
+      "key": "manage_stock",
+      "value": false,
+      "on_label": "Yes",
+      "off_label": "No",
+      "visible": true
+    },
+    "woo_stock_quantity": {
       "type": "numeric",
       "label": "Available Units",
       "placeholder": "1",
       "min": 1,
       "required": true
     },
-
     "max_capacity": {
       "type": "numeric",
       "label": "Maximum Capacity",
       "placeholder": "2",
       "min": 1
     },
-
     "ad_hoc_dates": {
       "type": "component",
       "component": "venue-product-calendar",
       "label": "Availability Calendar",
       "key": "ad_hoc_dates"
     },
-
-    "blackout_dates": {
-      "type": "component",
-      "component": "date-picker-multi",
-      "label": "Blackout Dates",
-      "key": "blackout_dates"
-    },
-
     "gallery_images": {
       "type": "component",
       "component": "gallery-uploader",
@@ -133,7 +147,7 @@
       "min_images": 0,
       "max_images": 5
     },
-    "status": {
+    "woo_status": {
       "type": "select",
       "label": "Status",
       "visible": true,
@@ -148,7 +162,7 @@
         ]
       }
     },
-    "catalog_visibility": {
+    "woo_catalog_visibility": {
       "type": "select",
       "label": "Catalog Visibility",
       "visible": true,
@@ -163,7 +177,7 @@
         ]
       }
     },
-    "type": {
+    "woo_type": {
       "type": "select",
       "label": "Type",
       "visible": true,
@@ -178,7 +192,7 @@
         ]
       }
     },
-    "featured": {
+    "woo_featured": {
       "type": "switch",
       "label": "Featured Product",
       "on_label": "Yes",

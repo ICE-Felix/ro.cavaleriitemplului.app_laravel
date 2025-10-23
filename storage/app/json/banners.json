@@ -1,0 +1,107 @@
+{
+  "name": {
+    "singular": "banner",
+    "plural": "banners",
+    "label_singular": "Banner",
+    "label_plural": "Banners"
+  },
+  "debug": [],
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+    "image_url": {
+      "key": "image_id",
+      "type": "image",
+      "label": "Banner Image",
+      "upload_key": "image_base64",
+      "required": true
+    },
+    "type": {
+      "type": "select",
+      "label": "Tip Banner",
+      "key": "tip",
+      "data": {
+        "type": "static",
+        "options": [
+          {
+            "value": "principal",
+            "name": "Principal"
+          },
+          {
+            "value": "secundar",
+            "name": "Secundar"
+          }
+        ]
+      },
+      "required": true
+    },
+    "page": {
+      "type": "select",
+      "label": "Pagina",
+      "key": "pagina",
+      "data": {
+        "type": "static",
+        "options": [
+          {
+            "value": "venue",
+            "name": "Venue"
+          },
+          {
+            "value": "shop",
+            "name": "Shop"
+          },
+          {
+            "value": "service",
+            "name": "Service"
+          }
+        ]
+      },
+      "required": true
+    },
+    "redirect_link": {
+      "type": "text",
+      "label": "Redirect Link",
+      "placeholder": "https://example.com",
+      "required": true
+    },
+    "expiration_date": {
+      "type": "date",
+      "label": "Expiration Date",
+      "key": "expiration_date",
+      "required": true,
+      "placeholder": "YYYY-MM-DD"
+    },
+    "max_clicks": {
+      "type": "numeric",
+      "label": "Max Clicks",
+      "key": "max_clicks",
+      "placeholder": "0",
+      "min": 0,
+      "value": 0
+    },
+    "max_displays": {
+      "type": "numeric",
+      "label": "Max Displays",
+      "key": "max_displays",
+      "placeholder": "0",
+      "min": 0,
+      "value": 0
+    },
+    "is_active": {
+      "type": "switch",
+      "label": "Banner Status",
+      "key": "is_active",
+      "value": true,
+      "on_label": "Active",
+      "off_label": "Inactive"
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}
