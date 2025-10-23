@@ -92,17 +92,6 @@
     <template x-for="id in selected" :key="id">
         <input type="hidden" :name="`{{ $name }}[]`" :value="id">
     </template>
-
-    <!-- Debug Info (remove in production) -->
-    <details class="mt-2 text-xs text-gray-500">
-        <summary class="cursor-pointer">Debug Info</summary>
-        <pre x-text="JSON.stringify({
-            totalRaw: rawData.length,
-            totalTree: tree.length,
-            totalFiltered: filteredTree.length,
-            selected: selected
-        }, null, 2)" class="mt-2 p-2 bg-gray-100 rounded"></pre>
-    </details>
 </div>
 
 @push('styles')

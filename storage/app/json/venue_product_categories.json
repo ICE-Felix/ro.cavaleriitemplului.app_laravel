@@ -1,0 +1,41 @@
+{
+  "name": {
+    "singular": "venue_product_category",
+    "plural": "venue_product_categories",
+    "label_singular": "Venue product category",
+    "label_plural": "Venue product categories"
+  },
+  "debug": [],
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "int",
+      "readonly": true,
+      "visible": false
+    },
+    "name": {
+      "type": "text",
+      "label": "Name",
+      "placeholder": "Event Hall"
+    },
+    "parent_name": {
+      "type": "select",
+      "label": "Primary Category",
+      "key": "parent_id",
+      "data": {
+          "type": "class",
+          "source": [
+              "App\\Services\\Supabase\\SupabaseService",
+              "read_edge",
+              "venue_product_categories"
+          ],
+          "value": "id",
+          "name": "name"
+      }
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}

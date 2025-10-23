@@ -5,7 +5,7 @@
     "label_singular": "Venue Product",
     "label_plural": "Venue Products"
   },
-  "debug": ["POST"],
+  "debug": [],
   "schema": {
     "id": {
       "label": "#",
@@ -41,21 +41,22 @@
       }
     },
     "categories": {
-      "type": "select",
-      "label": "Product Category",
+      "type": "hierarchical_category",
+      "label": "Categories",
+      "key": "venue_product_categories",
+      "value": [],
+      "visible": false,
+      "required": true,
       "data": {
-        "type": "static",
-        "options": [
-          {"value": "double_room", "name": "Double Room"},
-          {"value": "single_room", "name": "Single Room"},
-          {"value": "suite", "name": "Suite"},
-          {"value": "wedding_venue", "name": "Wedding Venue"},
-          {"value": "conference_hall", "name": "Conference Hall"},
-          {"value": "event_space", "name": "Event Space"},
-          {"value": "other", "name": "Other"}
-        ]
-      },
-      "required": true
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "venue_product_categories"
+        ],
+        "value": "id",
+        "name": "name"
+      }
     },
     "woo_description": {
       "type": "trix",
@@ -70,14 +71,14 @@
       "rows": 3
     },
     "woo_regular_price": {
-      "type": "numeric",
+      "type": "text",
       "label": "Regular Price (RON)",
       "placeholder": "0.00",
       "min": 0,
       "required": true
     },
     "woo_sale_price": {
-      "type": "numeric",
+      "type": "text",
       "label": "Sale Price (RON)",
       "placeholder": "0.00",
       "min": 0,
@@ -114,7 +115,7 @@
     "woo_manage_stock": {
       "type": "switch",
       "label": "Manage Stock",
-      "key": "manage_stock",
+      "key": "woo_manage_stock",
       "value": false,
       "on_label": "Yes",
       "off_label": "No",
@@ -159,36 +160,6 @@
           { "value": "pending", "name": "Pending" },
           { "value": "private", "name": "Private" },
           { "value": "publish", "name": "Publish" }
-        ]
-      }
-    },
-    "woo_catalog_visibility": {
-      "type": "select",
-      "label": "Catalog Visibility",
-      "visible": true,
-      "value": "visible",
-      "data": {
-        "type": "static",
-        "options": [
-          { "value": "visible", "name": "Shop and search" },
-          { "value": "catalog", "name": "Shop only" },
-          { "value": "search", "name": "Search only" },
-          { "value": "hidden", "name": "Hidden" }
-        ]
-      }
-    },
-    "woo_type": {
-      "type": "select",
-      "label": "Type",
-      "visible": true,
-      "value": "simple",
-      "data": {
-        "type": "static",
-        "options": [
-          { "value": "simple", "name": "Simple" },
-          { "value": "grouped", "name": "Grouped" },
-          { "value": "external", "name": "External" },
-          { "value": "variable", "name": "Variable" }
         ]
       }
     },
