@@ -15,7 +15,7 @@
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
         <p class="text-sm text-blue-800">
             <strong>Instructions:</strong> Select dates when this product is available for booking.
-            For each date, you can specify multiple time windows.
+            For each date, you can specify multiple time windows. Each time window has to be taken into consideration when adding the available units.
         </p>
     </div>
 

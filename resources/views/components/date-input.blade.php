@@ -1,6 +1,8 @@
 <div class="form-group" data-field="{{ $name }}">
     @if($label)
-        <label for="{{ $name }}">{{ $label }}</label>
+        <label for="{{ $name }}" class="font-bold">
+            {{ $label }}
+        </label>
     @endif
     <input type="date"
            id="{{ $name }}"

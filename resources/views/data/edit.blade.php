@@ -42,6 +42,7 @@
                                             name="{{$field['id'] ?? $key}}"
                                             placeholder="{{$field['placeholder'] ?? null}}"
                                             :error="$errors->first($field['id'] ?? $key)"
+                                            label="{{ $field['label'] ?? \Illuminate\Support\Str::headline($key) }}"
                                             value="{!! html_entity_decode($result[$field['id'] ?? $key] ?? '') !!}"
                                         />
                                         @break

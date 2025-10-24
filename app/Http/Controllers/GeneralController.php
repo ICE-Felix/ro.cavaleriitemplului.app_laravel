@@ -223,7 +223,7 @@ class GeneralController extends Controller
                     $data[$field] = array_values(array_filter(array_map(fn($x) => (string)$x, $raw)));
                     continue;
                 }
-// --- COMPONENT TYPES ---
+                // --- COMPONENT TYPES ---
                 if (($prop['type'] ?? null) === 'component') {
                     $componentType = $prop['component'] ?? '';
                     $field = $prop['key'] ?? $key;
@@ -297,7 +297,25 @@ class GeneralController extends Controller
                     }
                     continue;
                 }
+                // --- DATE FIELDS ---
+                if (($prop['type'] ?? null) === 'date') {
+                    $field = $prop['key'] ?? $key;
+                    $dateValue = $request->get($field);
 
+                    if ($dateValue !== null && $dateValue !== '') {
+                        // Validate and normalize date format
+                        try {
+                            $date = \Carbon\Carbon::parse($dateValue);
+                            $data[$field] = $date->format('Y-m-d');
+                        } catch (\Exception $e) {
+                            // If invalid, store as-is or skip
+                            $data[$field] = $dateValue;
+                        }
+                    } else {
+                        $data[$field] = null;
+                    }
+                    continue;
+                }
                 // --- LOCATION ---
                 if (($prop['type'] ?? null) === 'location') {
                     $fieldName  = $prop['key'] ?? $key;
@@ -694,7 +712,7 @@ class GeneralController extends Controller
                     }
                     continue;
                 }
-// --- COMPONENT TYPES ---
+                // --- COMPONENT TYPES ---
                 if (($prop['type'] ?? null) === 'component') {
                     $componentType = $prop['component'] ?? '';
                     $field = $prop['key'] ?? $key;
@@ -750,6 +768,23 @@ class GeneralController extends Controller
                                 $data['deleted_' . $field] = $deletedIds;
                             }
                             break;
+                    }
+                    continue;
+                }
+                // --- DATE FIELDS ---
+                if (($prop['type'] ?? null) === 'date') {
+                    $field = $prop['key'] ?? $key;
+                    $dateValue = $request->get($field);
+
+                    if ($dateValue !== null && $dateValue !== '') {
+                        try {
+                            $date = \Carbon\Carbon::parse($dateValue);
+                            $data[$field] = $date->format('Y-m-d');
+                        } catch (\Exception $e) {
+                            $data[$field] = $dateValue;
+                        }
+                    } else {
+                        $data[$field] = null;
                     }
                     continue;
                 }

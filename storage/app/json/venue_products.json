@@ -19,8 +19,7 @@
       "label": "Featured image",
       "upload_key": "image_base64"
     },
-    
-    "name": {
+    "woo_name": {
       "type": "text",
       "label": "Product Name",
       "placeholder": "e.g., Deluxe Double Room, Wedding Package",
@@ -42,45 +41,71 @@
       }
     },
     "categories": {
-      "type": "select",
-      "label": "Product Category",
+      "type": "hierarchical_category",
+      "label": "Categories",
+      "key": "venue_product_categories",
+      "value": [],
+      "visible": false,
+      "required": true,
       "data": {
-        "type": "static",
-        "options": [
-          {"value": "double_room", "name": "Double Room"},
-          {"value": "single_room", "name": "Single Room"},
-          {"value": "suite", "name": "Suite"},
-          {"value": "wedding_venue", "name": "Wedding Venue"},
-          {"value": "conference_hall", "name": "Conference Hall"},
-          {"value": "event_space", "name": "Event Space"},
-          {"value": "other", "name": "Other"}
-        ]
-      },
-      "required": true
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "venue_product_categories"
+        ],
+        "value": "id",
+        "name": "name"
+      }
+    },
+    "venue_product_categories_name": {
+      "type": "text",
+      "label": "Categories",
+      "key": "venue_product_categories_name",
+      "readonly": true,
+      "visible": true
     },
 
-    "description": {
+    "woo_description": {
       "type": "trix",
       "label": "Full Description",
       "placeholder": "Detailed product description...",
       "rows": 5
     },
-
-    "short_description": {
+    "woo_short_description": {
       "type": "textarea",
       "label": "Short Description",
       "placeholder": "Brief overview (shown in listings)",
       "rows": 3
     },
-
-    "base_price": {
-      "type": "numeric",
-      "label": "Base Price (RON)",
+    "woo_regular_price": {
+      "type": "text",
+      "label": "Regular Price (RON)",
       "placeholder": "0.00",
       "min": 0,
       "required": true
     },
-
+    "woo_sale_price": {
+      "type": "text",
+      "label": "Sale Price (RON)",
+      "placeholder": "0.00",
+      "min": 0,
+      "required": true
+    },
+    "woo_date_on_sale_from": {
+      "type": "date",
+      "label": "Sale Date Start",
+      "key": "woo_date_on_sale_from",
+      "required": true,
+      "placeholder": "YYYY-MM-DD"
+    },
+    "woo_date_on_sale_to": {
+      "type": "date",
+      "label": "Sale Date End",
+      "key": "woo_date_on_sale_to",
+      "required": true,
+      "placeholder": "YYYY-MM-DD"
+    },
     "price_type": {
       "type": "select",
       "label": "Pricing Type",
@@ -95,45 +120,45 @@
       },
       "required": true
     },
-
-    "stock_quantity": {
+    "woo_manage_stock": {
+      "type": "switch",
+      "label": "Manage Stock",
+      "key": "woo_manage_stock",
+      "value": false,
+      "on_label": "Yes",
+      "off_label": "No",
+      "visible": true
+    },
+    "woo_stock_quantity": {
       "type": "numeric",
       "label": "Available Units",
       "placeholder": "1",
       "min": 1,
       "required": true
     },
-
     "max_capacity": {
       "type": "numeric",
       "label": "Maximum Capacity",
       "placeholder": "2",
       "min": 1
     },
-
     "ad_hoc_dates": {
       "type": "component",
       "component": "venue-product-calendar",
       "label": "Availability Calendar",
       "key": "ad_hoc_dates"
     },
-
-    "blackout_dates": {
-      "type": "component",
-      "component": "date-picker-multi",
-      "label": "Blackout Dates",
-      "key": "blackout_dates"
-    },
-
-    "gallery_images": {
-      "type": "component",
-      "component": "gallery-uploader",
-      "label": "Product Images",
-      "key": "gallery_images",
+    "gallery": {
+      "type": "gallery",
+      "label": "Venue Product Gallery",
+      "key": "gallery-images",
+      "value": null,
+      "required": false,
+      "visible": false,
       "min_images": 0,
       "max_images": 5
     },
-    "status": {
+    "woo_status": {
       "type": "select",
       "label": "Status",
       "visible": true,
@@ -148,37 +173,7 @@
         ]
       }
     },
-    "catalog_visibility": {
-      "type": "select",
-      "label": "Catalog Visibility",
-      "visible": true,
-      "value": "visible",
-      "data": {
-        "type": "static",
-        "options": [
-          { "value": "visible", "name": "Shop and search" },
-          { "value": "catalog", "name": "Shop only" },
-          { "value": "search", "name": "Search only" },
-          { "value": "hidden", "name": "Hidden" }
-        ]
-      }
-    },
-    "type": {
-      "type": "select",
-      "label": "Type",
-      "visible": true,
-      "value": "simple",
-      "data": {
-        "type": "static",
-        "options": [
-          { "value": "simple", "name": "Simple" },
-          { "value": "grouped", "name": "Grouped" },
-          { "value": "external", "name": "External" },
-          { "value": "variable", "name": "Variable" }
-        ]
-      }
-    },
-    "featured": {
+    "woo_featured": {
       "type": "switch",
       "label": "Featured Product",
       "on_label": "Yes",

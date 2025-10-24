@@ -1,0 +1,147 @@
+{
+  "name": {
+    "singular": "banner",
+    "plural": "banners",
+    "label_singular": "Banner",
+    "label_plural": "Banners"
+  },
+  "debug": [],
+  "schema": {
+    "id": {
+      "label": "#",
+      "type": "text",
+      "key": "id",
+      "readonly": true,
+      "visible": false
+    },
+    "image_url": {
+      "key": "image_id",
+      "type": "image",
+      "label": "Featured image",
+      "upload_key": "image_base64"
+    },
+    "type": {
+      "type": "select",
+      "label": "Banner Type",
+      "key": "type",
+      "data": {
+        "type": "static",
+        "options": [
+          {
+            "value": "primary",
+            "name": "Primary"
+          },
+          {
+            "value": "secondary",
+            "name": "Secondary"
+          }
+        ]
+      },
+      "required": true
+    },
+
+    "page": {
+      "type": "select",
+      "label": "Page",
+      "key": "page",
+      "data": {
+        "type": "static",
+        "options": [
+          {
+            "value": "venue",
+            "name": "Venue"
+          },
+          {
+            "value": "shop",
+            "name": "Shop"
+          },
+          {
+            "value": "service",
+            "name": "Service"
+          }
+        ]
+      },
+      "required": true
+    },
+
+    "redirect_link": {
+      "type": "text",
+      "label": "Redirect Link",
+      "key": "redirect_link",
+      "placeholder": "https://example.com",
+      "required": true
+    },
+
+    "expiration_date": {
+      "type": "date",
+      "label": "Expiration Date",
+      "key": "expiration_date",
+      "placeholder": "YYYY-MM-DD"
+    },
+
+    "max_clicks": {
+      "type": "numeric",
+      "label": "Max Clicks",
+      "key": "max_clicks",
+      "placeholder": "0 = unlimited",
+      "min": 0,
+      "value": 0
+    },
+
+    "max_displays": {
+      "type": "numeric",
+      "label": "Max Displays",
+      "key": "max_displays",
+      "placeholder": "0 = unlimited",
+      "min": 0,
+      "value": 0
+    },
+
+    "current_clicks": {
+      "type": "numeric",
+      "label": "Current Clicks",
+      "key": "current_clicks",
+      "readonly": true,
+      "visible": true,
+      "value": 0
+    },
+
+    "current_displays": {
+      "type": "numeric",
+      "label": "Current Displays",
+      "key": "current_displays",
+      "readonly": true,
+      "visible": true,
+      "value": 0
+    },
+
+    "active": {
+      "type": "switch",
+      "label": "Banner Status",
+      "key": "active",
+      "value": true,
+      "on_label": "Active",
+      "off_label": "Inactive"
+    },
+
+    "created_at": {
+      "type": "text",
+      "label": "Created At",
+      "key": "created_at",
+      "readonly": true,
+      "visible": false
+    },
+
+    "updated_at": {
+      "type": "text",
+      "label": "Updated At",
+      "key": "updated_at",
+      "readonly": true,
+      "visible": false
+    }
+  },
+  "GET": "edge",
+  "INSERT": "edge",
+  "DELETE": "edge",
+  "UPDATE": "edge"
+}
