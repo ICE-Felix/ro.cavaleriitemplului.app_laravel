@@ -58,6 +58,14 @@
         "name": "name"
       }
     },
+    "venue_product_categories_name": {
+      "type": "text",
+      "label": "Categories",
+      "key": "venue_product_categories_name",
+      "readonly": true,
+      "visible": true
+    },
+
     "woo_description": {
       "type": "trix",
       "label": "Full Description",
@@ -87,15 +95,15 @@
     "woo_date_on_sale_from": {
       "type": "date",
       "label": "Sale Date Start",
-      "key": "date_on_sale_from",
-      "required": false,
+      "key": "woo_date_on_sale_from",
+      "required": true,
       "placeholder": "YYYY-MM-DD"
     },
     "woo_date_on_sale_to": {
       "type": "date",
       "label": "Sale Date End",
-      "key": "date_on_sale_to",
-      "required": false,
+      "key": "woo_date_on_sale_to",
+      "required": true,
       "placeholder": "YYYY-MM-DD"
     },
     "price_type": {
@@ -140,11 +148,13 @@
       "label": "Availability Calendar",
       "key": "ad_hoc_dates"
     },
-    "gallery_images": {
-      "type": "component",
-      "component": "gallery-uploader",
-      "label": "Product Images",
-      "key": "gallery_images",
+    "gallery": {
+      "type": "gallery",
+      "label": "Venue Product Gallery",
+      "key": "gallery-images",
+      "value": null,
+      "required": false,
+      "visible": false,
       "min_images": 0,
       "max_images": 5
     },

@@ -360,6 +360,17 @@
                                                                 }
                                                             @endphp
                                                             @break
+                                                        @case('text')
+                                                            @php
+                                                                $value = $elem[$key] ?? '';
+
+                                                                // Handle array values (like category names)
+                                                                if (is_array($value)) {
+                                                                    $value = implode(', ', array_filter($value));
+                                                                }
+                                                            @endphp
+                                                            {!! html_entity_decode($value) !!}
+                                                            @break
                                                         @case('tickets')
                                                             @php
                                                                 $ticketsValue = $elem[$key] ?? '';
