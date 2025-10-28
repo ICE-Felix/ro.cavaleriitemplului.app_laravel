@@ -143,6 +143,16 @@
                                                         @case('boolean')
                                                             {{$elem[$key] ? "TRUE" : "FALSE"}}
                                                             @break
+                                                        @case('county_city_selector')
+                                                            @php
+                                                                $county = $elem['county'] ?? 'N/A';
+                                                                $city = $elem['city'] ?? 'N/A';
+                                                            @endphp
+                                                            <div class="flex flex-col">
+                                                                <span class="badge badge-info text-xs">{{ $county }}</span>
+                                                                <span class="text-gray-600 text-sm mt-1">{{ $city }}</span>
+                                                            </div>
+                                                            @break
                                                         @case('option')
                                                             {{ucfirst($elem[$key])}}
                                                             @break

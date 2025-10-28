@@ -5,7 +5,7 @@
     "label_singular": "Service",
     "label_plural": "Services"
   },
-  "debug": ["POST"],
+  "debug": [],
   "query_params": {
     "include_galleries": true
   },
@@ -105,26 +105,6 @@
       "label": "Sale Date End",
       "key": "woo_date_on_sale_to",
       "placeholder": "YYYY-MM-DD"
-    },
-    "woo_manage_stock": {
-      "type": "switch",
-      "label": "Manage Stock",
-      "key": "woo_manage_stock",
-      "value": false,
-      "on_label": "Yes",
-      "off_label": "No",
-      "visible": true
-    },
-    "woo_stock_quantity": {
-      "type": "numeric",
-      "label": "Available Units",
-      "placeholder": "1",
-      "min": 1
-    },
-    "woo_sku": {
-      "type": "text",
-      "label": "SKU",
-      "placeholder": "e.g., SRV-001"
     },
     "woo_status": {
       "type": "select",

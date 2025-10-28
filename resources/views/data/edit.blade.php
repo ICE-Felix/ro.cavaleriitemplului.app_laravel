@@ -226,7 +226,24 @@
                                             />
                                             @endisset
                                         @break
+                                    @case('county_city_selector')
+                                        <div class="mb-4">
+                                            @if(isset($prop['label']))
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    {{ $prop['label'] }}
+                                                    @if($prop['required'] ?? false)
+                                                        <span class="text-red-500">*</span>
+                                                    @endif
+                                                </label>
+                                            @endif
 
+                                            <x-county-city-selector
+                                                    :countyValue="old('county', $elem['county'] ?? '')"
+                                                    :cityValue="old('city', $elem['city'] ?? '')"
+                                                    :required="$prop['required'] ?? false"
+                                            />
+                                        </div>
+                                        @break
                                         @case('location')
                                         @if($props['name']['plural'] === 'events')
                                             <x-location-picker

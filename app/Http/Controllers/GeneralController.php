@@ -223,6 +223,31 @@ class GeneralController extends Controller
                     $data[$field] = array_values(array_filter(array_map(fn($x) => (string)$x, $raw)));
                     continue;
                 }
+
+                // --- COUNTY CITY SELECTOR ---
+                if (($prop['type'] ?? null) === 'county_city_selector') {
+                    // Get county key (default to 'county')
+                    $countyKey = $prop['county_key'] ?? 'county';
+                    $cityKey = $prop['city_key'] ?? 'city';
+
+                    // Process county
+                    if ($request->has('county')) {
+                        $countyValue = $request->get('county');
+                        if (!empty($countyValue)) {
+                            $data[$countyKey] = $countyValue;
+                        }
+                    }
+
+                    // Process city
+                    if ($request->has('city')) {
+                        $cityValue = $request->get('city');
+                        if (!empty($cityValue)) {
+                            $data[$cityKey] = $cityValue;
+                        }
+                    }
+
+                    continue;
+                }
                 // --- COMPONENT TYPES ---
                 if (($prop['type'] ?? null) === 'component') {
                     $componentType = $prop['component'] ?? '';
@@ -691,6 +716,26 @@ class GeneralController extends Controller
                     continue;
                 }
 
+                // --- COUNTY CITY SELECTOR ---
+                if (($prop['type'] ?? null) === 'county_city_selector') {
+                    // Get county key (default to 'county')
+                    $countyKey = $prop['county_key'] ?? 'county';
+                    $cityKey = $prop['city_key'] ?? 'city';
+
+                    // Process county
+                    if ($request->has('county')) {
+                        $countyValue = $request->get('county');
+                        $data[$countyKey] = $countyValue ?: null;
+                    }
+
+                    // Process city
+                    if ($request->has('city')) {
+                        $cityValue = $request->get('city');
+                        $data[$cityKey] = $cityValue ?: null;
+                    }
+
+                    continue;
+                }
                 // --- INFO FIELDS ---
                 if (($prop['type'] ?? null) === 'info_fields') {
                     $field = $prop['key'] ?? $key;
