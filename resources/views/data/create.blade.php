@@ -277,25 +277,91 @@
                                             $label = $field['label'] ?? ucfirst($key);
                                             $values = [];
 
-                                            // Data now comes with parent_id already preserved!
-                                            if(isset($data[$key]) && is_array($data[$key])) {
-                                                $values = $data[$key]; // Already has id, name, parent_id
-                                            }
-
-                                            // Debug in development
-                                            if (app()->environment('local')) {
-                                                \Log::info('Hierarchical Category - Create', [
-                                                    'field' => $field['key'] ?? $key,
-                                                    'count' => count($values),
-                                                    'sample' => array_slice($values, 0, 3)
-                                                ]);
+                                            if (isset($data[$key]) && is_array($data[$key])) {
+                                                foreach ($data[$key] as $elem) {
+                                                    if (!is_array($elem)) continue;
+                                                    $values[] = [
+                                                        'id'         => (string)($elem['id'] ?? $elem['value'] ?? ''),
+                                                        'name'       => (string)($elem['name'] ?? 'Unknown'),
+                                                        'parent_ids' => array_values(array_filter(
+                                                            array_map(fn($x) => is_null($x) ? null : (string)$x, (array)($elem['parent_ids'] ?? ($elem['parent_id'] ?? [])))
+                                                        ))
+                                                    ];
+                                                }
                                             }
                                         @endphp
+
                                         <x-hierarchical-category-checkbox
                                                 name="{{ $field['key'] ?? $key }}"
                                                 label="{{ $label }}"
                                                 :data="$values"
                                                 :value="old($field['key'] ?? $key, $field['value'] ?? [])"
+                                                :required="$field['required'] ?? false"
+                                        />
+
+                                        @break
+                                    @case('hierarchical_category')
+                                        @php
+                                            $label = $field['label'] ?? ucfirst($key);
+                                            $values = [];
+
+                                            if (isset($data[$key]) && is_array($data[$key])) {
+                                                foreach ($data[$key] as $elem) {
+                                                    if (!is_array($elem)) continue;
+
+                                                    $values[] = [
+                                                        'id'         => (string)($elem['id'] ?? $elem['value'] ?? ''),
+                                                        'name'       => (string)($elem['name'] ?? 'Unknown'),
+                                                        'parent_ids' => array_values(array_filter(
+                                                            array_map(fn($x) => is_null($x) ? null : (string)$x,
+                                                            (array)($elem['parent_ids'] ?? ($elem['parent_id'] ?? [])))
+                                                        ))
+                                                    ];
+                                                }
+                                            }
+
+                                            // DEBUG: Temporarily log to see structure
+                                            \Log::info('Hierarchical Category Debug', [
+                                                'key' => $key,
+                                                'raw_data' => $data[$key] ?? 'NOT SET',
+                                                'processed_values' => $values
+                                            ]);
+                                        @endphp
+
+                                        <x-hierarchical-category-checkbox
+                                                name="{{ $field['key'] ?? $key }}"
+                                                label="{{ $label }}"
+                                                :data="$values"
+                                                :value="old($field['key'] ?? $key, $field['value'] ?? [])"
+                                                :required="$field['required'] ?? false"
+                                        />
+                                        @break
+                                    @case('multi_parent_select')
+                                        @php
+                                            $fieldName = $field['key'] ?? $key;
+                                            $label = $field['label'] ?? ucfirst($key);
+
+                                            $options = [];
+                                            $optionsSource = $data[$key] ?? $data[$fieldName] ?? [];
+                                            foreach ($optionsSource as $opt) {
+                                                if (is_array($opt) && isset($opt['value'], $opt['name'])) {
+                                                    $options[(string)$opt['value']] = (string)$opt['name'];
+                                                }
+                                            }
+
+                                            $selected = old($fieldName, $result[$fieldName] ?? $field['value'] ?? []);
+                                            if (is_string($selected)) {
+                                                $decoded = json_decode($selected, true);
+                                                if (is_array($decoded)) $selected = $decoded;
+                                            }
+                                        @endphp
+
+                                        <x-multi-parent-select
+                                                name="{{ $fieldName }}"
+                                                label="{{ $label }}"
+                                                :options="$options"
+                                                :value="$selected"
+                                                :error="$errors->first($fieldName)"
                                                 :required="$field['required'] ?? false"
                                         />
                                         @break

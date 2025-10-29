@@ -19,18 +19,18 @@
       "placeholder": "Vacanta"
     },
     "parent_name": {
-      "type": "select",
-      "label": "Primary Category",
-      "key": "parent_id",
+      "type": "multi_parent_select",
+      "label": "Parents",
+      "key": "parent_ids",
       "data": {
-          "type": "class",
-          "source": [
-              "App\\Services\\Supabase\\SupabaseService",
-              "read_edge",
-              "venue_categories"
-          ],
-          "value": "id",
-          "name": "name"
+        "type": "class",
+        "source": [
+          "App\\Services\\Supabase\\SupabaseService",
+          "read_edge",
+          "venue_categories"
+        ],
+        "value": "id",
+        "name": "name"
       }
     }
   },
