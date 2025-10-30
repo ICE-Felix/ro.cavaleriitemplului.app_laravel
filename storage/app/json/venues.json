@@ -113,6 +113,24 @@
       "label": "Email",
       "placeholder": "contact@venue.ro"
     },
+    "location_info": {
+      "type": "county_city_selector",
+      "label": "Location (County & City)",
+      "required": true,
+      "visible": false
+    },
+    "county": {
+      "type": "text",
+      "label": "County",
+      "readonly": true,
+      "visible": true
+    },
+    "city": {
+      "type": "text",
+      "label": "City",
+      "readonly": true,
+      "visible": true
+    },
     "location": {
       "type": "location",
       "key": "location",

@@ -143,6 +143,16 @@
                                                         @case('boolean')
                                                             {{$elem[$key] ? "TRUE" : "FALSE"}}
                                                             @break
+                                                        @case('county_city_selector')
+                                                            @php
+                                                                $county = $elem['county'] ?? 'N/A';
+                                                                $city = $elem['city'] ?? 'N/A';
+                                                            @endphp
+                                                            <div class="flex flex-col">
+                                                                <span class="badge badge-info text-xs">{{ $county }}</span>
+                                                                <span class="text-gray-600 text-sm mt-1">{{ $city }}</span>
+                                                            </div>
+                                                            @break
                                                         @case('option')
                                                             {{ucfirst($elem[$key])}}
                                                             @break
@@ -370,6 +380,41 @@
                                                                 }
                                                             @endphp
                                                             {!! html_entity_decode($value) !!}
+                                                            @break
+                                                        @case('multi_parent_select')
+                                                            @php
+                                                                $dataKey = $field['key'] ?? $key;
+                                                                $namesKey = str_replace('_ids', '_names', $dataKey);
+
+                                                                $names = $elem[$namesKey] ?? [];
+
+                                                                if (empty($names) && isset($elem[$dataKey])) {
+                                                                    $ids = $elem[$dataKey];
+                                                                    if (is_array($ids)) {
+                                                                        $names = $ids;
+                                                                    }
+                                                                }
+
+                                                                if (is_string($names)) {
+                                                                    $names = json_decode($names, true) ?: [];
+                                                                }
+
+                                                                if (!is_array($names)) {
+                                                                    $names = [];
+                                                                }
+                                                            @endphp
+
+                                                            @if(count($names) > 0)
+                                                                <div class="flex flex-wrap gap-1">
+                                                                    @foreach($names as $name)
+                                                                        <span class="inline-block px-1 font-semibold text-white bg-blue-500 rounded-full whitespace-nowrap">
+                                                                    {{ $name }}
+                                                                    </span>@if(!$loop->last)<span class="text-gray-600">,</span>@endif
+                                                                    @endforeach
+                                                                </div>
+                                                            @else
+                                                                <span class="text-gray-500 text-sm">No parents</span>
+                                                            @endif
                                                             @break
                                                         @case('tickets')
                                                             @php

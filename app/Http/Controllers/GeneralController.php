@@ -223,6 +223,46 @@ class GeneralController extends Controller
                     $data[$field] = array_values(array_filter(array_map(fn($x) => (string)$x, $raw)));
                     continue;
                 }
+
+
+                // --- MULTI PARENT SELECT ---
+                if (($prop['type'] ?? null) === 'multi_parent_select') {
+                    $field = $prop['key'] ?? $key;
+                    $raw = $request->input($field, []);
+                    if (is_string($raw)) {
+                        $decoded = json_decode($raw, true);
+                        $raw = (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) ? $decoded : [];
+                    }
+                    if (!is_array($raw)) $raw = [];
+                    $data[$field] = array_values(array_filter(array_map(fn($x) => (string)$x, $raw)));
+                    continue;
+                }
+
+
+                // --- COUNTY CITY SELECTOR ---
+                if (($prop['type'] ?? null) === 'county_city_selector') {
+                    // Get county key (default to 'county')
+                    $countyKey = $prop['county_key'] ?? 'county';
+                    $cityKey = $prop['city_key'] ?? 'city';
+
+                    // Process county
+                    if ($request->has('county')) {
+                        $countyValue = $request->get('county');
+                        if (!empty($countyValue)) {
+                            $data[$countyKey] = $countyValue;
+                        }
+                    }
+
+                    // Process city
+                    if ($request->has('city')) {
+                        $cityValue = $request->get('city');
+                        if (!empty($cityValue)) {
+                            $data[$cityKey] = $cityValue;
+                        }
+                    }
+
+                    continue;
+                }
                 // --- COMPONENT TYPES ---
                 if (($prop['type'] ?? null) === 'component') {
                     $componentType = $prop['component'] ?? '';
@@ -667,6 +707,21 @@ class GeneralController extends Controller
 
                     continue;
                 }
+
+                // --- MULTI PARENT SELECT ---
+                if (($prop['type'] ?? null) === 'multi_parent_select') {
+                    $field = $prop['key'] ?? $key;
+                    $raw = $request->input($field, []);
+                    if (is_string($raw)) {
+                        $decoded = json_decode($raw, true);
+                        $raw = (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) ? $decoded : [];
+                    }
+                    if (!is_array($raw)) $raw = [];
+                    $data[$field] = array_values(array_filter(array_map(fn($x) => (string)$x, $raw)));
+                    continue;
+                }
+
+
                 // --- CHECKBOX ---
                 if (($prop['type'] ?? null) === 'checkbox' || ($prop['type'] ?? null) === 'hierarchical_category') {
                     $field = $prop['key'] ?? $key;
@@ -691,6 +746,26 @@ class GeneralController extends Controller
                     continue;
                 }
 
+                // --- COUNTY CITY SELECTOR ---
+                if (($prop['type'] ?? null) === 'county_city_selector') {
+                    // Get county key (default to 'county')
+                    $countyKey = $prop['county_key'] ?? 'county';
+                    $cityKey = $prop['city_key'] ?? 'city';
+
+                    // Process county
+                    if ($request->has('county')) {
+                        $countyValue = $request->get('county');
+                        $data[$countyKey] = $countyValue ?: null;
+                    }
+
+                    // Process city
+                    if ($request->has('city')) {
+                        $cityValue = $request->get('city');
+                        $data[$cityKey] = $cityValue ?: null;
+                    }
+
+                    continue;
+                }
                 // --- INFO FIELDS ---
                 if (($prop['type'] ?? null) === 'info_fields') {
                     $field = $prop['key'] ?? $key;
@@ -1044,7 +1119,7 @@ class GeneralController extends Controller
                         $data = $serviceInstance->{$source[1]}($source[2], $debugEnabled);
                     }
 
-                    // Transform data - PRESERVE ALL FIELDS including parent_id
+                    // Transform data - PRESERVE BOTH parent_id AND parent_ids
                     return array_map(function ($item) use ($valueKey, $nameKey, $template) {
                         $transformed = [
                             'id' => $item['id'] ?? $item[$valueKey] ?? null,
@@ -1056,9 +1131,26 @@ class GeneralController extends Controller
                                 : ($item[$nameKey] ?? $item[$valueKey] ?? 'Unknown')
                         ];
 
-                        // Preserve parent_id if it exists
-                        if (isset($item['parent_id'])) {
-                            $transformed['parent_id'] = $item['parent_id'];
+                        // CRITICAL: Preserve parent_ids (array) - PRIMARY
+                        if (isset($item['parent_ids'])) {
+                            $parentIds = $item['parent_ids'];
+                            // Ensure it's an array
+                            if (is_string($parentIds)) {
+                                $decoded = json_decode($parentIds, true);
+                                $parentIds = is_array($decoded) ? $decoded : [];
+                            }
+                            if (!is_array($parentIds)) {
+                                $parentIds = [];
+                            }
+                            $transformed['parent_ids'] = array_values(array_filter($parentIds));
+                        }
+                        // Fallback: Convert parent_id (singular) to parent_ids (array)
+                        elseif (isset($item['parent_id']) && $item['parent_id'] !== null) {
+                            $transformed['parent_ids'] = [$item['parent_id']];
+                        }
+                        // No parent
+                        else {
+                            $transformed['parent_ids'] = [];
                         }
 
                         return $transformed;
@@ -1087,9 +1179,7 @@ class GeneralController extends Controller
     {
         foreach ($this->props['schema'] as $key => $prop) {
             if (isset($prop['type']) &&
-                ($prop['type'] === 'select' ||
-                    $prop['type'] === 'checkbox' ||
-                    $prop['type'] === 'hierarchical_category') &&
+                in_array($prop['type'], ['select','checkbox','hierarchical_category','multi_parent_select'], true) &&
                 isset($prop['data'])) {
 
                 // Check for static options first
@@ -1116,14 +1206,27 @@ class GeneralController extends Controller
                         $prop['filters'] ?? []
                     );
 
-                    // CRITICAL: Preserve parent_id for hierarchical components
+                    // CRITICAL: Preserve parent_ids for hierarchical components
                     if ($prop['type'] === 'hierarchical_category') {
                         $data[$key] = array_map(function ($item) {
+                            // Ensure parent_ids is an array
+                            $parentIds = $item['parent_ids'] ?? [];
+
+                            // Handle if it's still singular parent_id
+                            if (empty($parentIds) && isset($item['parent_id']) && $item['parent_id'] !== null) {
+                                $parentIds = [$item['parent_id']];
+                            }
+
+                            // Ensure it's an array
+                            if (!is_array($parentIds)) {
+                                $parentIds = [];
+                            }
+
                             return [
                                 'id' => $item['id'] ?? $item['value'],
                                 'value' => $item['id'] ?? $item['value'],
                                 'name' => $item['name'],
-                                'parent_id' => $item['parent_id'] ?? null
+                                'parent_ids' => array_values(array_filter($parentIds))
                             ];
                         }, $sourceData);
                     } else {

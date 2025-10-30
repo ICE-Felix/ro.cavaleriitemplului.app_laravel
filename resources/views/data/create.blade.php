@@ -1,6 +1,6 @@
 @php
     $label = $props['name']['label_singular'] ?? $props['name']['singular'];
-    
+
     // Handle pre-filled date/time from calendar
     $preFilledStartDate = request()->get('start_date');
     $preFilledStartHour = request()->get('start_hour');
@@ -107,7 +107,7 @@
                                         @case('select')
                                         @php
                                             $values = [];
-                                            
+
                                             // Add safety checks for data structure
                                             if(isset($data[$key]) && is_array($data[$key])) {
                                                 foreach ($data[$key] as $elem) {
@@ -117,9 +117,9 @@
                                                     }
                                                 }
                                             }
-                                            
+
                                             $label = $field['label'] ?? ucfirst($key);
-                                            
+
                                             // Check for conditional visibility
                                             $isConditional = isset($field['conditional_visibility']);
                                             $initiallyVisible = $field['visible'] ?? true;
@@ -127,7 +127,7 @@
                                                 $initiallyVisible = false; // Start hidden for conditional fields
                                             }
                                         @endphp
-                                        <div class="form-group {{ $isConditional ? 'conditional-field' : '' }}" 
+                                        <div class="form-group {{ $isConditional ? 'conditional-field' : '' }}"
                                              data-field-name="{{ $field['key'] ?? $key }}"
                                              @if($isConditional)
                                              data-depends-on="{{ $field['conditional_visibility']['depends_on'] }}"
@@ -163,6 +163,24 @@
                                             :success="session($field['key'] ?? $key)"
                                             preview="{{$field['preview'] ?? ''}}"
                                         />
+                                        @break
+                                    @case('county_city_selector')
+                                        <div class="mb-4">
+                                            @if(isset($prop['label']))
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    {{ $prop['label'] }}
+                                                    @if($prop['required'] ?? false)
+                                                        <span class="text-red-500">*</span>
+                                                    @endif
+                                                </label>
+                                            @endif
+
+                                            <x-county-city-selector
+                                                    :countyValue="old('county', '')"
+                                                    :cityValue="old('city', '')"
+                                                    :required="$prop['required'] ?? false"
+                                            />
+                                        </div>
                                         @break
                                         @case('location')
                                         <x-location-picker
@@ -227,7 +245,7 @@
                                         @php
                                             $label = $field['label'] ?? ucfirst($key);
                                             $values = [];
-                                            
+
                                             // Check for static options in field configuration
                                             if(isset($field['options'])) {
                                                 foreach ($field['options'] as $option) {
@@ -254,38 +272,96 @@
                                             :text="$field['text'] ?? null"
                                         />
                                         @break
-                                        @case('info_fields')
-                                        <x-info-fields
+                                    @case('hierarchical_category')
+                                        @php
+                                            $label = $field['label'] ?? ucfirst($key);
+                                            $values = [];
+
+                                            if (isset($data[$key]) && is_array($data[$key])) {
+                                                foreach ($data[$key] as $elem) {
+                                                    if (!is_array($elem)) continue;
+                                                    $values[] = [
+                                                        'id'         => (string)($elem['id'] ?? $elem['value'] ?? ''),
+                                                        'name'       => (string)($elem['name'] ?? 'Unknown'),
+                                                        'parent_ids' => array_values(array_filter(
+                                                            array_map(fn($x) => is_null($x) ? null : (string)$x, (array)($elem['parent_ids'] ?? ($elem['parent_id'] ?? [])))
+                                                        ))
+                                                    ];
+                                                }
+                                            }
+                                        @endphp
+
+                                        <x-hierarchical-category-checkbox
                                                 name="{{ $field['key'] ?? $key }}"
-                                                :label="$field['label'] ?? 'Additional Information'"
-                                                :value="old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? $field['value'] ?? '[]')"
-                                                :error="$errors->first($field['key'] ?? $key)"
+                                                label="{{ $label }}"
+                                                :data="$values"
+                                                :value="old($field['key'] ?? $key, $field['value'] ?? [])"
+                                                :required="$field['required'] ?? false"
                                         />
+
                                         @break
                                     @case('hierarchical_category')
                                         @php
                                             $label = $field['label'] ?? ucfirst($key);
                                             $values = [];
 
-                                            // Data now comes with parent_id already preserved!
-                                            if(isset($data[$key]) && is_array($data[$key])) {
-                                                $values = $data[$key]; // Already has id, name, parent_id
+                                            if (isset($data[$key]) && is_array($data[$key])) {
+                                                foreach ($data[$key] as $elem) {
+                                                    if (!is_array($elem)) continue;
+
+                                                    $values[] = [
+                                                        'id'         => (string)($elem['id'] ?? $elem['value'] ?? ''),
+                                                        'name'       => (string)($elem['name'] ?? 'Unknown'),
+                                                        'parent_ids' => array_values(array_filter(
+                                                            array_map(fn($x) => is_null($x) ? null : (string)$x,
+                                                            (array)($elem['parent_ids'] ?? ($elem['parent_id'] ?? [])))
+                                                        ))
+                                                    ];
+                                                }
                                             }
 
-                                            // Debug in development
-                                            if (app()->environment('local')) {
-                                                \Log::info('Hierarchical Category - Create', [
-                                                    'field' => $field['key'] ?? $key,
-                                                    'count' => count($values),
-                                                    'sample' => array_slice($values, 0, 3)
-                                                ]);
-                                            }
+                                            // DEBUG: Temporarily log to see structure
+                                            \Log::info('Hierarchical Category Debug', [
+                                                'key' => $key,
+                                                'raw_data' => $data[$key] ?? 'NOT SET',
+                                                'processed_values' => $values
+                                            ]);
                                         @endphp
+
                                         <x-hierarchical-category-checkbox
                                                 name="{{ $field['key'] ?? $key }}"
                                                 label="{{ $label }}"
                                                 :data="$values"
                                                 :value="old($field['key'] ?? $key, $field['value'] ?? [])"
+                                                :required="$field['required'] ?? false"
+                                        />
+                                        @break
+                                    @case('multi_parent_select')
+                                        @php
+                                            $fieldName = $field['key'] ?? $key;
+                                            $label = $field['label'] ?? ucfirst($key);
+
+                                            $options = [];
+                                            $optionsSource = $data[$key] ?? $data[$fieldName] ?? [];
+                                            foreach ($optionsSource as $opt) {
+                                                if (is_array($opt) && isset($opt['value'], $opt['name'])) {
+                                                    $options[(string)$opt['value']] = (string)$opt['name'];
+                                                }
+                                            }
+
+                                            $selected = old($fieldName, $result[$fieldName] ?? $field['value'] ?? []);
+                                            if (is_string($selected)) {
+                                                $decoded = json_decode($selected, true);
+                                                if (is_array($decoded)) $selected = $decoded;
+                                            }
+                                        @endphp
+
+                                        <x-multi-parent-select
+                                                name="{{ $fieldName }}"
+                                                label="{{ $label }}"
+                                                :options="$options"
+                                                :value="$selected"
+                                                :error="$errors->first($fieldName)"
                                                 :required="$field['required'] ?? false"
                                         />
                                         @break
@@ -375,7 +451,7 @@
                                         @php
                                             $label = $field['label'] ?? ucfirst($key);
                                             $values = [];
-                                            
+
                                             // Get top-level categories (level 1)
                                             if(isset($data[$key]) && is_array($data[$key])) {
                                                 foreach ($data[$key] as $elem) {
@@ -462,41 +538,41 @@
                         const showWhen = JSON.parse(field.dataset.showWhen || '[]');
                         const hideWhen = JSON.parse(field.dataset.hideWhen || '[]');
                         const conditionalFiltering = JSON.parse(field.dataset.conditionalFiltering || '{}');
-                        
+
                         if (!dependsOn) return;
-                        
+
                         const dependentField = document.querySelector(`[name="${dependsOn}"]`);
                         if (!dependentField) return;
-                        
+
                         // Function to update field visibility and options
                         function updateField() {
                             const currentValue = parseInt(dependentField.value) || dependentField.value;
                             let shouldShow = false;
-                            
+
                             // Check visibility conditions
                             if (showWhen.length > 0) {
                                 shouldShow = showWhen.includes(currentValue);
                             } else if (hideWhen.length > 0) {
                                 shouldShow = !hideWhen.includes(currentValue);
                             }
-                            
+
                             // Show/hide field
                             field.style.display = shouldShow ? 'block' : 'none';
-                            
+
                             // Update field options based on conditional filtering
                             if (shouldShow && conditionalFiltering.filters && conditionalFiltering.filters[currentValue]) {
                                 updateFieldOptions(field, currentValue, conditionalFiltering);
                             }
                         }
-                        
+
                         // Function to update select options via AJAX
                         async function updateFieldOptions(field, levelValue, conditionalFiltering) {
                             const selectElement = field.querySelector('select');
                             if (!selectElement) return;
-                            
+
                             const filters = conditionalFiltering.filters[levelValue];
                             if (!filters || !Array.isArray(filters)) return;
-                            
+
                             try {
                                 // Build filter parameters for API call
                                 const filterParams = new URLSearchParams();
@@ -506,19 +582,19 @@
                                         filterParams.append(field, `${operator}.${value}`);
                                     }
                                 });
-                                
+
                                 // Make API call to get filtered options
                                 const response = await fetch(`/api/subcategories/venue_categories?${filterParams.toString()}`);
                                 if (response.ok) {
                                     const options = await response.json();
-                                    
+
                                     // Clear existing options except the first (placeholder)
                                     const firstOption = selectElement.querySelector('option:first-child');
                                     selectElement.innerHTML = '';
                                     if (firstOption) {
                                         selectElement.appendChild(firstOption);
                                     }
-                                    
+
                                     // Add new options
                                     options.forEach(option => {
                                         const optionElement = document.createElement('option');
@@ -531,15 +607,15 @@
                                 console.error('Error updating field options:', error);
                             }
                         }
-                        
+
                         // Listen for changes on the dependent field
                         dependentField.addEventListener('change', updateField);
-                        
+
                         // Initial update
                         updateField();
                     });
                 }
-                
+
                 // Initialize conditional fields
                 handleConditionalFields();
             });

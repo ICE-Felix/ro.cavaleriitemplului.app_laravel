@@ -16,21 +16,12 @@
       "readonly": true,
       "visible": false
     },
-
     "image_url": {
       "key": "image_id",
       "type": "image",
       "label": "Featured image",
       "upload_key": "image_base64"
     },
-
-    "name": {
-      "type": "text",
-      "label": "Name",
-      "placeholder": "Service name",
-      "required": true
-    },
-
     "service_provider_name": {
       "type": "select",
       "label": "Service Provider",
@@ -47,12 +38,12 @@
       },
       "required": true
     },
-    "service_category_titles": {
-      "type": "checkbox",
+    "service_categories": {
+      "type": "hierarchical_category",
       "label": "Categories",
       "key": "service_category_id",
       "value": [],
-      "visible": true,
+      "visible": false,
       "required": true,
       "data": {
         "type": "class",
@@ -65,25 +56,81 @@
         "name": "name"
       }
     },
-
-    "price": {
-      "type": "numeric",
-      "label": "Price",
-      "placeholder": "0.00",
-      "step": "0.01",
-      "min": "0"
+    "service_category_titles": {
+      "type": "text",
+      "label": "Categories",
+      "key": "service_category_titles",
+      "readonly": true,
+      "visible": true
     },
-
-    "description": {
+    "woo_name": {
+      "type": "text",
+      "label": "Product Name",
+      "placeholder": "e.g., Makeup Session, DJ Package",
+      "required": true
+    },
+    "woo_description": {
       "type": "trix",
-      "label": "Description",
-      "placeholder": "Describe the service"
+      "label": "Full Description",
+      "placeholder": "Detailed product description...",
+      "rows": 5
     },
-
+    "woo_short_description": {
+      "type": "textarea",
+      "label": "Short Description",
+      "placeholder": "Brief overview (shown in listings)",
+      "rows": 3
+    },
+    "woo_regular_price": {
+      "type": "text",
+      "label": "Regular Price (RON)",
+      "placeholder": "0.00",
+      "min": 0,
+      "required": true
+    },
+    "woo_sale_price": {
+      "type": "text",
+      "label": "Sale Price (RON)",
+      "placeholder": "0.00",
+      "min": 0
+    },
+    "woo_date_on_sale_from": {
+      "type": "date",
+      "label": "Sale Date Start",
+      "key": "woo_date_on_sale_from",
+      "placeholder": "YYYY-MM-DD"
+    },
+    "woo_date_on_sale_to": {
+      "type": "date",
+      "label": "Sale Date End",
+      "key": "woo_date_on_sale_to",
+      "placeholder": "YYYY-MM-DD"
+    },
+    "woo_status": {
+      "type": "select",
+      "label": "Status",
+      "visible": true,
+      "value": "draft",
+      "data": {
+        "type": "static",
+        "options": [
+          { "value": "draft", "name": "Draft" },
+          { "value": "pending", "name": "Pending" },
+          { "value": "private", "name": "Private" },
+          { "value": "publish", "name": "Publish" }
+        ]
+      }
+    },
+    "woo_featured": {
+      "type": "switch",
+      "label": "Featured Product",
+      "on_label": "Yes",
+      "off_label": "No"
+    },
     "gallery": {
       "type": "gallery",
       "label": "Service Gallery",
-      "key": "gallery",
+      "key": "gallery-images",
       "value": null,
       "required": false,
       "visible": false,

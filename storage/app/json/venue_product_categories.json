@@ -17,21 +17,6 @@
       "type": "text",
       "label": "Name",
       "placeholder": "Event Hall"
-    },
-    "parent_name": {
-      "type": "select",
-      "label": "Primary Category",
-      "key": "parent_id",
-      "data": {
-          "type": "class",
-          "source": [
-              "App\\Services\\Supabase\\SupabaseService",
-              "read_edge",
-              "venue_product_categories"
-          ],
-          "value": "id",
-          "name": "name"
-      }
     }
   },
   "GET": "edge",
