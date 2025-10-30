@@ -69,8 +69,8 @@
       "visible": true
     },
     "attribute_ids": {
-      "type": "checkbox",
-      "label": "Addressability",
+      "type": "attribute_selector",
+      "label": "Venue Attributes",
       "value": [],
       "key": "attribute_ids",
       "visible": false,

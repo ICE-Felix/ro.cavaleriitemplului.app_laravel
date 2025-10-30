@@ -300,6 +300,42 @@
                                         />
 
                                         @break
+                                    @case('attribute_selector')
+                                        @php
+                                            $label = $field['label'] ?? ucfirst($key);
+                                            $values = [];
+
+                                            if (isset($data[$key]) && is_array($data[$key])) {
+                                                foreach ($data[$key] as $elem) {
+                                                    if (!is_array($elem)) continue;
+
+                                                    // Data comes with: id, type, value (display), name (combined)
+                                                    $values[] = [
+                                                        'id'            => (string)($elem['id'] ?? $elem['value'] ?? ''),
+                                                        'type'          => (string)($elem['type'] ?? 'Other'),
+                                                        'display_value' => (string)($elem['display_value'] ?? $elem['value'] ?? ''),
+                                                        'name'          => (string)($elem['name'] ?? 'Unknown'),
+                                                    ];
+                                                }
+                                            }
+
+                                            // Debug: Temporarily log to see what we're getting
+                                            \Log::info('Attribute Selector Data', [
+                                                'key' => $key,
+                                                'raw_data' => $data[$key] ?? 'NOT SET',
+                                                'processed_values' => $values
+                                            ]);
+                                        @endphp
+
+                                        <x-attribute-selector
+                                                name="{{ $field['key'] ?? $key }}"
+                                                label="{{ $label }}"
+                                                :data="$values"
+                                                :value="old($field['key'] ?? $key, $field['value'] ?? [])"
+                                                :required="$field['required'] ?? false"
+                                                :error="$errors->first($field['key'] ?? $key)"
+                                        />
+                                        @break
                                     @case('hierarchical_category')
                                         @php
                                             $label = $field['label'] ?? ucfirst($key);

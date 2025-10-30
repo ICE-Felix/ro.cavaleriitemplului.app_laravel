@@ -352,6 +352,45 @@
                                                 :required="$field['required'] ?? false"
                                         />
                                         @break
+                                    @case('attribute_selector')
+                                        @php
+                                            $label = $field['label'] ?? ucfirst($key);
+                                            $values = [];
+
+                                            if (isset($data[$key]) && is_array($data[$key])) {
+                                                foreach ($data[$key] as $elem) {
+                                                    if (!is_array($elem)) continue;
+
+                                                    $values[] = [
+                                                        'id'            => (string)($elem['id'] ?? $elem['value'] ?? ''),
+                                                        'type'          => (string)($elem['type'] ?? 'Other'),
+                                                        'display_value' => (string)($elem['display_value'] ?? $elem['value'] ?? ''),
+                                                        'name'          => (string)($elem['name'] ?? 'Unknown'),
+                                                    ];
+                                                }
+                                            }
+
+                                            $currentValues = old($field['key'] ?? $key, $result[$field['key'] ?? $key] ?? []);
+                                            $currentValues = is_array($currentValues) ? array_map('strval', $currentValues) : [];
+
+                                            // Debug
+                                            \Log::info('Attribute Selector Edit Data', [
+                                                'key' => $key,
+                                                'raw_data' => $data[$key] ?? 'NOT SET',
+                                                'processed_values' => $values,
+                                                'current_values' => $currentValues
+                                            ]);
+                                        @endphp
+
+                                        <x-attribute-selector
+                                                name="{{ $field['key'] ?? $key }}"
+                                                label="{{ $label }}"
+                                                :data="$values"
+                                                :value="$currentValues"
+                                                :required="$field['required'] ?? false"
+                                                :error="$errors->first($field['key'] ?? $key)"
+                                        />
+                                        @break
                                     @case('multi_parent_select')
                                         @php
                                             $fieldName = $field['key'] ?? $key;

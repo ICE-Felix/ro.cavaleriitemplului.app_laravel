@@ -211,6 +211,21 @@ class GeneralController extends Controller
                     continue;
                 }
 
+                // --- CHECKBOX & ATTRIBUTE_SELECTOR ---
+                if (($prop['type'] ?? null) === 'checkbox' ||
+                    ($prop['type'] ?? null) === 'hierarchical_category' ||
+                    ($prop['type'] ?? null) === 'attribute_selector') {
+                    $field = $prop['key'] ?? $key;
+                    $raw = $request->input($field, []);
+                    if (is_string($raw)) {
+                        $decoded = json_decode($raw, true);
+                        $raw = (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) ? $decoded : [];
+                    }
+                    if (!is_array($raw)) $raw = [];
+                    $data[$field] = array_values(array_filter(array_map(fn($x) => (string)$x, $raw)));
+                    continue;
+                }
+
                 // --- CHECKBOX ---
                 if (($prop['type'] ?? null) === 'checkbox' || ($prop['type'] ?? null) === 'hierarchical_category') {
                     $field = $prop['key'] ?? $key;
@@ -722,6 +737,21 @@ class GeneralController extends Controller
                 }
 
 
+                // --- CHECKBOX & ATTRIBUTE_SELECTOR ---
+                if (($prop['type'] ?? null) === 'checkbox' ||
+                    ($prop['type'] ?? null) === 'hierarchical_category' ||
+                    ($prop['type'] ?? null) === 'attribute_selector') {
+                    $field = $prop['key'] ?? $key;
+                    $raw = $request->input($field, []);
+                    if (is_string($raw)) {
+                        $decoded = json_decode($raw, true);
+                        $raw = (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) ? $decoded : [];
+                    }
+                    if (!is_array($raw)) $raw = [];
+                    $data[$field] = array_values(array_filter(array_map(fn($x) => (string)$x, $raw)));
+                    continue;
+                }
+
                 // --- CHECKBOX ---
                 if (($prop['type'] ?? null) === 'checkbox' || ($prop['type'] ?? null) === 'hierarchical_category') {
                     $field = $prop['key'] ?? $key;
@@ -1119,7 +1149,6 @@ class GeneralController extends Controller
                         $data = $serviceInstance->{$source[1]}($source[2], $debugEnabled);
                     }
 
-                    // Transform data - PRESERVE BOTH parent_id AND parent_ids
                     return array_map(function ($item) use ($valueKey, $nameKey, $template) {
                         $transformed = [
                             'id' => $item['id'] ?? $item[$valueKey] ?? null,
@@ -1131,10 +1160,19 @@ class GeneralController extends Controller
                                 : ($item[$nameKey] ?? $item[$valueKey] ?? 'Unknown')
                         ];
 
+                        // CRITICAL: Preserve type field for attribute selector
+                        if (isset($item['type'])) {
+                            $transformed['type'] = $item['type'];
+                        }
+
+                        // CRITICAL: Preserve the original display value (not the combined name)
+                        if (isset($item['value'])) {
+                            $transformed['display_value'] = $item['value'];
+                        }
+
                         // CRITICAL: Preserve parent_ids (array) - PRIMARY
                         if (isset($item['parent_ids'])) {
                             $parentIds = $item['parent_ids'];
-                            // Ensure it's an array
                             if (is_string($parentIds)) {
                                 $decoded = json_decode($parentIds, true);
                                 $parentIds = is_array($decoded) ? $decoded : [];
@@ -1144,11 +1182,9 @@ class GeneralController extends Controller
                             }
                             $transformed['parent_ids'] = array_values(array_filter($parentIds));
                         }
-                        // Fallback: Convert parent_id (singular) to parent_ids (array)
                         elseif (isset($item['parent_id']) && $item['parent_id'] !== null) {
                             $transformed['parent_ids'] = [$item['parent_id']];
                         }
-                        // No parent
                         else {
                             $transformed['parent_ids'] = [];
                         }
@@ -1179,7 +1215,7 @@ class GeneralController extends Controller
     {
         foreach ($this->props['schema'] as $key => $prop) {
             if (isset($prop['type']) &&
-                in_array($prop['type'], ['select','checkbox','hierarchical_category','multi_parent_select'], true) &&
+                in_array($prop['type'], ['select','checkbox','hierarchical_category','multi_parent_select','attribute_selector'], true) &&
                 isset($prop['data'])) {
 
                 // Check for static options first
@@ -1229,7 +1265,20 @@ class GeneralController extends Controller
                                 'parent_ids' => array_values(array_filter($parentIds))
                             ];
                         }, $sourceData);
-                    } else {
+                    }
+                    // CRITICAL: Preserve type and display_value for attribute_selector
+                    elseif ($prop['type'] === 'attribute_selector') {
+                        $data[$key] = array_map(function ($item) {
+                            return [
+                                'id' => $item['id'] ?? $item['value'],
+                                'value' => $item['id'] ?? $item['value'],
+                                'name' => $item['name'],
+                                'type' => $item['type'] ?? 'Other',
+                                'display_value' => $item['display_value'] ?? $item['value'] ?? $item['name']
+                            ];
+                        }, $sourceData);
+                    }
+                    else {
                         $data[$key] = $sourceData;
                     }
                 }
