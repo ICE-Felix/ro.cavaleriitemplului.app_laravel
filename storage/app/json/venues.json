@@ -69,7 +69,7 @@
       "visible": true
     },
     "attribute_ids": {
-      "type": "checkbox",
+      "type": "attribute_selector",
       "label": "Addressability",
       "value": [],
       "key": "attribute_ids",
