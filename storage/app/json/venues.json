@@ -70,7 +70,7 @@
     },
     "attribute_ids": {
       "type": "attribute_selector",
-      "label": "Venue Attributes",
+      "label": "Addressability",
       "value": [],
       "key": "attribute_ids",
       "visible": false,
