@@ -20,6 +20,18 @@ class SupabaseService
     {
         $this->baseUrl = config('supabase.url');
         $this->apiKey = config('supabase.key');
+
+        if (empty($this->apiKey) || str_contains($this->apiKey, 'your-supabase')) {
+            $fallbackKey = config('supabase.anon_key');
+
+            if (!empty($fallbackKey) && !str_contains($fallbackKey, 'your-supabase')) {
+                $this->apiKey = $fallbackKey;
+                Log::warning('SUPABASE_KEY is not set or uses the placeholder value. Falling back to SUPABASE_ANON_KEY.');
+            } else {
+                throw new \RuntimeException('Supabase API key is not configured. Please set SUPABASE_KEY or SUPABASE_ANON_KEY.');
+            }
+        }
+
         $this->client = new Client([
             'base_uri' => $this->baseUrl,
             // Move 'Authorization' header to each method
